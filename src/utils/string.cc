@@ -149,28 +149,22 @@ std::string toHexIfNeeded(const std::string &str, bool escape_spec) {
 
 
 std::string tolower(std::string str) {
-    std::string value;
-    value.resize(str.length());
-
     std::transform(str.begin(),
             str.end(),
-            value.begin(),
+            str.begin(),
             ::tolower);
 
-    return value;
+    return str;
 }
 
 
 std::string toupper(std::string str) {
-    std::string value;
-    value.resize(str.length());
-
     std::transform(str.begin(),
             str.end(),
-            value.begin(),
+            str.begin(),
             ::toupper);
 
-    return value;
+    return str;
 }
 
 
