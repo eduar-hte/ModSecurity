@@ -34,7 +34,7 @@ class Exec : public Action {
         : Action(action),
         m_script("") { }
 
-    ~Exec() { }
+    ~Exec() override { }
 
     bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
     bool init(std::string *error) override;

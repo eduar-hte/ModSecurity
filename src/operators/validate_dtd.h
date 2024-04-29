@@ -57,7 +57,7 @@ class ValidateDTD : public Operator {
     explicit ValidateDTD(std::unique_ptr<RunTimeString> param)
         : Operator("ValidateDTD", std::move(param)) { }
 #ifdef WITH_LIBXML2
-    ~ValidateDTD() { }
+    ~ValidateDTD() override { }
 
     bool evaluate(Transaction *transaction, const std::string  &str) override;
     bool init(const std::string &file, std::string *error) override;

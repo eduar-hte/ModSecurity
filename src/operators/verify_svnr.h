@@ -25,7 +25,7 @@ class VerifySVNR : public Operator {
         m_re = new Regex(m_param);
     }
 
-    ~VerifySVNR() {
+    ~VerifySVNR() override {
         delete m_re;
     }
 

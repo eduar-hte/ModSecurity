@@ -39,7 +39,7 @@ class VerifySSN : public Operator {
         m_re = new Regex(m_param);
     }
 
-    ~VerifySSN() {
+    ~VerifySSN() override {
         delete m_re;
     }
 

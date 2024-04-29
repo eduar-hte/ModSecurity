@@ -39,7 +39,7 @@ class VerifyCPF : public Operator {
         m_re = new Regex(m_param);
     }
 
-    ~VerifyCPF() {
+    ~VerifyCPF() override {
         delete m_re;
     }
 
