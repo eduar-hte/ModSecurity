@@ -191,7 +191,7 @@ inline void RuleWithOperator::getFinalVars(variables::Variables *vars,
                 trans->m_ruleRemoveTargetById.end(),
                 [&, variable, this](std::pair<int, std::string> &m) -> bool {
                     return m.first == m_ruleId
-                        && m.second == *variable->m_fullName.get();
+                        && m.second == variable->m_fullName;
                 }) != trans->m_ruleRemoveTargetById.end()) {
             continue;
         }
@@ -200,7 +200,7 @@ inline void RuleWithOperator::getFinalVars(variables::Variables *vars,
                     [&, variable, trans, this](
                         std::pair<std::string, std::string> &m) -> bool {
                         return containsTag(m.first, trans)
-                            && m.second == *variable->m_fullName.get();
+                            && m.second == variable->m_fullName;
                     }) != trans->m_ruleRemoveTargetByTag.end()) {
             continue;
         }
@@ -277,7 +277,7 @@ bool RuleWithOperator::evaluate(Transaction *trans,
             continue;
         }
         var->evaluate(trans, this, &e);
-        for (const VariableValue *v : e) {
+        for (const auto *v : e) {
             const std::string &value = v->getValue();
             const std::string &key = v->getKeyWithCollection();
 

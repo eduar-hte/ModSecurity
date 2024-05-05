@@ -105,10 +105,9 @@ class Transaction;
 namespace variables {
 
 class KeyExclusion {
- public:
-    KeyExclusion() { }
+public:
+    virtual ~KeyExclusion() = default;
     virtual bool match(const std::string &a) = 0;
-    virtual ~KeyExclusion() { }
 };
 
 
@@ -150,11 +149,8 @@ class KeyExclusionString : public KeyExclusion {
 
 
 class KeyExclusions : public std::deque<std::unique_ptr<KeyExclusion>> {
- public:
-    KeyExclusions() {
-    }
-
-    bool toOmit(std::string a) {
+public:
+    bool toOmit(const std::string &a) {
         for (auto &z : *this) {
             if (z->match(a)) {
                 return true;
@@ -167,7 +163,6 @@ class KeyExclusions : public std::deque<std::unique_ptr<KeyExclusion>> {
 
 class VariableMonkeyResolution {
  public:
-    VariableMonkeyResolution () { }
     static inline bool comp(const std::string &a, const std::string &b) {
         return a.size() == b.size()
              && std::equal(a.begin(), a.end(), b.begin(),
@@ -589,9 +584,8 @@ class VariableMonkeyResolution {
 class Variable : public VariableMonkeyResolution {
  public:
     explicit Variable(const std::string &name);
-    explicit Variable(Variable *_name);
-    virtual ~Variable() { }
-
+    explicit Variable(const Variable &var);
+    virtual ~Variable() { };
 
     virtual void evaluate(Transaction *t,
         RuleWithActions *rule,
@@ -614,7 +608,7 @@ class Variable : public VariableMonkeyResolution {
     bool operator==(const Variable& b) const {
         return m_collectionName == b.m_collectionName &&
             m_name == b.m_name &&
-            *m_fullName == *b.m_fullName;
+            m_fullName == b.m_fullName;
     }
 
 
@@ -623,7 +617,7 @@ class Variable : public VariableMonkeyResolution {
 
     std::string m_name;
     std::string m_collectionName;
-    std::shared_ptr<std::string> m_fullName;
+    std::string m_fullName;
     KeyExclusions m_keyExclusion;
 };
 
@@ -661,7 +655,7 @@ class Variables : public std::vector<Variable *> {
                 if (r) {
                     return r->m_r.searchAll(v->getKey()).size() > 0;
                 }
-                return v->getKeyWithCollection() == *m->m_fullName.get();
+                return v->getKeyWithCollection() == m->m_fullName;
             }) != end();
     };
 };
@@ -670,7 +664,7 @@ class Variables : public std::vector<Variable *> {
 class VariableModificatorExclusion : public Variable {
  public:
     explicit VariableModificatorExclusion(std::unique_ptr<Variable> var)
-        : Variable(var.get()),
+        : Variable(*var),
         m_base(std::move(var)) { }
 
     void evaluate(Transaction *t,
@@ -686,33 +680,28 @@ class VariableModificatorExclusion : public Variable {
 class VariableModificatorCount : public Variable {
  public:
     explicit VariableModificatorCount(std::unique_ptr<Variable> var)
-        : Variable(var.get()),
-          m_base(nullptr) {
-            m_base.reset(var.release());
-        }
+        : Variable(*var),
+        m_base(std::move(var)) { }
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
         std::vector<const VariableValue *> *l) override {
         std::vector<const VariableValue *> reslIn;
-        VariableValue *val = NULL;
+        VariableValue *val = nullptr;
         int count = 0;
 
         m_base->evaluate(t, rule, &reslIn);
 
-        for (const VariableValue *a : reslIn) {
+        for (const auto *a : reslIn) {
             count++;
             delete a;
-            a = NULL;
         }
         reslIn.clear();
 
-        std::string *res = new std::string(std::to_string(count));
-        val = new VariableValue(m_fullName.get(), res);
-        delete res;
+        auto res = std::to_string(count);
+        val = new VariableValue(m_fullName, res);
 
         l->push_back(val);
-        return;
     }
 
     std::unique_ptr<Variable> m_base;

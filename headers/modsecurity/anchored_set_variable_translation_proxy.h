@@ -41,54 +41,39 @@ class AnchoredSetVariableTranslationProxy {
         AnchoredSetVariable *fount)
         : m_name(name),
         m_fount(fount)
-    {
-        m_translate = [](std::string *name, std::vector<const VariableValue *> *l) {
-            for (int i = 0; i < l->size(); ++i) {
-                VariableValue *newVariableValue = new VariableValue(name, &l->at(i)->getKey(), &l->at(i)->getKey());
-                const VariableValue *oldVariableValue = l->at(i);
-                l->at(i) = newVariableValue;
-                for (const auto &oldOrigin : oldVariableValue->getOrigin()) {
-                    auto newOrigin = std::make_unique<VariableOrigin>();
-                    newOrigin->m_length = oldVariableValue->getKey().size();
-                    newOrigin->m_offset = oldOrigin->m_offset - oldVariableValue->getKey().size() - 1;
-                    newVariableValue->addOrigin(std::move(newOrigin));
-                }
-                delete oldVariableValue;
-            }
-        };
-    }
+    { }
 
     virtual ~AnchoredSetVariableTranslationProxy()
     { }
 
     void resolve(std::vector<const VariableValue *> *l) {
         m_fount->resolve(l);
-        m_translate(&m_name, l);
+        translate(m_name, l);
     }
 
     void resolve(std::vector<const VariableValue *> *l,
         variables::KeyExclusions &ke) {
         m_fount->resolve(l, ke);
-        m_translate(&m_name, l);
+        translate(m_name, l);
     }
 
     void resolve(const std::string &key,
         std::vector<const VariableValue *> *l) {
         m_fount->resolve(key, l);
-        m_translate(&m_name, l);
+        translate(m_name, l);
     };
 
     void resolveRegularExpression(Utils::Regex *r,
         std::vector<const VariableValue *> *l) {
         m_fount->resolveRegularExpression(r, l);
-        m_translate(&m_name, l);
+        translate(m_name, l);
     };
 
     void resolveRegularExpression(Utils::Regex *r,
         std::vector<const VariableValue *> *l,
         variables::KeyExclusions &ke) {
         m_fount->resolveRegularExpression(r, l, ke);
-        m_translate(&m_name, l);
+        translate(m_name, l);
     };
 
     std::unique_ptr<std::string> resolveFirst(const std::string &key) {
@@ -113,9 +98,26 @@ class AnchoredSetVariableTranslationProxy {
     }
 
     std::string m_name;
- private:
+private:
+    inline void translate(const std::string &name, std::vector<const VariableValue *> *l)
+    {
+        for (int i = 0; i < l->size(); ++i)
+        {
+            auto *newVariableValue = new VariableValue(name, l->at(i)->getKey(), l->at(i)->getKey());
+            const auto *oldVariableValue = l->at(i);
+            l->at(i) = newVariableValue;
+            for (const auto &oldOrigin : oldVariableValue->getOrigin())
+            {
+                auto newOrigin = std::make_unique<VariableOrigin>();
+                newOrigin->m_length = oldVariableValue->getKey().size();
+                newOrigin->m_offset = oldOrigin->m_offset - oldVariableValue->getKey().size() - 1;
+                newVariableValue->addOrigin(std::move(newOrigin));
+            }
+            delete oldVariableValue;
+        }
+    }
+
     AnchoredSetVariable *m_fount;
-    std::function<void(std::string *name, std::vector<const VariableValue *> *l)> m_translate;
 };
 
 }  // namespace modsecurity

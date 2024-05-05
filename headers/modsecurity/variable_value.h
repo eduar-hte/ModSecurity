@@ -39,38 +39,36 @@ class VariableValue {
  public:
     using Origins = std::list<std::unique_ptr<VariableOrigin>>;
 
-    explicit VariableValue(const std::string *key,
-        const std::string *value = nullptr)
+    explicit VariableValue(const std::string &key,
+        const std::string &value)
         : m_collection(""),
-        m_key(*key),
-        m_keyWithCollection(*key),
-        m_value(value != nullptr?*value:"")
+        m_key(key),
+        m_keyWithCollection(key),
+        m_value(value)
     { }
 
-    VariableValue(const std::string *collection,
-        const std::string *key,
-        const std::string *value)
-        : m_collection(*collection),
-        m_key(*key),
-        m_keyWithCollection(*collection + ":" + *key),
-        m_value(*value)
+    VariableValue(const std::string &collection,
+        const std::string &key,
+        const std::string &value)
+        : m_collection(collection),
+        m_key(key),
+        m_keyWithCollection(collection + ":" + key),
+        m_value(value)
     { }
 
-    explicit VariableValue(const VariableValue *o) :
-        m_collection(o->m_collection),
-        m_key(o->m_key),
-        m_keyWithCollection(o->m_keyWithCollection),
-        m_value(o->m_value)
+    explicit VariableValue(const VariableValue &o) :
+        m_collection(o.m_collection),
+        m_key(o.m_key),
+        m_keyWithCollection(o.m_keyWithCollection),
+        m_value(o.m_value)
     {
-        for (const auto &i : o->m_orign) {
+        for (const auto &i : o.m_orign) {
             auto origin = std::make_unique<VariableOrigin>();
             origin->m_offset = i->m_offset;
             origin->m_length = i->m_length;
             m_orign.push_back(std::move(origin));
         }
     }
-
-    VariableValue(const VariableValue &v) = delete;
 
 
     const std::string& getKey() const {

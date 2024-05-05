@@ -66,8 +66,8 @@ void RemoteUser::evaluate(Transaction *transaction,
     }
     transaction->m_variableRemoteUser.assign(std::string(base64, 0, pos));
 
-    var = new VariableValue(&l2->at(0)->getKeyWithCollection(),
-        &transaction->m_variableRemoteUser);
+    var = new VariableValue(l2->at(0)->getKeyWithCollection(),
+        transaction->m_variableRemoteUser);
 
     for (const auto &i : l2->at(0)->getOrigin()) {
         std::unique_ptr<VariableOrigin> origin(new VariableOrigin());

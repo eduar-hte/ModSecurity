@@ -31,8 +31,8 @@ void HighestSeverity::evaluate(Transaction *transaction,
     std::vector<const VariableValue *> *l) {
     transaction->m_variableHighestSeverityAction.assign(
         std::to_string(transaction->m_highestSeverityAction));
-    l->push_back(new VariableValue(m_fullName.get(),
-       &transaction->m_variableHighestSeverityAction));
+    l->push_back(new VariableValue(m_fullName,
+       transaction->m_variableHighestSeverityAction));
 }
 
 

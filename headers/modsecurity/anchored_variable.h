@@ -55,7 +55,7 @@ class AnchoredVariable {
         m_var(a.m_var) { }
     */
 
-    ~AnchoredVariable();
+    ~AnchoredVariable() = default;
 
     void unset();
     void set(const std::string &a, size_t offset);
@@ -74,8 +74,8 @@ class AnchoredVariable {
     std::string m_name;
     std::string m_value;
 
- private:
-    VariableValue *m_var;
+private:
+    std::unique_ptr<VariableValue> m_var;
 };
 
 }  // namespace modsecurity

@@ -123,7 +123,7 @@ void InMemoryPerProcess::resolveSingleMatch(const std::string& var,
 	} else if (it->second.hasValue() == false) {
             // No-op. A non-expired expiry exists for the key but there is no actual value
 	} else {
-            l->push_back(new VariableValue(&m_name, &it->first, &it->second.getValue()));
+            l->push_back(new VariableValue(m_name, it->first, it->second.getValue()));
 	}
     }
     for (const auto& expiredVar : expiredVars) {
@@ -148,8 +148,8 @@ void InMemoryPerProcess::resolveMultiMatches(const std::string& var,
 	    } else if (i.second.hasValue() == false) {
                 // No-op. A non-expired expiry exists for the key but there is no actual value
 	    } else {
-                l->insert(l->begin(), new VariableValue(&m_name, &i.first,
-                    &i.second.getValue()));
+                l->insert(l->begin(), new VariableValue(m_name, i.first,
+                    i.second.getValue()));
 	    }
         }
     } else {
@@ -163,8 +163,8 @@ void InMemoryPerProcess::resolveMultiMatches(const std::string& var,
 	    } else if (it->second.hasValue() == false) {
                 // No-op. A non-expired expiry exists for the key but there is no actual value
 	    } else {
-                l->insert(l->begin(), new VariableValue(&m_name, &var,
-                    &it->second.getValue()));
+                l->insert(l->begin(), new VariableValue(m_name, var,
+                    it->second.getValue()));
 	    }
         }
     }
@@ -214,7 +214,7 @@ void InMemoryPerProcess::resolveRegularExpression(const std::string& var,
 	} else if (x.second.hasValue() == false) {
             // No-op. A non-expired expiry exists for the key but there is no actual value
 	} else {
-            l->insert(l->begin(), new VariableValue(&m_name, &x.first, &x.second.getValue()));
+            l->insert(l->begin(), new VariableValue(m_name, x.first, x.second.getValue()));
 	}
     }
     for (const auto& expiredVar : expiredVars) {

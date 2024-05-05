@@ -387,7 +387,7 @@ void LMDB::resolveSingleMatch(const std::string& var,
         if (!collectionData.hasValue()) {
             continue;
         }
-        VariableValue *v = new VariableValue(&var, &collectionData.getValue());
+        auto *v = new VariableValue(var, collectionData.getValue());
         l->push_back(v);
     }
 
@@ -547,7 +547,7 @@ void LMDB::resolveMultiMatches(const std::string& var,
 
             std::string key_to_insert(reinterpret_cast<char *>(key.mv_data), key.mv_size);
             l->insert(l->begin(), new VariableValue(
-                &m_name, &key_to_insert, &collectionData.getValue()));
+                m_name, key_to_insert, collectionData.getValue()));
         }
     } else {
         while ((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
@@ -564,7 +564,7 @@ void LMDB::resolveMultiMatches(const std::string& var,
             char *a = reinterpret_cast<char *>(key.mv_data);
             if (strncmp(var.c_str(), a, keySize) == 0) {
                 std::string key_to_insert(reinterpret_cast<char *>(key.mv_data), key.mv_size);
-                l->insert(l->begin(), new VariableValue(&m_name, &key_to_insert, &collectionData.getValue()));
+                l->insert(l->begin(), new VariableValue(m_name, key_to_insert, collectionData.getValue()));
             }
         }
     }
@@ -625,7 +625,7 @@ void LMDB::resolveRegularExpression(const std::string& var,
             continue;
         }
 
-        VariableValue *v = new VariableValue(&key_to_insert, &collectionData.getValue());
+        auto *v = new VariableValue(key_to_insert, collectionData.getValue());
         l->insert(l->begin(), v);
     }
 

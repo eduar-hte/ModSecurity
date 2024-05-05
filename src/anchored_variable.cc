@@ -31,19 +31,9 @@ AnchoredVariable::AnchoredVariable(Transaction *t,
     const std::string &name)
     : m_transaction(t),
     m_offset(0),
-    m_name(""),
-    m_value(""),
-    m_var(NULL) {
-        m_name.append(name);
-        m_var = new VariableValue(&m_name);
-}
-
-
-AnchoredVariable::~AnchoredVariable() {
-    if (m_var) {
-        delete (m_var);
-        m_var = NULL;
-    }
+    m_name(name),
+    m_value("") {
+    m_var = std::make_unique<VariableValue>(m_name, m_value);
 }
 
 
@@ -113,8 +103,7 @@ void AnchoredVariable::evaluate(std::vector<const VariableValue *> *l) {
     }
 
     m_var->setValue(m_value);
-    VariableValue *m_var2 = new VariableValue(m_var);
-    l->push_back(m_var2);
+    l->push_back(new VariableValue(*m_var));
 }
 
 

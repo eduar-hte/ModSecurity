@@ -38,20 +38,20 @@ Variable::Variable(const std::string &name)
     if (a != std::string::npos) {
         m_collectionName = utils::string::toupper(std::string(m_name, 0, a));
         m_name = std::string(m_name, a + 1, m_name.size());
-        m_fullName = std::make_shared<std::string>(m_collectionName
-            + ":" + m_name);
+        m_fullName = m_collectionName + ":" + m_name;
     } else {
-        m_fullName = std::make_shared<std::string>(m_name);
+        m_fullName = m_name;
         m_collectionName = m_name;
         m_name = "";
     }
 }
 
 
-Variable::Variable(Variable *var) :
-    m_name(var->m_name),
-    m_collectionName(var->m_collectionName),
-    m_fullName(var->m_fullName) { }
+// cppcheck-suppress missingMemberCopy ; m_keyExclusion is not copied
+Variable::Variable(const Variable &var) :
+    m_name(var.m_name),
+    m_collectionName(var.m_collectionName),
+    m_fullName(var.m_fullName) { }
 
 
 void Variable::addsKeyExclusion(Variable *v) {
@@ -77,7 +77,7 @@ void Variable::addsKeyExclusion(Variable *v) {
 
 
 std::string operator+(const std::string &a, Variable *v) {
-    return a + *v->m_fullName.get();
+    return a + v->m_fullName;
 }
 
 

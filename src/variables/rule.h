@@ -51,7 +51,7 @@ class Rule_DictElement : public VariableDictElement { \
         }
         auto origin = std::make_unique<VariableOrigin>();
         auto a = std::to_string(r->m_ruleId);
-        VariableValue *var = new VariableValue(&m_rule, &m_rule_id, &a);
+        auto *var = new VariableValue(m_rule, m_rule_id, a);
         origin->m_offset = 0;
         origin->m_length = 0;
         var->addOrigin(std::move(origin));
@@ -73,9 +73,7 @@ class Rule_DictElement : public VariableDictElement { \
         }
 
         auto origin = std::make_unique<VariableOrigin>();
-        VariableValue *var = new VariableValue(&m_rule, &m_rule_rev,
-            &r->m_rev
-        );
+        auto *var = new VariableValue(m_rule, m_rule_rev, r->m_rev);
         origin->m_offset = 0;
         origin->m_length = 0;
         var->addOrigin(std::move(origin));
@@ -95,7 +93,7 @@ class Rule_DictElement : public VariableDictElement { \
         if (r && r->hasSeverity()) {
             auto origin = std::make_unique<VariableOrigin>();
             auto a = std::to_string(r->severity());
-            VariableValue *var = new VariableValue(&m_rule, &m_rule_severity, &a);
+            auto *var = new VariableValue(m_rule, m_rule_severity, a);
             origin->m_offset = 0;
             origin->m_length = 0;
             var->addOrigin(std::move(origin));
@@ -116,7 +114,7 @@ class Rule_DictElement : public VariableDictElement { \
         if (r && r->hasLogData()) {
             auto origin = std::make_unique<VariableOrigin>();
             auto a = r->logData(t);
-            VariableValue *var = new VariableValue(&m_rule, &m_rule_logdata, &a);
+            auto *var = new VariableValue(m_rule, m_rule_logdata, a);
             origin->m_offset = 0;
             origin->m_length = 0;
             var->addOrigin(std::move(origin));
@@ -136,7 +134,7 @@ class Rule_DictElement : public VariableDictElement { \
         if (r && r->hasMsg()) {
             auto origin = std::make_unique<VariableOrigin>();
             auto a = r->msg(t);
-            VariableValue *var = new VariableValue(&m_rule, &m_rule_msg, &a);
+            auto *var = new VariableValue(m_rule, m_rule_msg, a);
             origin->m_offset = 0;
             origin->m_length = 0;
             var->addOrigin(std::move(origin));

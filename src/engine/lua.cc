@@ -313,7 +313,7 @@ int Lua::getvars(lua_State *L) {
         idx++;
     }
 
-    for (const VariableValue * i : l) {
+    for (const auto * i : l) {
         delete i;
     }
 

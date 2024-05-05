@@ -43,7 +43,7 @@ AnchoredSetVariable::~AnchoredSetVariable() {
 
 void AnchoredSetVariable::unset() {
     for (const auto& x : *this) {
-        VariableValue *var = x.second;
+        auto *var = x.second;
         delete var;
     }
     clear();
@@ -53,7 +53,7 @@ void AnchoredSetVariable::unset() {
 void AnchoredSetVariable::set(const std::string &key,
     const std::string &value, size_t offset, size_t len) {
     auto origin = std::make_unique<VariableOrigin>();
-    VariableValue *var = new VariableValue(&m_name, &key, &value);
+    auto *var = new VariableValue(m_name, key, value);
 
     origin->m_offset = offset;
     origin->m_length = len;
@@ -66,7 +66,7 @@ void AnchoredSetVariable::set(const std::string &key,
 void AnchoredSetVariable::set(const std::string &key,
     const std::string &value, size_t offset) {
     auto origin = std::make_unique<VariableOrigin>();
-    VariableValue *var = new VariableValue(&m_name, &key, &value);
+    auto *var = new VariableValue(m_name, key, value);
 
     origin->m_offset = offset;
     origin->m_length = value.size();
@@ -79,7 +79,7 @@ void AnchoredSetVariable::set(const std::string &key,
 void AnchoredSetVariable::resolve(
     std::vector<const VariableValue *> *l) {
     for (const auto& x : *this) {
-        l->insert(l->begin(), new VariableValue(x.second));
+        l->insert(l->begin(), new VariableValue(*x.second));
     }
 }
 
@@ -89,7 +89,7 @@ void AnchoredSetVariable::resolve(
     variables::KeyExclusions &ke) {
     for (const auto& x : *this) {
         if (!ke.toOmit(x.first)) {
-            l->insert(l->begin(), new VariableValue(x.second));
+            l->insert(l->begin(), new VariableValue(*x.second));
         } else {
             ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
                 + " from target value.");
@@ -102,7 +102,7 @@ void AnchoredSetVariable::resolve(const std::string &key,
     std::vector<const VariableValue *> *l) {
     auto range = this->equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
-        l->push_back(new VariableValue(it->second));
+        l->push_back(new VariableValue(*(it->second)));
     }
 }
 
@@ -124,7 +124,7 @@ void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
         if (ret <= 0) {
             continue;
         }
-        l->insert(l->begin(), new VariableValue(x.second));
+        l->insert(l->begin(), new VariableValue(*x.second));
     }
 }
 
@@ -138,7 +138,7 @@ void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
             continue;
         }
         if (!ke.toOmit(x.first)) {
-            l->insert(l->begin(), new VariableValue(x.second));
+            l->insert(l->begin(), new VariableValue(*x.second));
         } else {
             ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
                 + " from target value.");
