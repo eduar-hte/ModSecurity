@@ -151,8 +151,8 @@ int main(int argc, char **argv) {
         test.load_tests("test-cases/secrules-language-tests/transformations");
     }
 
-    for (std::pair<std::string, std::vector<UnitTest *> *> a : test) {
-        std::vector<UnitTest *> *tests = a.second;
+    for (auto a : test) {
+        auto *tests = a.second;
 
         total += tests->size();
         for (UnitTest *t : *tests) {

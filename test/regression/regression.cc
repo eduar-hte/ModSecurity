@@ -326,7 +326,7 @@ void perform_unit_test(ModSecurityTest<RegressionTest> *test,
         }
 #endif
 
-        for (std::pair<std::string, std::string> headers :
+        for (const auto &headers :
             t->request_headers) {
             modsec_transaction->addRequestHeader(headers.first.c_str(),
                 headers.second.c_str());
@@ -351,7 +351,7 @@ void perform_unit_test(ModSecurityTest<RegressionTest> *test,
         }
 #endif
 
-        for (std::pair<std::string, std::string> headers :
+        for (const auto &headers :
             t->response_headers) {
             modsec_transaction->addResponseHeader(headers.first.c_str(),
                 headers.second.c_str());
@@ -532,7 +532,7 @@ int main(int argc, char **argv) {
     int counter = 0;
 
     std::list<std::string> keyList;
-    for (std::pair<std::string, std::vector<RegressionTest *> *> a : test) {
+    for (const auto &a : test) {
         keyList.push_back(a.first);
     }
     keyList.sort();
@@ -600,7 +600,7 @@ int main(int argc, char **argv) {
         std::cout << "disabled test(s)." << RESET << std::endl;
     }
 
-    for (std::pair<std::string, std::vector<RegressionTest *> *> a : test) {
+    for (auto a : test) {
         std::vector<RegressionTest *> *vec = a.second;
         for (int i = 0; i < vec->size(); i++) {
             delete vec->at(i);

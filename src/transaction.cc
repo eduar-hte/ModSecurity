@@ -353,11 +353,9 @@ bool Transaction::extractArguments(const std::string &orig,
         int invalid = 0;
         int changed = 0;
 
-        std::string key;
-        std::string value;
-        std::pair<std::string, std::string> key_value_pair = utils::string::ssplit_pair(t, sep2);
-        key = key_value_pair.first;
-        value = key_value_pair.second;
+        const auto key_value_pair = utils::string::ssplit_pair(t, sep2);
+        const auto &key = key_value_pair.first;
+        const auto &value = key_value_pair.second;
 
         key_s = (key.length() + 1);
         value_s = (value.length() + 1);
@@ -1431,12 +1429,11 @@ int Transaction::processLogging() {
 
         if (!this->m_auditLogModifier.empty()) {
             ms_dbg(4, "There was an audit log modifier for this transaction.");
-            std::list<std::pair<int, std::string>>::iterator it;
             ms_dbg(7, "AuditLog parts before modification(s): " +
                 std::to_string(parts) + ".");
-            for (it = m_auditLogModifier.begin();
+            for (auto it = m_auditLogModifier.begin();
                 it != m_auditLogModifier.end(); ++it) {
-                std::pair <int, std::string> p = *it;
+                const auto &p = *it;
                 if (p.first == 0) {  // Add
                     parts = this->m_rules->m_auditLog->addParts(parts,
                         p.second);
