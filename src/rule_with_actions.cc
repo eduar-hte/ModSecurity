@@ -387,8 +387,7 @@ void RuleWithActions::executeTransformations(
 
     for (Transformation *a : m_transformations) {
         if (none == 0) {
-            Transformation *t = dynamic_cast<Transformation *>(a);
-            executeTransformation(t, &value, trans, &ret, &path,
+            executeTransformation(a, &value, trans, &ret, &path,
                 &transformations);
         }
         if (a->m_isNone) {
@@ -416,8 +415,7 @@ void RuleWithActions::executeTransformations(
         }
         Transformation *a = dynamic_cast<Transformation*>(b.second.get());
         if (none == 0) {
-            Transformation *t = dynamic_cast<Transformation *>(a);
-            executeTransformation(t, &value, trans, &ret, &path,
+            executeTransformation(a, &value, trans, &ret, &path,
                 &transformations);
         }
         if (a->m_isNone) {
