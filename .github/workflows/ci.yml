@@ -38,8 +38,6 @@ jobs:
         run: make -j `nproc`
       - name: check
         run: make check
-      - name: check-static
-        run: make check-static
 
   build-macos:
     runs-on: ${{ matrix.os }}
@@ -124,3 +122,21 @@ jobs:
         working-directory: build\win32\build
         run: |
           ctest -C ${{ matrix.configuration }} --output-on-failure
+
+  cppcheck:
+    runs-on: [ubuntu-22.04]
+    steps:
+      - name: Setup Dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get install -y cppcheck
+      - name: Get libModSecurity v3 source
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Configure libModSecurity v3
+        run: |
+          ./build.sh
+          ./configure
+      - name: Run cppcheck on libModSecurity v3
+        run: make check-static
