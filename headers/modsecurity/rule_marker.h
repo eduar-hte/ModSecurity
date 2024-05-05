@@ -44,17 +44,10 @@ class RuleMarker : public Rule {
         : Rule(std::move(fileName), lineNumber),
         m_name(std::make_shared<std::string>(name)) { }
 
-    RuleMarker(const RuleMarker& r) :
-        Rule(r),
-        m_name(r.m_name)
-    { }
+    RuleMarker(const RuleMarker &r) = default;
 
-    RuleMarker &operator =(const RuleMarker& r) {
-        Rule::operator = (r);
-        m_name = r.m_name;
-        return *this;
-    }
-
+    RuleMarker &operator=(const RuleMarker &r) = default;
+   
     virtual bool evaluate(Transaction *transaction,
         std::shared_ptr<RuleMessage> rm) override {
         return evaluate(transaction);
