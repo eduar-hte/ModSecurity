@@ -679,7 +679,7 @@ int Multipart::process_part_data(std::string *error, size_t offset) {
             m_mpp->m_length += d.size();
         }
 
-        m_mpp->m_value_parts.push_back(std::make_pair(d, m_buf_offset));
+        m_mpp->m_value_parts.push_back({d, m_buf_offset});
 
         ms_dbg_a(m_transaction, 9,
             "Multipart: Added data to variable: " + d);
@@ -749,8 +749,8 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
         /* record the previous completed header */
         if (!m_mpp->m_last_header_line.empty()) {
-            m_mpp->m_header_lines.push_back(std::make_pair(
-                offset-m_mpp->m_last_header_line.length(), m_mpp->m_last_header_line));
+            m_mpp->m_header_lines.push_back({
+                offset-m_mpp->m_last_header_line.length(), m_mpp->m_last_header_line});
             m_mpp->m_last_header_line.assign("");
         }
 
@@ -886,8 +886,8 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
             /* record the previous completed header */
             if (!m_mpp->m_last_header_line.empty()) {
-                m_mpp->m_header_lines.push_back(std::make_pair(
-                    offset-m_mpp->m_last_header_line.length(), m_mpp->m_last_header_line));
+                m_mpp->m_header_lines.push_back({
+                    offset-m_mpp->m_last_header_line.length(), m_mpp->m_last_header_line});
                 m_mpp->m_last_header_line.assign("");
             }
 
@@ -939,10 +939,8 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
             m_mpp->m_last_header_name.assign(header_name);
 
-
             m_mpp->m_headers.emplace(
-                std::string(header_name), std::make_pair(offset - len + i,
-                    std::string(header_value)));
+                header_name, std::pair{offset - len + i, header_value});
 
             ms_dbg_a(m_transaction, 9,
                 "Multipart: Added part header \"" + header_name \

@@ -197,7 +197,7 @@ std::pair<std::string, std::string> ssplit_pair(const std::string& str, char del
         value = str.substr(key.length()+1);
     }
 
-    return std::make_pair(key, value);
+    return {key, value};
 }
 
 

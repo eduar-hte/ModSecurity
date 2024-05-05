@@ -45,8 +45,7 @@ bool RuleRemoveTargetByTag::init(std::string *error) {
 }
 
 bool RuleRemoveTargetByTag::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    transaction->m_ruleRemoveTargetByTag.push_back(
-        std::make_pair(m_tag, m_target));
+    transaction->m_ruleRemoveTargetByTag.push_back({m_tag, m_target});
     return true;
 }
 

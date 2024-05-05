@@ -39,8 +39,7 @@ bool AuditLogParts::init(std::string *error) {
 }
 
 bool AuditLogParts::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    transaction->m_auditLogModifier.push_back(
-        std::make_pair(mPartsAction, mParts));
+    transaction->m_auditLogModifier.push_back({mPartsAction, mParts});
     return true;
 }
 

@@ -61,7 +61,7 @@ bool RuleRemoveById::init(std::string *error) {
                 error->assign("Invalid range: " + b);
                 return false;
             }
-            m_ranges.push_back(std::make_pair(n1n, n2n));
+            m_ranges.push_back({n1n, n2n});
             added = true;
         } else {
             try {

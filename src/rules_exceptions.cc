@@ -16,6 +16,7 @@
 #include "modsecurity/rules_exceptions.h"
 
 #include <string>
+#include <functional>
 
 #include "src/utils/string.h"
 #include "src/variables/variable.h"
@@ -42,11 +43,9 @@ bool RulesExceptions::loadUpdateActionById(double id,
             std::cout << std::endl;
         } else if (a->action_kind
             == actions::Action::RunTimeBeforeMatchAttemptKind) {
-            m_action_pre_update_target_by_id.emplace(std::pair<double,
-                std::unique_ptr<actions::Action>>(id , std::move(a)));
+            m_action_pre_update_target_by_id.emplace(id , std::move(a));
         } else if (a->action_kind == actions::Action::RunTimeOnlyIfMatchKind) {
-            m_action_pos_update_target_by_id.emplace(std::pair<double,
-                std::unique_ptr<actions::Action>>(id , std::move(a)));
+            m_action_pos_update_target_by_id.emplace(id , std::move(a));
         } else {
             std::cout << "General failure, action: " << a->m_name;
             std::cout << " has an unknown type." << std::endl;
@@ -78,10 +77,8 @@ bool RulesExceptions::loadUpdateTargetByMsg(const std::string &msg,
     std::string *error) {
     for (auto &i : *var) {
         m_variable_update_target_by_msg.emplace(
-            std::pair<std::shared_ptr<std::string>,
-            std::unique_ptr<variables::Variable>>(
-                std::make_shared<std::string>(msg),
-                std::move(i)));
+            std::make_shared<std::string>(msg),
+            std::move(i));
     }
 
     return true;
@@ -94,10 +91,8 @@ bool RulesExceptions::loadUpdateTargetByTag(const std::string &tag,
 
     for (auto &i : *var) {
         m_variable_update_target_by_tag.emplace(
-            std::pair<std::shared_ptr<std::string>,
-                std::unique_ptr<variables::Variable>>(
-                    std::make_shared<std::string>(tag),
-                    std::move(i)));
+            std::make_shared<std::string>(tag),
+            std::move(i));
     }
 
     return true;
@@ -110,9 +105,7 @@ bool RulesExceptions::loadUpdateTargetById(double id,
 
     for (auto &i : *var) {
         m_variable_update_target_by_id.emplace(
-            std::pair<double,
-                std::unique_ptr<variables::Variable>>(id,
-                std::move(i)));
+            id, std::move(i));
     }
 
     return true;
@@ -183,7 +176,7 @@ bool RulesExceptions::addNumber(int a) {
 
 
 bool RulesExceptions::addRange(int a, int b) {
-    m_ranges.push_back(std::make_pair(a, b));
+    m_ranges.push_back({a, b});
     return true;
 }
 
@@ -219,40 +212,17 @@ bool RulesExceptions::merge(RulesExceptions *from) {
         }
     }
 
-    for (auto &p : from->m_variable_update_target_by_tag) {
-        m_variable_update_target_by_tag.emplace(
-            std::pair<std::shared_ptr<std::string>,
-            std::shared_ptr<variables::Variable>>(p.first,
-                p.second));
-    }
+    auto merge_map_helper = [this, &from](auto proj) {
+        auto &to = std::invoke(proj, *this);
+        for (auto &p : std::invoke(proj, from))
+            to.emplace(p.first, p.second);
+    };
 
-    for (auto &p : from->m_variable_update_target_by_msg) {
-        m_variable_update_target_by_msg.emplace(
-            std::pair<std::shared_ptr<std::string>,
-            std::shared_ptr<variables::Variable>>(p.first,
-                p.second));
-    }
-
-    for (auto &p : from->m_variable_update_target_by_id) {
-        m_variable_update_target_by_id.emplace(
-            std::pair<double,
-                std::shared_ptr<variables::Variable>>(p.first,
-                    p.second));
-    }
-
-    for (auto &p : from->m_action_pos_update_target_by_id) {
-        m_action_pos_update_target_by_id.emplace(
-            std::pair<double,
-                std::shared_ptr<actions::Action>>(p.first,
-                    p.second));
-    }
-
-    for (auto &p : from->m_action_pre_update_target_by_id) {
-        m_action_pre_update_target_by_id.emplace(
-            std::pair<double,
-                std::shared_ptr<actions::Action>>(p.first,
-                    p.second));
-    }
+    merge_map_helper(&RulesExceptions::m_variable_update_target_by_tag);
+    merge_map_helper(&RulesExceptions::m_variable_update_target_by_msg);
+    merge_map_helper(&RulesExceptions::m_variable_update_target_by_id);
+    merge_map_helper(&RulesExceptions::m_action_pos_update_target_by_id);
+    merge_map_helper(&RulesExceptions::m_action_pre_update_target_by_id);
 
     for (auto &p : from->m_remove_rule_by_msg) {
         m_remove_rule_by_msg.push_back(p);

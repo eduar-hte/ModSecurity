@@ -330,7 +330,7 @@ inline void RuleWithActions::executeTransformation(
     if (newValue != *oldValue) {
         auto u = std::make_shared<std::string>(newValue);
         if (m_containsMultiMatchAction) {
-            ret->push_back(std::make_pair(u, a->m_name));
+            ret->push_back({u, a->m_name});
             (*nth)++;
         }
         *value = u;
@@ -357,9 +357,9 @@ void RuleWithActions::executeTransformations(
 
     if (m_containsMultiMatchAction == true) {
         /* keep the original value */
-        ret.push_back(std::make_pair(
+        ret.push_back({
             std::make_shared<std::string>(*value),
-            std::make_shared<std::string>(path)));
+            std::make_shared<std::string>(path)});
     }
 
     for (Action *a : m_transformations) {
@@ -432,9 +432,9 @@ void RuleWithActions::executeTransformations(
     }
 
     if (!m_containsMultiMatchAction) {
-        ret.push_back(std::make_pair(
+        ret.push_back({
             std::make_shared<std::string>(*value),
-            std::make_shared<std::string>(path)));
+            std::make_shared<std::string>(path)});
     }
 }
 

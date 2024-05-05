@@ -52,8 +52,7 @@ bool RuleRemoveTargetById::init(std::string *error) {
 }
 
 bool RuleRemoveTargetById::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    transaction->m_ruleRemoveTargetById.push_back(
-        std::make_pair(m_id, m_target));
+    transaction->m_ruleRemoveTargetById.push_back({m_id, m_target});
     return true;
 }
 
