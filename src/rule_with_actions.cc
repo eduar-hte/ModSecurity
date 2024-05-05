@@ -172,7 +172,7 @@ RuleWithActions::~RuleWithActions() {
 
 
 bool RuleWithActions::evaluate(Transaction *transaction) {
-    return evaluate(transaction, std::make_shared<RuleMessage>(this, transaction));
+    return evaluate(transaction, std::make_shared<RuleMessage>(*this, *transaction));
 }
 
 
@@ -548,7 +548,7 @@ void RuleWithActions::performLogging(Transaction *trans,
                 trans->serverLog(ruleMessage);
             }
 
-            RuleMessage *rm = new RuleMessage(this, trans);
+            RuleMessage *rm = new RuleMessage(*this, *trans);
             rm->m_saveMessage = ruleMessage->m_saveMessage;
             ruleMessage.reset(rm);
         }
