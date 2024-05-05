@@ -165,9 +165,8 @@ Transaction::Transaction(ModSecurity *ms, RulesSet *rules, void *logCbData)
     m_variableTimeYear(""),
     m_logCbData(logCbData),
     TransactionAnchoredVariables(this) {
-    m_id = std::unique_ptr<std::string>( new std::string(
-        std::to_string(m_timeStamp)
-        + std::to_string(modsecurity::utils::generate_transaction_unique_id())));
+    m_id = std::make_shared<std::string>(
+        std::to_string(m_timeStamp) + std::to_string(modsecurity::utils::generate_transaction_unique_id()));
 
     m_variableUrlEncodedError.set("0", 0);
     m_variableMscPcreError.set("0", 0);
@@ -205,7 +204,7 @@ Transaction::Transaction(ModSecurity *ms, RulesSet *rules, char *id, void *logCb
     m_rulesMessages(),
     m_requestBody(),
     m_responseBody(),
-    m_id(std::unique_ptr<std::string>(new std::string(id))),
+    m_id(std::make_shared<std::string>(id)),
     m_skip_next(0),
     m_allowType(modsecurity::actions::disruptive::NoneAllowType),
     m_uri_decoded(""),
@@ -317,8 +316,8 @@ void Transaction::debug(int level, const std::string& message) const {
  */
 int Transaction::processConnection(const char *client, int cPort,
     const char *server, int sPort) {
-    m_clientIpAddress = std::unique_ptr<std::string>(new std::string(client));
-    m_serverIpAddress = std::unique_ptr<std::string>(new std::string(server));
+    m_clientIpAddress = std::make_shared<std::string>(client);
+    m_serverIpAddress = std::make_shared<std::string>(server);
     this->m_clientPort = cPort;
     this->m_serverPort = sPort;
     ms_dbg(4, "Transaction context created.");
@@ -488,8 +487,7 @@ int Transaction::processURI(const char *uri, const char *method,
     m_variableRequestProtocol.set("HTTP/" + std::string(http_version),
         m_variableOffset + requestLine.size() + 1);
 
-    m_uri_no_query_string_decoded = std::unique_ptr<std::string>(
-        new std::string(path_info));
+    m_uri_no_query_string_decoded = std::make_shared<std::string>(path_info);
 
 
     if (pos_raw_query != std::string::npos) {

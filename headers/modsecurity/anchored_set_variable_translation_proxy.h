@@ -48,7 +48,7 @@ class AnchoredSetVariableTranslationProxy {
                 const VariableValue *oldVariableValue = l->at(i);
                 l->at(i) = newVariableValue;
                 for (const auto &oldOrigin : oldVariableValue->getOrigin()) {
-                    std::unique_ptr<VariableOrigin> newOrigin(new VariableOrigin);
+                    auto newOrigin = std::make_unique<VariableOrigin>();
                     newOrigin->m_length = oldVariableValue->getKey().size();
                     newOrigin->m_offset = oldOrigin->m_offset - oldVariableValue->getKey().size() - 1;
                     newVariableValue->addOrigin(std::move(newOrigin));
@@ -99,7 +99,7 @@ class AnchoredSetVariableTranslationProxy {
             return nullptr;
         }
 
-        std::unique_ptr<std::string> ret(new std::string(""));
+        auto ret = std::make_unique<std::string>();
 
         ret->assign(l.at(0)->getValue());
 

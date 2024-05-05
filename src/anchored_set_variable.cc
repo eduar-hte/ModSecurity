@@ -52,7 +52,7 @@ void AnchoredSetVariable::unset() {
 
 void AnchoredSetVariable::set(const std::string &key,
     const std::string &value, size_t offset, size_t len) {
-    std::unique_ptr<VariableOrigin> origin(new VariableOrigin());
+    auto origin = std::make_unique<VariableOrigin>();
     VariableValue *var = new VariableValue(&m_name, &key, &value);
 
     origin->m_offset = offset;
@@ -65,7 +65,7 @@ void AnchoredSetVariable::set(const std::string &key,
 
 void AnchoredSetVariable::set(const std::string &key,
     const std::string &value, size_t offset) {
-    std::unique_ptr<VariableOrigin> origin(new VariableOrigin());
+    auto origin = std::make_unique<VariableOrigin>();
     VariableValue *var = new VariableValue(&m_name, &key, &value);
 
     origin->m_offset = offset;
@@ -111,9 +111,7 @@ std::unique_ptr<std::string> AnchoredSetVariable::resolveFirst(
     const std::string &key) {
     auto range = equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
-        std::unique_ptr<std::string> b(new std::string());
-        b->assign(it->second->getValue());
-        return b;
+        return std::make_unique<std::string>(it->second->getValue());
     }
     return nullptr;
 }

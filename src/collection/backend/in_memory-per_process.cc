@@ -232,7 +232,7 @@ std::unique_ptr<std::string> InMemoryPerProcess::resolveFirst(
 	} else if (it->second.hasValue() == false) {
             // No-op. A non-expired expiry exists for the key but there is no actual value
 	} else {
-            return std::unique_ptr<std::string>(new std::string(it->second.getValue()));
+            return std::make_unique<std::string>(it->second.getValue());
 	}
     }
 
