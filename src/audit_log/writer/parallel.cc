@@ -106,25 +106,25 @@ bool Parallel::init(std::string *error) {
 }
 
 
-bool Parallel::write(Transaction *transaction, int parts, std::string *error) {
+bool Parallel::write(Transaction &transaction, int parts, std::string *error) {
     int fd;
     std::string log;
-    std::string fileName = logFilePath(&transaction->m_timeStamp,
+    std::string fileName = logFilePath(&transaction.m_timeStamp,
         YearMonthDayDirectory | YearMonthDayAndTimeDirectory
         | YearMonthDayAndTimeFileName);
     bool ret;
 
-    if (transaction->m_rules->m_auditLog->m_format ==
+    if (transaction.m_rules->m_auditLog->m_format ==
             audit_log::AuditLog::JSONAuditLogFormat) {
-        log = transaction->toJSON(parts);
+        log = transaction.toJSON(parts);
     } else {
         std::string boundary;
         generateBoundary(&boundary);
-        log = transaction->toOldAuditLogFormat(parts, "-" + boundary + "--");
+        log = transaction.toOldAuditLogFormat(parts, "-" + boundary + "--");
     }
 
     const auto &logPath = m_audit->m_storage_dir;
-    fileName = logPath + fileName + "-" + transaction->m_id;
+    fileName = logPath + fileName + "-" + transaction.m_id;
 
     if (logPath.empty()) {
         error->assign("Log path is not valid.");
@@ -132,14 +132,14 @@ bool Parallel::write(Transaction *transaction, int parts, std::string *error) {
     }
 
     ret = utils::createDir((logPath +
-        logFilePath(&transaction->m_timeStamp, YearMonthDayDirectory)).c_str(),
+        logFilePath(&transaction.m_timeStamp, YearMonthDayDirectory)).c_str(),
         m_audit->getDirectoryPermission(),
         error);
     if (ret == false) {
         return false;
     }
     ret = utils::createDir((logPath +
-        logFilePath(&transaction->m_timeStamp, YearMonthDayDirectory
+        logFilePath(&transaction.m_timeStamp, YearMonthDayDirectory
             | YearMonthDayAndTimeDirectory)).c_str(),
         m_audit->getDirectoryPermission(),
         error);
@@ -164,7 +164,7 @@ bool Parallel::write(Transaction *transaction, int parts, std::string *error) {
 
     if (m_audit->m_path1.empty() == false
         && m_audit->m_path2.empty() == false) {
-        std::string msg = transaction->toOldAuditLogFormatIndex(fileName,
+        std::string msg = transaction.toOldAuditLogFormatIndex(fileName,
             log.length(), Utils::Md5::hexdigest(log));
         ret = utils::SharedFiles::getInstance().write(m_audit->m_path2, msg,
             error);
@@ -174,7 +174,7 @@ bool Parallel::write(Transaction *transaction, int parts, std::string *error) {
     }
     if (m_audit->m_path1.empty() == false
         && m_audit->m_path2.empty() == true) {
-        std::string msg = transaction->toOldAuditLogFormatIndex(fileName,
+        std::string msg = transaction.toOldAuditLogFormatIndex(fileName,
             log.length(), Utils::Md5::hexdigest(log));
         ret = utils::SharedFiles::getInstance().write(m_audit->m_path1, msg,
             error);
@@ -184,7 +184,7 @@ bool Parallel::write(Transaction *transaction, int parts, std::string *error) {
     }
     if (m_audit->m_path1.empty() == true
         && m_audit->m_path2.empty() == false) {
-        std::string msg = transaction->toOldAuditLogFormatIndex(fileName,
+        std::string msg = transaction.toOldAuditLogFormatIndex(fileName,
             log.length(), Utils::Md5::hexdigest(log));
         ret = utils::SharedFiles::getInstance().write(m_audit->m_path2, msg,
             error);

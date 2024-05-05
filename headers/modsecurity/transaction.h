@@ -67,8 +67,8 @@ typedef struct Rules_t RulesSet;
 #ifndef NO_LOGS
 #define ms_dbg_a(t, b, c) \
   do { \
-      if (t && t->m_rules && t->m_rules->m_debugLog && t->m_rules->m_debugLog->m_debugLevel >= b) { \
-          t->debug(b, c); \
+      if (t && (t)->m_rules && (t)->m_rules->m_debugLog && (t)->m_rules->m_debugLog->m_debugLevel >= b) { \
+          (t)->debug(b, c); \
       } \
   } while (0);
 #else

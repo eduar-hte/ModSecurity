@@ -271,25 +271,25 @@ bool AuditLog::isRelevant(int status) {
 }
 
 
-bool AuditLog::saveIfRelevant(Transaction *transaction) {
+bool AuditLog::saveIfRelevant(Transaction &transaction) {
     return saveIfRelevant(transaction, -1);
 }
 
 
-bool AuditLog::saveIfRelevant(Transaction *transaction, int parts) {
+bool AuditLog::saveIfRelevant(Transaction &transaction, int parts) {
     bool saveAnyway = false;
 
     AuditLogStatus transactionAuditLogStatus(m_status);
-    if (transaction->m_ctlAuditEngine != NotSetLogStatus) {
-        transactionAuditLogStatus = transaction->m_ctlAuditEngine;
+    if (transaction.m_ctlAuditEngine != NotSetLogStatus) {
+        transactionAuditLogStatus = transaction.m_ctlAuditEngine;
     }
 
     if (transactionAuditLogStatus == OffAuditLogStatus || transactionAuditLogStatus == NotSetLogStatus) {
-        ms_dbg_a(transaction, 5, "Audit log engine was not set.");
+        ms_dbg_a(&transaction, 5, "Audit log engine was not set.");
         return true;
     }
 
-    for (const RuleMessage &i : transaction->m_rulesMessages) {
+    for (const RuleMessage &i : transaction.m_rulesMessages) {
         if (i.m_noAuditLog == false) {
             saveAnyway = true;
             break;
@@ -297,10 +297,10 @@ bool AuditLog::saveIfRelevant(Transaction *transaction, int parts) {
     }
 
     if ((transactionAuditLogStatus == RelevantOnlyAuditLogStatus
-        && this->isRelevant(transaction->m_httpCodeReturned) == false)
+        && this->isRelevant(transaction.m_httpCodeReturned) == false)
         && saveAnyway == false) {
-        ms_dbg_a(transaction, 9, "Return code `" +
-            std::to_string(transaction->m_httpCodeReturned) + "'" \
+        ms_dbg_a(&transaction, 9, "Return code `" +
+            std::to_string(transaction.m_httpCodeReturned) + "'" \
             " is not interesting to audit logs, relevant code(s): `" +
             m_relevant + "'.");
 
@@ -310,15 +310,15 @@ bool AuditLog::saveIfRelevant(Transaction *transaction, int parts) {
     if (parts == -1) {
         parts = m_parts;
     }
-    ms_dbg_a(transaction, 5, "Saving this request as part " \
+    ms_dbg_a(&transaction, 5, "Saving this request as part " \
             "of the audit logs.");
     if (m_writer == NULL) {
-        ms_dbg_a(transaction, 1, "Internal error, audit log writer is null");
+        ms_dbg_a(&transaction, 1, "Internal error, audit log writer is null");
     } else {
         std::string error;
         bool a = m_writer->write(transaction, parts, &error);
         if (a == false) {
-            ms_dbg_a(transaction, 1, "Cannot save the audit log: " + error);
+            ms_dbg_a(&transaction, 1, "Cannot save the audit log: " + error);
             return false;
         }
     }

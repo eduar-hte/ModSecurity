@@ -38,7 +38,7 @@ class Parallel : public Writer {
 
     ~Parallel() override;
     bool init(std::string *error) override;
-    bool write(Transaction *transaction, int parts,
+    bool write(Transaction &transaction, int parts,
         std::string *error) override;
 
 

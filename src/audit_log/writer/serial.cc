@@ -33,16 +33,16 @@ bool Serial::init(std::string *error) {
 }
 
 
-bool Serial::write(Transaction *transaction, int parts, std::string *error) {
+bool Serial::write(Transaction &transaction, int parts, std::string *error) {
     std::string msg;
 
-    if (transaction->m_rules->m_auditLog->m_format ==
+    if (transaction.m_rules->m_auditLog->m_format ==
             audit_log::AuditLog::JSONAuditLogFormat) {
-        msg = transaction->toJSON(parts);
+        msg = transaction.toJSON(parts);
     } else {
         std::string boundary;
         generateBoundary(&boundary);
-        msg = transaction->toOldAuditLogFormat(parts, "-" + boundary + "--");
+        msg = transaction.toOldAuditLogFormat(parts, "-" + boundary + "--");
     }
 
     return utils::SharedFiles::getInstance().write(m_audit->m_path1, msg,

@@ -47,11 +47,11 @@ bool Https::init(std::string *error) {
 }
 
 
-bool Https::write(Transaction *transaction, int parts, std::string *error) {
+bool Https::write(Transaction &transaction, int parts, std::string *error) {
     Utils::HttpsClient m_http_client;
-    ms_dbg_a(transaction, 7, "Sending logs to: " + m_audit->m_path1);
+    ms_dbg_a(&transaction, 7, "Sending logs to: " + m_audit->m_path1);
 
-    std::string log = transaction->toJSON(parts);
+    std::string log = transaction.toJSON(parts);
     m_http_client.setRequestType("application/json");
     m_http_client.setRequestBody(log);
     m_http_client.download(m_audit->m_path1);

@@ -1445,7 +1445,7 @@ int Transaction::processLogging() {
         }
         ms_dbg(8, "Checking if this request is relevant to be " \
             "part of the audit logs.");
-        bool saved = this->m_rules->m_auditLog->saveIfRelevant(this, parts);
+        bool saved = this->m_rules->m_auditLog->saveIfRelevant(*this, parts);
         if (saved) {
             ms_dbg(8, "Request was relevant to be saved. Parts: " +
                 std::to_string(parts));
