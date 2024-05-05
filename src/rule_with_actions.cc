@@ -324,10 +324,10 @@ inline void RuleWithActions::executeTransformation(
     std::string *path,
     int *nth) const {
 
-    std::string *oldValue = (*value).get();
-    std::string newValue = a->evaluate(*oldValue, trans);
+    const auto &oldValue = *value->get();
+    const auto newValue = a->evaluate(oldValue, trans);
 
-    if (newValue != *oldValue) {
+    if (newValue != oldValue) {
         auto u = std::make_shared<std::string>(newValue);
         if (m_containsMultiMatchAction) {
             ret->push_back({u, a->m_name});
