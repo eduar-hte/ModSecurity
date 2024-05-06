@@ -102,7 +102,7 @@ void RuleWithOperator::cleanMatchedVars(Transaction *trans) {
 
 
 bool RuleWithOperator::executeOperatorAt(Transaction *trans, const std::string &key,
-    const std::string &value, std::shared_ptr<RuleMessage> ruleMessage) {
+    const std::string &value, RuleMessage &ruleMessage) {
 #if MSC_EXEC_CLOCK_ENABLED
     clock_t begin = clock();
     clock_t end;
@@ -215,7 +215,7 @@ inline void RuleWithOperator::getFinalVars(variables::Variables *vars,
 
 
 bool RuleWithOperator::evaluate(Transaction *trans,
-    std::shared_ptr<RuleMessage> ruleMessage) {
+    RuleMessage &ruleMessage) {
     bool globalRet = false;
     variables::Variables *variables = this->m_variables;
     bool recursiveGlobalRet;
@@ -315,13 +315,13 @@ bool RuleWithOperator::evaluate(Transaction *trans,
                 ret = executeOperatorAt(trans, key, valueAfterTrans, ruleMessage);
 
                 if (ret == true) {
-                    ruleMessage->m_match = m_operator->resolveMatchMessage(trans,
+                    ruleMessage.m_match = m_operator->resolveMatchMessage(trans,
                         key, value);
                     for (auto &i : v->getOrigin()) {
-                        ruleMessage->m_reference.append(i->toText());
+                        ruleMessage.m_reference.append(i->toText());
                     }
 
-                    ruleMessage->m_reference.append(*valueTemp.second);
+                    ruleMessage.m_reference.append(*valueTemp.second);
                     updateMatchedVars(trans, key, valueAfterTrans);
                     executeActionsIndependentOfChainedRuleResult(trans,
                         &containsBlock, ruleMessage);

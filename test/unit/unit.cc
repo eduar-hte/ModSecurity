@@ -30,6 +30,7 @@
 
 #include "test/common/modsecurity_test.h"
 #include "test/common/modsecurity_test_results.h"
+#include "test/common/modsecurity_test_context.h"
 #include "test/common/colors.h"
 #include "test/unit/unit_test.h"
 #include "src/utils/string.h"
@@ -58,6 +59,11 @@ void perform_unit_test(ModSecurityTest<UnitTest> *test, UnitTest *t,
     std::string error;
     bool found = true;
 
+    modsecurity_test::ModSecurityTestContext context("ModSecurity-unit v0.0.1-alpha"
+                                                        " (ModSecurity unit test utility)");
+
+    auto transaction = context.create_transaction();
+
     if (test->m_automake_output) {
         std::cout << ":test-result: ";
     }
@@ -78,7 +84,9 @@ void perform_unit_test(ModSecurityTest<UnitTest> *test, UnitTest *t,
     if (t->type == "op") {
         Operator *op = Operator::instantiate(t->name, t->param);
         op->init(t->filename, &error);
-        int ret = op->evaluate(NULL, NULL, t->input, NULL);
+        modsecurity::RuleWithActions rule{nullptr, nullptr, "dummy.conf", -1};
+        modsecurity::RuleMessage ruleMessage{rule, transaction};
+        int ret = op->evaluate(&transaction, &rule, t->input, ruleMessage);
         t->obtained = ret;
         if (ret != t->ret) {
             res->push_back(t);
@@ -91,7 +99,7 @@ void perform_unit_test(ModSecurityTest<UnitTest> *test, UnitTest *t,
         delete op;
     } else if (t->type == "tfn") {
         Transformation *tfn = Transformation::instantiate("t:" + t->name);
-        std::string ret = tfn->evaluate(t->input, NULL);
+        std::string ret = tfn->evaluate(t->input, &transaction);
         t->obtained = 1;
         t->obtainedOutput = ret;
         if (ret != t->output) {

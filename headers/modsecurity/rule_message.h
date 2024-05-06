@@ -59,30 +59,30 @@ class RuleMessage {
     RuleMessage(const RuleMessage &ruleMessage) = default;
     RuleMessage &operator=(const RuleMessage &ruleMessage) = delete;
 
-    std::string log() {
-        return log(this, 0);
+    std::string log() const {
+        return log(*this, 0);
     }
-    std::string log(int props) {
-        return log(this, props);
+    std::string log(int props) const {
+        return log(*this, props);
     }
-    std::string log(int props, int responseCode) {
-        return log(this, props, responseCode);
+    std::string log(int props, int responseCode) const {
+        return log(*this, props, responseCode);
     }
-    std::string errorLog() {
-        return log(this,
-		ClientLogMessageInfo | ErrorLogTailLogMessageInfo);
+    std::string errorLog() const {
+        return log(*this,
+                   ClientLogMessageInfo | ErrorLogTailLogMessageInfo);
     }
 
-    static std::string log(const RuleMessage *rm, int props, int code);
-    static std::string log(const RuleMessage *rm, int props) {
+    static std::string log(const RuleMessage &rm, int props, int code);
+    static std::string log(const RuleMessage &rm, int props) {
         return log(rm, props, -1);
     }
-    static std::string log(const RuleMessage *rm) {
+    static std::string log(const RuleMessage &rm) {
         return log(rm, 0);
     }
 
-    static std::string _details(const RuleMessage *rm);
-    static std::string _errorLogTail(const RuleMessage *rm);
+    static std::string _details(const RuleMessage &rm);
+    static std::string _errorLogTail(const RuleMessage &rm);
 
     int getPhase() const { return m_rule.getPhase() - 1; }
 

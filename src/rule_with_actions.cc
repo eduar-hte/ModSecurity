@@ -172,12 +172,13 @@ RuleWithActions::~RuleWithActions() {
 
 
 bool RuleWithActions::evaluate(Transaction *transaction) {
-    return evaluate(transaction, std::make_shared<RuleMessage>(*this, *transaction));
+    RuleMessage rm(*this, *transaction);
+    return evaluate(transaction, rm);
 }
 
 
 bool RuleWithActions::evaluate(Transaction *transaction,
-    std::shared_ptr<RuleMessage> ruleMessage) {
+    RuleMessage &ruleMessage) {
 
     /* Rule evaluate is pure virtual.
      *
@@ -192,7 +193,7 @@ bool RuleWithActions::evaluate(Transaction *transaction,
 
 
 void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *trans,
-    bool *containsBlock, std::shared_ptr<RuleMessage> ruleMessage) {
+    bool *containsBlock, RuleMessage &ruleMessage) {
 
     for (actions::SetVar *a : m_actionsSetVar) {
         ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
@@ -236,7 +237,7 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
 
 
 void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
-    bool containsBlock, std::shared_ptr<RuleMessage> ruleMessage) {
+    bool containsBlock, RuleMessage &ruleMessage) {
     bool disruptiveAlreadyExecuted = false;
 
     for (auto &a : trans->m_rules->m_defaultActions[getPhase()]) { // cppcheck-suppress ctunullpointer
@@ -289,7 +290,7 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
 
 
 void RuleWithActions::executeAction(Transaction *trans,
-    bool containsBlock, std::shared_ptr<RuleMessage> ruleMessage,
+    bool containsBlock, RuleMessage &ruleMessage,
     Action *a, bool defaultContext) {
     if (a->isDisruptive() == false && *a->m_name.get() != "block") {
         ms_dbg_a(trans, 9, "Running " \
@@ -489,12 +490,12 @@ std::vector<actions::Action *> RuleWithActions::getActionsByName(const std::stri
 }
 
 void RuleWithActions::performLogging(Transaction *trans,
-    std::shared_ptr<RuleMessage> ruleMessage,
+    const RuleMessage &ruleMessage,
     bool lastLog,
-    bool chainedParentNull) {
+    bool chainedParentNull) const {
 
     /* last rule in the chain. */
-    bool isItToBeLogged = ruleMessage->m_saveMessage;
+    bool isItToBeLogged = ruleMessage.m_saveMessage;
 
     /**
     *
@@ -509,31 +510,31 @@ void RuleWithActions::performLogging(Transaction *trans,
     **/
     if (lastLog) {
         if (chainedParentNull) {
-            isItToBeLogged = (ruleMessage->m_saveMessage && (m_chainedRuleParent == nullptr));
+            isItToBeLogged = (ruleMessage.m_saveMessage && (m_chainedRuleParent == nullptr));
             if (isItToBeLogged && !hasMultimatch()) {
                 /* warn */
-                trans->m_rulesMessages.push_back(*ruleMessage);
+                trans->m_rulesMessages.push_back(ruleMessage);
 
                 /* error */
-                if (!ruleMessage->m_isDisruptive) {
+                if (!ruleMessage.m_isDisruptive) {
                     trans->serverLog(ruleMessage);
                 }
             }
         } else if (hasBlockAction() && !hasMultimatch()) {
             /* warn */
-            trans->m_rulesMessages.push_back(*ruleMessage);
+            trans->m_rulesMessages.push_back(ruleMessage);
             /* error */
-            if (!ruleMessage->m_isDisruptive) {
+            if (!ruleMessage.m_isDisruptive) {
                 trans->serverLog(ruleMessage);
             }
         } else {
             if (isItToBeLogged && !hasMultimatch()
-                && !ruleMessage->m_message.empty()) {
+                && !ruleMessage.m_message.empty()) {
                 /* warn */
-                trans->m_rulesMessages.push_back(*ruleMessage);
+                trans->m_rulesMessages.push_back(ruleMessage);
 
                 /* error */
-                if (!ruleMessage->m_isDisruptive) {
+                if (!ruleMessage.m_isDisruptive) {
                     trans->serverLog(ruleMessage);
                 }
             }
@@ -541,16 +542,12 @@ void RuleWithActions::performLogging(Transaction *trans,
     } else {
         if (hasMultimatch() && isItToBeLogged) {
             /* warn */
-            trans->m_rulesMessages.push_back(*ruleMessage.get());
+            trans->m_rulesMessages.push_back(ruleMessage);
 
             /* error */
-            if (!ruleMessage->m_isDisruptive) {
+            if (!ruleMessage.m_isDisruptive) {
                 trans->serverLog(ruleMessage);
             }
-
-            RuleMessage *rm = new RuleMessage(*this, *trans);
-            rm->m_saveMessage = ruleMessage->m_saveMessage;
-            ruleMessage.reset(rm);
         }
     }
 }

@@ -48,8 +48,7 @@ class RuleMarker : public Rule {
 
     RuleMarker &operator=(const RuleMarker &r) = default;
    
-    virtual bool evaluate(Transaction *transaction,
-        std::shared_ptr<RuleMessage> rm) override {
+    virtual bool evaluate(Transaction *transaction, RuleMessage &ruleMessage) override {
         return evaluate(transaction);
     }
 
