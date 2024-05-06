@@ -1103,7 +1103,7 @@ expression:
             /* variables */ v,
             /* actions */ a,
             /* transformations */ t,
-            /* file name */ std::unique_ptr<std::string>(new std::string(*@1.end.filename)),
+            /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
             ));
 
@@ -1123,7 +1123,7 @@ expression:
             /* variables */ v,
             /* actions */ NULL,
             /* transformations */ NULL,
-            /* file name */ std::unique_ptr<std::string>(new std::string(*@1.end.filename)),
+            /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
             ));
         if (driver.addSecRule(std::move(rule)) == false) {
@@ -1144,7 +1144,7 @@ expression:
         std::unique_ptr<RuleUnconditional> rule(new RuleUnconditional(
             /* actions */ a,
             /* transformations */ t,
-            /* file name */ std::unique_ptr<std::string>(new std::string(*@1.end.filename)),
+            /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
             ));
         driver.addSecAction(std::move(rule));
@@ -1165,7 +1165,7 @@ expression:
             /* path to script */ $1,
             /* actions */ a,
             /* transformations */ t,
-            /* file name */ std::unique_ptr<std::string>(new std::string(*@1.end.filename)),
+            /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
             ));
 
@@ -1237,7 +1237,7 @@ expression:
     | CONFIG_DIR_SEC_MARKER
       {
         driver.addSecMarker(modsecurity::utils::string::removeBracketsIfNeeded($1),
-            /* file name */ std::unique_ptr<std::string>(new std::string(*@1.end.filename)),
+            /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
         );
       }

@@ -39,9 +39,9 @@ class RuleMarker : public Rule {
  public:
     RuleMarker(
         const std::string &name,
-        std::unique_ptr<std::string> fileName,
+        const std::string &fileName,
         int lineNumber)
-        : Rule(std::move(fileName), lineNumber),
+        : Rule(fileName, lineNumber),
         m_name(std::make_shared<std::string>(name)) { }
 
     RuleMarker(const RuleMarker &r) = default;
