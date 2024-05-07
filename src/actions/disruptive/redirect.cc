@@ -34,7 +34,7 @@ bool Redirect::init(std::string *error) {
 }
 
 
-bool Redirect::evaluate(RuleWithActions *rule, Transaction *transaction,
+bool Redirect::evaluate(RuleWithActions &rule, Transaction *transaction,
     RuleMessage &ruleMessage) {
     std::string m_urlExpanded(m_string->evaluate(transaction));
     /* if it was changed before, lets keep it. */

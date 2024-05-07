@@ -29,7 +29,7 @@ namespace modsecurity {
 namespace actions {
 
 
-bool NoLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool NoLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_saveMessage = false;
     return true;
 }

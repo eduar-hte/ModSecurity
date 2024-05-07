@@ -27,7 +27,7 @@ namespace modsecurity {
 namespace actions {
 
 
-bool AuditLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool AuditLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_noAuditLog = false;
     ms_dbg_a(transaction, 9, "Saving transaction to logs");
     ruleMessage.m_saveMessage = true;

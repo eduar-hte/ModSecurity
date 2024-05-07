@@ -87,7 +87,7 @@ RuleWithActions::RuleWithActions(
     if (actions) {
         for (Action *a : *actions) {
             if (a->action_kind == Action::ConfigurationKind) {
-                a->evaluate(this, NULL);
+                a->evaluate(*this, NULL);
                 delete a;
 
             } else if (a->action_kind == Action::RunTimeOnlyIfMatchKind) {
@@ -199,7 +199,7 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
         ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
             "action: " + *a->m_name.get());
 
-        a->evaluate(this, trans);
+        a->evaluate(*this, trans);
     }
 
     for (auto &b :
@@ -214,22 +214,22 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
         } else if (*a->m_name.get() == "setvar") {
             ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
                 "action: " + *a->m_name.get());
-            a->evaluate(this, trans, ruleMessage);
+            a->evaluate(*this, trans, ruleMessage);
         }
     }
 
     if (m_containsMultiMatchAction && m_chainedRuleParent == nullptr) {
         if (m_severity) {
-            m_severity->evaluate(this, trans, ruleMessage);
+            m_severity->evaluate(*this, trans, ruleMessage);
         }
         if (m_logData) {
-            m_logData->evaluate(this, trans, ruleMessage);
+            m_logData->evaluate(*this, trans, ruleMessage);
         }
         if (m_msg) {
-            m_msg->evaluate(this, trans, ruleMessage);
+            m_msg->evaluate(*this, trans, ruleMessage);
         }
         for (actions::Tag *a : m_actionsTag) {
-            a->evaluate(this, trans, ruleMessage);
+            a->evaluate(*this, trans, ruleMessage);
         }
     }
 
@@ -252,7 +252,7 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
     for (actions::Tag *a : this->m_actionsTag) {
         ms_dbg_a(trans, 4, "Running (non-disruptive) action: " \
             + *a->m_name.get());
-        a->evaluate(this, trans, ruleMessage);
+        a->evaluate(*this, trans, ruleMessage);
     }
 
     for (auto &b :
@@ -265,15 +265,15 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
         disruptiveAlreadyExecuted = true;
     }
     if (m_severity) {
-        m_severity->evaluate(this, trans, ruleMessage);
+        m_severity->evaluate(*this, trans, ruleMessage);
     }
 
     if (m_logData) {
-        m_logData->evaluate(this, trans, ruleMessage);
+        m_logData->evaluate(*this, trans, ruleMessage);
     }
 
     if (m_msg) {
-        m_msg->evaluate(this, trans, ruleMessage);
+        m_msg->evaluate(*this, trans, ruleMessage);
     }
     for (Action *a : this->m_actionsRuntimePos) {
         if (!a->isDisruptive()
@@ -295,7 +295,7 @@ void RuleWithActions::executeAction(Transaction *trans,
     if (a->isDisruptive() == false && *a->m_name.get() != "block") {
         ms_dbg_a(trans, 9, "Running " \
             "action: " + *a->m_name.get());
-        a->evaluate(this, trans, ruleMessage);
+        a->evaluate(*this, trans, ruleMessage);
         return;
     }
 
@@ -308,7 +308,7 @@ void RuleWithActions::executeAction(Transaction *trans,
     if (trans->getRuleEngineState() == RulesSet::EnabledRuleEngine) {
         ms_dbg_a(trans, 4, "Running (disruptive)     action: " + *a->m_name.get() + \
             ".");
-        a->evaluate(this, trans, ruleMessage);
+        a->evaluate(*this, trans, ruleMessage);
         return;
     }
 

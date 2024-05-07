@@ -114,7 +114,7 @@ bool RuleWithOperator::executeOperatorAt(Transaction *trans, const std::string &
         utils::string::toHexIfNeeded(value)) \
         + "\" (Variable: " + key + ")");
 
-    ret = this->m_operator->evaluateInternal(trans, this, value, ruleMessage);
+    ret = this->m_operator->evaluateInternal(trans, *this, value, ruleMessage);
 
     if (ret == false) {
         return false;

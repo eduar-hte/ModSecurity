@@ -40,7 +40,7 @@ class Msg : public Action {
         : Action("msg", RunTimeOnlyIfMatchKind),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
 
     std::string data(Transaction *Transaction);
     std::unique_ptr<RunTimeString> m_string;

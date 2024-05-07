@@ -38,7 +38,7 @@ class ValidateUtf8Encoding : public Operator {
     ValidateUtf8Encoding()
         : Operator("ValidateUtf8Encoding") { }
 
-    bool evaluate(Transaction *transaction, RuleWithActions *rule,
+    bool evaluate(Transaction *transaction, RuleWithActions &rule,
         const std::string &str,
         RuleMessage &ruleMessage) override;
 

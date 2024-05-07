@@ -76,8 +76,8 @@ class Action {
 
     virtual std::string evaluate(const std::string &exp,
         Transaction *transaction);
-    virtual bool evaluate(RuleWithActions *rule, Transaction *transaction);
-    virtual bool evaluate(RuleWithActions *rule, Transaction *transaction,
+    virtual bool evaluate(RuleWithActions &rule, Transaction *transaction);
+    virtual bool evaluate(RuleWithActions &rule, Transaction *transaction,
         RuleMessage &ruleMessage) {
         return evaluate(rule, transaction);
     }

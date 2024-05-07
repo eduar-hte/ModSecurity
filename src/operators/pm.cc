@@ -81,7 +81,7 @@ void Pm::postOrderTraversal(acmp_btree_node_t *node) {
 }
 
 
-bool Pm::evaluate(Transaction *transaction, RuleWithActions *rule,
+bool Pm::evaluate(Transaction *transaction, RuleWithActions &rule,
     const std::string &input, RuleMessage &ruleMessage) {
     int rc;
     ACMPT pt;
@@ -101,7 +101,7 @@ bool Pm::evaluate(Transaction *transaction, RuleWithActions *rule,
         logOffset(ruleMessage, rc - match_.size() + 1, match_.size());
         transaction->m_matched.push_back(match_);
 
-        if (rule && rule->hasCaptureAction()) {
+        if (rule.hasCaptureAction()) {
             transaction->m_collections.m_tx_collection->storeOrUpdateFirst("0",
                 match_);
             ms_dbg_a(transaction, 7, "Added pm match TX.0: " + \

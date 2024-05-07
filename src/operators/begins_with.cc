@@ -24,7 +24,7 @@ namespace modsecurity {
 namespace operators {
 
 
-bool BeginsWith::evaluate(Transaction *transaction, RuleWithActions *rule,
+bool BeginsWith::evaluate(Transaction *transaction, RuleWithActions &rule,
     const std::string &str, RuleMessage &ruleMessage) {
     std::string p(m_string->evaluate(transaction));
 

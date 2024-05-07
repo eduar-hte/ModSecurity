@@ -45,7 +45,7 @@ bool AuditEngine::init(std::string *error) {
     return true;
 }
 
-bool AuditEngine::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool AuditEngine::evaluate(RuleWithActions &rule, Transaction *transaction) {
     std::stringstream a;
     a << "Setting SecAuditEngine to ";
     a << std::to_string(m_auditEngine);

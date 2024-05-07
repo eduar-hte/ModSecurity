@@ -36,7 +36,7 @@ bool RxGlobal::init(const std::string &arg, std::string *error) {
 }
 
 
-bool RxGlobal::evaluate(Transaction *transaction, RuleWithActions *rule,
+bool RxGlobal::evaluate(Transaction *transaction, RuleWithActions &rule,
     const std::string& input, RuleMessage &ruleMessage) {
     Regex *re;
 
@@ -78,7 +78,7 @@ bool RxGlobal::evaluate(Transaction *transaction, RuleWithActions *rule,
     }
 
 
-    if (rule && rule->hasCaptureAction() && transaction) {
+    if (rule.hasCaptureAction() && transaction) {
         for (const Utils::SMatchCapture& capture : captures) {
             const std::string capture_substring(input.substr(capture.m_offset,capture.m_length));
             transaction->m_collections.m_tx_collection->storeOrUpdateFirst(

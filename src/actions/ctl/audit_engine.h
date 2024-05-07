@@ -38,7 +38,7 @@ class AuditEngine : public Action {
         m_auditEngine(audit_log::AuditLog::AuditLogStatus::NotSetLogStatus) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     audit_log::AuditLog::AuditLogStatus m_auditEngine;
 };

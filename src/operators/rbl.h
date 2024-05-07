@@ -81,7 +81,7 @@ class Rbl : public Operator {
                 m_provider = RblProvider::spamhaus;
             }
         }
-    bool evaluate(Transaction *transaction, RuleWithActions *rule,
+    bool evaluate(Transaction *transaction, RuleWithActions &rule,
         const std::string& input,
         RuleMessage &ruleMessage) override;
 

@@ -26,7 +26,7 @@ namespace modsecurity {
 namespace actions {
 
 
-bool NoAuditLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool NoAuditLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_noAuditLog = true;
     ruleMessage.m_saveMessage = false;
 

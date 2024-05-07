@@ -86,7 +86,7 @@ void perform_unit_test(ModSecurityTest<UnitTest> *test, UnitTest *t,
         op->init(t->filename, &error);
         modsecurity::RuleWithActions rule{nullptr, nullptr, "dummy.conf", -1};
         modsecurity::RuleMessage ruleMessage{rule, transaction};
-        int ret = op->evaluate(&transaction, &rule, t->input, ruleMessage);
+        int ret = op->evaluate(&transaction, rule, t->input, ruleMessage);
         t->obtained = ret;
         if (ret != t->ret) {
             res->push_back(t);

@@ -32,7 +32,7 @@ class Drop : public Action {
  public:
     explicit Drop(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool isDisruptive() override { return true; }
 };
 

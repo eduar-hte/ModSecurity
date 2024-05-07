@@ -110,7 +110,7 @@ invalid:
 }
 
 
-bool VerifySSN::evaluate(Transaction *t, RuleWithActions *rule,
+bool VerifySSN::evaluate(Transaction *t, RuleWithActions &rule,
     const std::string& input, RuleMessage &ruleMessage) {
     std::list<SMatch> matches;
     bool is_ssn = false;
@@ -126,7 +126,7 @@ bool VerifySSN::evaluate(Transaction *t, RuleWithActions *rule,
             is_ssn = verify(j.str().c_str(), j.str().size());
             if (is_ssn) {
                 logOffset(ruleMessage, j.offset(), j.str().size());
-                if (rule && t && rule->hasCaptureAction()) {
+                if (t && rule.hasCaptureAction()) {
                     t->m_collections.m_tx_collection->storeOrUpdateFirst(
                         "0", j.str());
                     ms_dbg_a(t, 7, "Added VerifySSN match TX.0: " + \

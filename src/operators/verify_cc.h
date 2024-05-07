@@ -47,7 +47,7 @@ class VerifyCC : public Operator {
 #endif
     ~VerifyCC();
 
-    bool evaluate(Transaction *t, RuleWithActions *rule,
+    bool evaluate(Transaction *t, RuleWithActions &rule,
         const std::string& input,
         RuleMessage &ruleMessage)  override;
     bool init(const std::string &param, std::string *error) override;

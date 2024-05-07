@@ -37,7 +37,7 @@ bool ExpireVar::init(std::string *error) {
 }
 
 
-bool ExpireVar::evaluate(RuleWithActions *rule, Transaction *t) {
+bool ExpireVar::evaluate(RuleWithActions &rule, Transaction *t) {
 
     std::string expireExpressionExpanded(m_string->evaluate(t));
 

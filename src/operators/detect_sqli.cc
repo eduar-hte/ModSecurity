@@ -25,7 +25,7 @@ namespace modsecurity {
 namespace operators {
 
 
-bool DetectSQLi::evaluate(Transaction *t, RuleWithActions *rule,
+bool DetectSQLi::evaluate(Transaction *t, RuleWithActions &rule,
     const std::string& input, RuleMessage &ruleMessage) {
     char fingerprint[8];
     int issqli;
@@ -41,7 +41,7 @@ bool DetectSQLi::evaluate(Transaction *t, RuleWithActions *rule,
         ms_dbg_a(t, 4, "detected SQLi using libinjection with " \
             "fingerprint '" + std::string(fingerprint) + "' at: '" +
             input + "'");
-        if (rule && rule->hasCaptureAction()) {
+        if (rule.hasCaptureAction()) {
             t->m_collections.m_tx_collection->storeOrUpdateFirst(
                 "0", std::string(fingerprint));
             ms_dbg_a(t, 7, "Added DetectSQLi match TX.0: " + \

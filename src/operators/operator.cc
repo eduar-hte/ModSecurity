@@ -71,7 +71,7 @@ namespace operators {
 
 
 bool Operator::evaluateInternal(Transaction *transaction,
-    RuleWithActions *rule, const std::string& a, RuleMessage &ruleMessage) {
+    RuleWithActions &rule, const std::string& a, RuleMessage &ruleMessage) {
     bool res = evaluate(transaction, rule, a, ruleMessage);
 
     if (m_negation) {
@@ -82,7 +82,7 @@ bool Operator::evaluateInternal(Transaction *transaction,
 }
 
 bool Operator::evaluateInternal(Transaction *transaction,
-    RuleWithActions *rule, const std::string& a) {
+    RuleWithActions &rule, const std::string& a) {
     bool res = evaluate(transaction, rule, a);
 
     if (m_negation) {

@@ -31,7 +31,7 @@ class Pass : public Action {
  public:
     explicit Pass(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool isDisruptive() override { return true; }
 };
 

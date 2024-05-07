@@ -24,7 +24,7 @@ namespace modsecurity {
 namespace operators {
 
 
-bool Within::evaluate(Transaction *transaction, RuleWithActions *rule,
+bool Within::evaluate(Transaction *transaction, RuleWithActions &rule,
     const std::string &str, RuleMessage &ruleMessage) {
     bool res = false;
     size_t pos = 0;

@@ -112,18 +112,18 @@ class Operator {
         std::string key, std::string value);
 
     bool evaluateInternal(Transaction *t, const std::string& a);
-    bool evaluateInternal(Transaction *t, RuleWithActions *rule,
+    bool evaluateInternal(Transaction *t, RuleWithActions &rule,
         const std::string& a);
-    bool evaluateInternal(Transaction *t, RuleWithActions *rule,
+    bool evaluateInternal(Transaction *t, RuleWithActions &rule,
         const std::string& a, RuleMessage &ruleMessage);
 
 
     virtual bool evaluate(Transaction *transaction, const std::string &str);
-    virtual bool evaluate(Transaction *transaction, RuleWithActions *rule,
+    virtual bool evaluate(Transaction *transaction, RuleWithActions &rule,
         const std::string &str) {
         return evaluate(transaction, str);
     }
-    virtual bool evaluate(Transaction *transaction, RuleWithActions *rule,
+    virtual bool evaluate(Transaction *transaction, RuleWithActions &rule,
         const std::string &str, RuleMessage &ruleMessage) {
         return evaluate(transaction, str);
     }

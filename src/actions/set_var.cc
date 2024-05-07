@@ -40,12 +40,12 @@ bool SetVar::init(std::string *error) {
 }
 
 
-bool SetVar::evaluate(RuleWithActions *rule, Transaction *t) {
+bool SetVar::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string targetValue;
     std::string resolvedPre;
 
     if (m_string) {
-        resolvedPre = m_string->evaluate(t, rule);
+        resolvedPre = m_string->evaluate(t, &rule);
     }
 
     std::string m_variableNameExpanded;
@@ -64,17 +64,17 @@ bool SetVar::evaluate(RuleWithActions *rule, Transaction *t) {
     variables::User_DynamicElement *user = dynamic_cast<
         variables::User_DynamicElement *> (v);
     if (tx) {
-        m_variableNameExpanded = tx->m_string->evaluate(t, rule);
+        m_variableNameExpanded = tx->m_string->evaluate(t, &rule);
     } else if (session) {
-        m_variableNameExpanded = session->m_string->evaluate(t, rule);
+        m_variableNameExpanded = session->m_string->evaluate(t, &rule);
     } else if (ip) {
-        m_variableNameExpanded = ip->m_string->evaluate(t, rule);
+        m_variableNameExpanded = ip->m_string->evaluate(t, &rule);
     } else if (resource) {
-        m_variableNameExpanded = resource->m_string->evaluate(t, rule);
+        m_variableNameExpanded = resource->m_string->evaluate(t, &rule);
     } else if (global) {
-        m_variableNameExpanded = global->m_string->evaluate(t, rule);
+        m_variableNameExpanded = global->m_string->evaluate(t, &rule);
     } else if (user) {
-        m_variableNameExpanded = user->m_string->evaluate(t, rule);
+        m_variableNameExpanded = user->m_string->evaluate(t, &rule);
     } else {
         m_variableNameExpanded = m_variable->m_name;
     }
@@ -112,7 +112,7 @@ bool SetVar::evaluate(RuleWithActions *rule, Transaction *t) {
 
         try {
             std::vector<const VariableValue *> l;
-            RuleWithOperator *rr = dynamic_cast<RuleWithOperator *>(rule);
+            RuleWithOperator *rr = dynamic_cast<RuleWithOperator *>(&rule);
             m_variable->evaluate(t, rr, &l);
             if (l.size() == 0) {
                 value = 0;
