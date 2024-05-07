@@ -48,14 +48,14 @@ class Driver;
 class RulesSet : public RulesSetProperties {
  public:
     RulesSet()
-        : RulesSetProperties(new DebugLog())
+        : RulesSetProperties(std::make_unique<DebugLog>())
 #ifndef NO_LOGS
         ,m_secmarker_skipped(0)
 #endif
         { }
 
-    explicit RulesSet(DebugLog *customLog)
-        : RulesSetProperties(customLog)
+    explicit RulesSet(std::unique_ptr<DebugLog> customLog)
+        : RulesSetProperties(std::move(customLog))
 #ifndef NO_LOGS
         ,m_secmarker_skipped(0)
 #endif

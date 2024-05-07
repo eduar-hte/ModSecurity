@@ -15,7 +15,7 @@ namespace modsecurity_test
     {
     public:
         explicit ModSecurityTestContext(const std::string &connector)
-            : m_modsec_rules(new CustomDebugLog)
+            : m_modsec_rules(std::make_unique<CustomDebugLog>())
         {
             m_modsec.setConnectorInformation(connector);
             m_modsec.setServerLogCb(logCb);

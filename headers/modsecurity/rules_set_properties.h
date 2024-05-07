@@ -171,7 +171,7 @@ class ConfigUnicodeMap {
 class RulesSetProperties {
  public:
     RulesSetProperties() :
-        m_auditLog(new AuditLog()),
+        m_auditLog(std::make_unique<AuditLog>()),
         m_requestBodyLimitAction(PropertyNotSetBodyLimitAction),
         m_responseBodyLimitAction(PropertyNotSetBodyLimitAction),
         m_secRequestBodyAccess(PropertyNotSetConfigBoolean),
@@ -179,13 +179,13 @@ class RulesSetProperties {
         m_secXMLExternalEntity(PropertyNotSetConfigBoolean),
         m_tmpSaveUploadedFiles(PropertyNotSetConfigBoolean),
         m_uploadKeepFiles(PropertyNotSetConfigBoolean),
-        m_debugLog(new DebugLog()),
+        m_debugLog(std::make_unique<DebugLog>()),
         m_remoteRulesActionOnFailed(PropertyNotSetRemoteRulesAction),
         m_secRuleEngine(PropertyNotSetRuleEngine) { }
 
 
-    explicit RulesSetProperties(DebugLog *debugLog) :
-        m_auditLog(new AuditLog()),
+    explicit RulesSetProperties(std::unique_ptr<DebugLog> debugLog) :
+        m_auditLog(std::make_unique<AuditLog>()),
         m_requestBodyLimitAction(PropertyNotSetBodyLimitAction),
         m_responseBodyLimitAction(PropertyNotSetBodyLimitAction),
         m_secRequestBodyAccess(PropertyNotSetConfigBoolean),
@@ -193,7 +193,7 @@ class RulesSetProperties {
         m_secXMLExternalEntity(PropertyNotSetConfigBoolean),
         m_tmpSaveUploadedFiles(PropertyNotSetConfigBoolean),
         m_uploadKeepFiles(PropertyNotSetConfigBoolean),
-        m_debugLog(debugLog),
+        m_debugLog(std::move(debugLog)),
         m_remoteRulesActionOnFailed(PropertyNotSetRemoteRulesAction),
         m_secRuleEngine(PropertyNotSetRuleEngine) { }
 
@@ -210,9 +210,6 @@ class RulesSetProperties {
                 tmp->pop_back();
             }
         }
-
-        delete m_debugLog;
-        delete m_auditLog;
     }
 
 
@@ -425,7 +422,7 @@ class RulesSetProperties {
 
         if (to->m_auditLog) {
             std::string error;
-            to->m_auditLog->merge(from->m_auditLog, &error);
+            to->m_auditLog->merge(from->m_auditLog.get(), &error);
             if (error.size() > 0) {
                 *err << error;
                 return -1;
@@ -458,7 +455,7 @@ class RulesSetProperties {
     }
 
 
-    audit_log::AuditLog *m_auditLog;
+    std::unique_ptr<audit_log::AuditLog> m_auditLog;
     BodyLimitAction m_requestBodyLimitAction;
     BodyLimitAction m_responseBodyLimitAction;
     ConfigBoolean m_secRequestBodyAccess;
@@ -474,7 +471,7 @@ class RulesSetProperties {
     ConfigInt m_pcreMatchLimit;
     ConfigInt m_uploadFileLimit;
     ConfigInt m_uploadFileMode;
-    DebugLog *m_debugLog;
+    std::unique_ptr<DebugLog> m_debugLog;
     OnFailedRemoteRulesAction m_remoteRulesActionOnFailed;
     RuleEngine m_secRuleEngine;
     RulesExceptions m_exceptions;

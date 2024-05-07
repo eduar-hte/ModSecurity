@@ -360,7 +360,7 @@ void perform_unit_test(ModSecurityTest<RegressionTest> *test,
 
         modsec_transaction.processLogging();
 
-        const auto *d = reinterpret_cast<CustomDebugLog *>(context.m_modsec_rules.m_debugLog);
+        const auto *d = reinterpret_cast<CustomDebugLog *>(context.m_modsec_rules.m_debugLog.get());
 
         if (!d->contains(t->debug_log))
         {
