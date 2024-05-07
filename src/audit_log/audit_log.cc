@@ -332,38 +332,38 @@ bool AuditLog::close() {
 }
 
 
-bool AuditLog::merge(AuditLog *from, std::string *error) {
-    AL_MERGE_STRING_CONF(from->m_path1, m_path1);
-    AL_MERGE_STRING_CONF(from->m_path2, m_path2);
-    AL_MERGE_STRING_CONF(from->m_storage_dir, m_storage_dir);
-    AL_MERGE_STRING_CONF(from->m_relevant, m_relevant);
+bool AuditLog::merge(const AuditLog &from, std::string *error) {
+    AL_MERGE_STRING_CONF(from.m_path1, m_path1);
+    AL_MERGE_STRING_CONF(from.m_path2, m_path2);
+    AL_MERGE_STRING_CONF(from.m_storage_dir, m_storage_dir);
+    AL_MERGE_STRING_CONF(from.m_relevant, m_relevant);
 
-    if (from->m_filePermission != -1) {
-        m_filePermission = from->m_filePermission;
+    if (from.m_filePermission != -1) {
+        m_filePermission = from.m_filePermission;
     }
 
-    if (from->m_directoryPermission != -1) {
-        m_directoryPermission = from->m_directoryPermission;
+    if (from.m_directoryPermission != -1) {
+        m_directoryPermission = from.m_directoryPermission;
     }
 
-    if (from->m_type != NotSetAuditLogType) {
-        m_type = from->m_type;
+    if (from.m_type != NotSetAuditLogType) {
+        m_type = from.m_type;
     }
 
-    if (from->m_status != NotSetLogStatus) {
-        m_status = from->m_status;
+    if (from.m_status != NotSetLogStatus) {
+        m_status = from.m_status;
     }
 
-    if (from->m_parts != -1) {
-        m_parts = from->m_parts;
+    if (from.m_parts != -1) {
+        m_parts = from.m_parts;
     }
 
-    if (from->m_format != NotSetAuditLogFormat) {
-        m_format = from->m_format;
+    if (from.m_format != NotSetAuditLogFormat) {
+        m_format = from.m_format;
     }
 
-    if (from->m_ctlAuditEngineActive) {
-        m_ctlAuditEngineActive = from->m_ctlAuditEngineActive;
+    if (from.m_ctlAuditEngineActive) {
+        m_ctlAuditEngineActive = from.m_ctlAuditEngineActive;
     }
 
     return init(error);

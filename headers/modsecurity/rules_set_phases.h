@@ -45,7 +45,7 @@ class RulesSetPhases {
 
     bool insert(std::shared_ptr<Rule> rule);
 
-    int append(RulesSetPhases *from, std::ostringstream *err);
+    int append(RulesSetPhases &from, std::ostringstream *err);
     void dump() const;
 
     Rules *operator[](int index) { return &m_rulesAtPhase[index]; }

@@ -39,7 +39,7 @@ bool RulesSetPhases::insert(std::shared_ptr<Rule> rule) {
 }
 
 
-int RulesSetPhases::append(RulesSetPhases *from, std::ostringstream *err) {
+int RulesSetPhases::append(RulesSetPhases &from, std::ostringstream *err) {
     int amount_of_rules = 0;
     std::vector<int64_t> v;
 
@@ -56,7 +56,7 @@ int RulesSetPhases::append(RulesSetPhases *from, std::ostringstream *err) {
     std::sort (v.begin(), v.end());
 
     for (int phase = 0; phase < modsecurity::Phases::NUMBER_OF_PHASES; phase++) {
-        int res = m_rulesAtPhase[phase].append(from->at(phase), v, err);
+        int res = m_rulesAtPhase[phase].append(*from.at(phase), v, err);
         if (res < 0) {
             return res;
         }

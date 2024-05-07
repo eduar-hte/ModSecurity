@@ -198,14 +198,14 @@ bool RulesExceptions::contains(int a) {
 }
 
 
-bool RulesExceptions::merge(RulesExceptions *from) {
-    for (int a : from->m_numbers) {
+bool RulesExceptions::merge(RulesExceptions &from) {
+    for (int a : from.m_numbers) {
         bool ret = addNumber(a);
         if (ret == false) {
             return ret;
         }
     }
-    for (auto b : from->m_ranges) {
+    for (auto b : from.m_ranges) {
         bool ret = addRange(b.first, b.second);
         if (ret == false) {
             return ret;
@@ -224,11 +224,11 @@ bool RulesExceptions::merge(RulesExceptions *from) {
     merge_map_helper(&RulesExceptions::m_action_pos_update_target_by_id);
     merge_map_helper(&RulesExceptions::m_action_pre_update_target_by_id);
 
-    for (auto &p : from->m_remove_rule_by_msg) {
+    for (auto &p : from.m_remove_rule_by_msg) {
         m_remove_rule_by_msg.push_back(p);
     }
 
-    for (auto &p : from->m_remove_rule_by_tag) {
+    for (auto &p : from.m_remove_rule_by_tag) {
         m_remove_rule_by_tag.push_back(p);
     }
 

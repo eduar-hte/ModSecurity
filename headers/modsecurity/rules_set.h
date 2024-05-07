@@ -71,7 +71,7 @@ class RulesSet : public RulesSetProperties {
     void dump() const;
 
     int merge(Parser::Driver *driver);
-    int merge(RulesSet *rules);
+    int merge(RulesSet &rules);
 
     int evaluate(int phase, Transaction *transaction);
     std::string getParserError();

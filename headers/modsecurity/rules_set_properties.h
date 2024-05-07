@@ -70,12 +70,12 @@ class ConfigInt {
     bool m_set;
     int m_value;
 
-    void merge(ConfigInt *from) {
-        if (m_set == true || from->m_set == false) {
+    void merge(const ConfigInt &from) {
+        if (m_set == true || from.m_set == false) {
             return;
         }
         m_set = true;
-        m_value = from->m_value;
+        m_value = from.m_value;
         return;
     }
 };
@@ -87,12 +87,12 @@ class ConfigDouble {
     bool m_set;
     double m_value;
 
-    void merge(ConfigDouble *from) {
-        if (m_set == true || from->m_set == false) {
+    void merge(const ConfigDouble &from) {
+        if (m_set == true || from.m_set == false) {
             return;
         }
         m_set = true;
-        m_value = from->m_value;
+        m_value = from.m_value;
         return;
     }
 };
@@ -104,12 +104,12 @@ class ConfigString {
     bool m_set;
     std::string m_value;
 
-    void merge(ConfigString *from) {
-        if (m_set == true || from->m_set == false) {
+    void merge(const ConfigString &from) {
+        if (m_set == true || from.m_set == false) {
             return;
         }
         m_set = true;
-        m_value = from->m_value;
+        m_value = from.m_value;
         return;
     }
 };
@@ -150,14 +150,14 @@ class ConfigUnicodeMap {
     static void loadConfig(std::string f, double codePage,
         RulesSetProperties *driver, std::string *errg);
 
-    void merge(ConfigUnicodeMap *from) {
-        if (from->m_set == false) {
+    void merge(const ConfigUnicodeMap &from) {
+        if (from.m_set == false) {
             return;
         }
 
         m_set = true;
-        m_unicodeCodePage = from->m_unicodeCodePage;
-        m_unicodeMapTable = from->m_unicodeMapTable;
+        m_unicodeCodePage = from.m_unicodeCodePage;
+        m_unicodeMapTable = from.m_unicodeMapTable;
 
         return;
     }
@@ -336,105 +336,105 @@ class RulesSetProperties {
     }
 
 
-    static int mergeProperties(RulesSetProperties *from,
-        RulesSetProperties *to, std::ostringstream *err) {
+    static int mergeProperties(RulesSetProperties &from,
+        RulesSetProperties &to, std::ostringstream *err) {
 
-        merge_ruleengine_value(to->m_secRuleEngine, from->m_secRuleEngine,
+        merge_ruleengine_value(to.m_secRuleEngine, from.m_secRuleEngine,
                                PropertyNotSetRuleEngine);
 
-        merge_boolean_value(to->m_secRequestBodyAccess,
-                            from->m_secRequestBodyAccess,
+        merge_boolean_value(to.m_secRequestBodyAccess,
+                            from.m_secRequestBodyAccess,
                             PropertyNotSetConfigBoolean);
 
-        merge_boolean_value(to->m_secResponseBodyAccess,
-                            from->m_secResponseBodyAccess,
+        merge_boolean_value(to.m_secResponseBodyAccess,
+                            from.m_secResponseBodyAccess,
                             PropertyNotSetConfigBoolean);
 
-        merge_boolean_value(to->m_secXMLExternalEntity,
-                            from->m_secXMLExternalEntity,
+        merge_boolean_value(to.m_secXMLExternalEntity,
+                            from.m_secXMLExternalEntity,
                             PropertyNotSetConfigBoolean);
 
-        merge_boolean_value(to->m_uploadKeepFiles,
-                            from->m_uploadKeepFiles,
+        merge_boolean_value(to.m_uploadKeepFiles,
+                            from.m_uploadKeepFiles,
                             PropertyNotSetConfigBoolean);
 
-        merge_boolean_value(to->m_tmpSaveUploadedFiles,
-                            from->m_tmpSaveUploadedFiles,
+        merge_boolean_value(to.m_tmpSaveUploadedFiles,
+                            from.m_tmpSaveUploadedFiles,
                             PropertyNotSetConfigBoolean);
 
-        to->m_argumentsLimit.merge(&from->m_argumentsLimit);
-        to->m_requestBodyJsonDepthLimit.merge(&from->m_requestBodyJsonDepthLimit);
-        to->m_requestBodyLimit.merge(&from->m_requestBodyLimit);
-        to->m_requestBodyNoFilesLimit.merge(&from->m_requestBodyNoFilesLimit);
-        to->m_responseBodyLimit.merge(&from->m_responseBodyLimit);
+        to.m_argumentsLimit.merge(from.m_argumentsLimit);
+        to.m_requestBodyJsonDepthLimit.merge(from.m_requestBodyJsonDepthLimit);
+        to.m_requestBodyLimit.merge(from.m_requestBodyLimit);
+        to.m_requestBodyNoFilesLimit.merge(from.m_requestBodyNoFilesLimit);
+        to.m_responseBodyLimit.merge(from.m_responseBodyLimit);
 
-        merge_bodylimitaction_value(to->m_requestBodyLimitAction,
-                                    from->m_requestBodyLimitAction,
+        merge_bodylimitaction_value(to.m_requestBodyLimitAction,
+                                    from.m_requestBodyLimitAction,
                                     PropertyNotSetBodyLimitAction);
 
-        merge_bodylimitaction_value(to->m_responseBodyLimitAction,
-                                    from->m_responseBodyLimitAction,
+        merge_bodylimitaction_value(to.m_responseBodyLimitAction,
+                                    from.m_responseBodyLimitAction,
                                     PropertyNotSetBodyLimitAction);
 
-        to->m_pcreMatchLimit.merge(&from->m_pcreMatchLimit);
-        to->m_uploadFileLimit.merge(&from->m_uploadFileLimit);
-        to->m_uploadFileMode.merge(&from->m_uploadFileMode);
-        to->m_uploadDirectory.merge(&from->m_uploadDirectory);
-        to->m_uploadTmpDirectory.merge(&from->m_uploadTmpDirectory);
+        to.m_pcreMatchLimit.merge(from.m_pcreMatchLimit);
+        to.m_uploadFileLimit.merge(from.m_uploadFileLimit);
+        to.m_uploadFileMode.merge(from.m_uploadFileMode);
+        to.m_uploadDirectory.merge(from.m_uploadDirectory);
+        to.m_uploadTmpDirectory.merge(from.m_uploadTmpDirectory);
 
-        to->m_secArgumentSeparator.merge(&from->m_secArgumentSeparator);
+        to.m_secArgumentSeparator.merge(from.m_secArgumentSeparator);
 
-        to->m_secWebAppId.merge(&from->m_secWebAppId);
+        to.m_secWebAppId.merge(from.m_secWebAppId);
 
-        to->m_unicodeMapTable.merge(&from->m_unicodeMapTable);
+        to.m_unicodeMapTable.merge(from.m_unicodeMapTable);
 
-        to->m_httpblKey.merge(&from->m_httpblKey);
+        to.m_httpblKey.merge(from.m_httpblKey);
 
-        to->m_exceptions.merge(&from->m_exceptions);
+        to.m_exceptions.merge(from.m_exceptions);
 
-        to->m_components.insert(to->m_components.end(),
-            from->m_components.begin(), from->m_components.end());
+        to.m_components.insert(to.m_components.end(),
+            from.m_components.begin(), from.m_components.end());
 
-        if (from->m_responseBodyTypeToBeInspected.m_set == true) {
-            if (from->m_responseBodyTypeToBeInspected.m_clear == true) {
-                to->m_responseBodyTypeToBeInspected.m_value.clear();
-                from->m_responseBodyTypeToBeInspected.m_value.clear();
+        if (from.m_responseBodyTypeToBeInspected.m_set == true) {
+            if (from.m_responseBodyTypeToBeInspected.m_clear == true) {
+                to.m_responseBodyTypeToBeInspected.m_value.clear();
+                from.m_responseBodyTypeToBeInspected.m_value.clear();
             } else {
                 for (std::set<std::string>::iterator
-                    it = from->m_responseBodyTypeToBeInspected.m_value.begin();
-                    it != from->m_responseBodyTypeToBeInspected.m_value.end();
+                    it = from.m_responseBodyTypeToBeInspected.m_value.begin();
+                    it != from.m_responseBodyTypeToBeInspected.m_value.end();
                     ++it) {
-                    to->m_responseBodyTypeToBeInspected.m_value.insert(*it);
+                    to.m_responseBodyTypeToBeInspected.m_value.insert(*it);
                 }
             }
-            to->m_responseBodyTypeToBeInspected.m_set = true;
+            to.m_responseBodyTypeToBeInspected.m_set = true;
         }
 
         for (int i = 0; i < modsecurity::Phases::NUMBER_OF_PHASES; i++) {
             std::vector<std::shared_ptr<actions::Action> > *actions_from = \
-                &from->m_defaultActions[i];
+                &from.m_defaultActions[i];
             std::vector<std::shared_ptr<actions::Action> > *actions_to = \
-                &to->m_defaultActions[i];
+                &to.m_defaultActions[i];
             for (size_t j = 0; j < actions_from->size(); j++) {
                 actions_to->push_back(actions_from->at(j));
             }
         }
 
-        if (to->m_auditLog) {
+        if (to.m_auditLog) {
             std::string error;
-            to->m_auditLog->merge(from->m_auditLog.get(), &error);
+            to.m_auditLog->merge(*from.m_auditLog, &error);
             if (error.size() > 0) {
                 *err << error;
                 return -1;
             }
         }
 
-        if (from->m_debugLog && to->m_debugLog &&
-            from->m_debugLog->isLogFileSet()) {
-            if (to->m_debugLog->isLogFileSet() == false) {
+        if (from.m_debugLog && to.m_debugLog &&
+            from.m_debugLog->isLogFileSet()) {
+            if (to.m_debugLog->isLogFileSet() == false) {
                 std::string error;
-                to->m_debugLog->setDebugLogFile(
-                    from->m_debugLog->getDebugLogFile(),
+                to.m_debugLog->setDebugLogFile(
+                    from.m_debugLog->getDebugLogFile(),
                     &error);
                 if (error.size() > 0) {
                     *err << error;
@@ -443,11 +443,11 @@ class RulesSetProperties {
             }
         }
 
-        if (from->m_debugLog && to->m_debugLog &&
-            from->m_debugLog->isLogLevelSet()) {
-            if (to->m_debugLog->isLogLevelSet() == false) {
-                to->m_debugLog->setDebugLogLevel(
-                    from->m_debugLog->getDebugLogLevel());
+        if (from.m_debugLog && to.m_debugLog &&
+            from.m_debugLog->isLogLevelSet()) {
+            if (to.m_debugLog->isLogLevelSet() == false) {
+                to.m_debugLog->setDebugLogLevel(
+                    from.m_debugLog->getDebugLogLevel());
             }
         }
 

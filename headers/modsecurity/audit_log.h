@@ -180,7 +180,7 @@ class AuditLog {
         m_ctlAuditEngineActive = true;
     }
 
-    bool merge(AuditLog *from, std::string *error);
+    bool merge(const AuditLog &from, std::string *error);
 
     std::string m_path1;
     std::string m_path2;

@@ -223,25 +223,25 @@ int RulesSet::evaluate(int phase, Transaction *t) {
 int RulesSet::merge(Driver *from) {
     int amount_of_rules = 0;
 
-    amount_of_rules = m_rulesSetPhases.append(&from->m_rulesSetPhases,
+    amount_of_rules = m_rulesSetPhases.append(from->m_rulesSetPhases,
         &m_parserError);
     mergeProperties(
-        dynamic_cast<RulesSetProperties *>(from),
-        dynamic_cast<RulesSetProperties *>(this),
+        *dynamic_cast<RulesSetProperties *>(from),
+        *dynamic_cast<RulesSetProperties *>(this),
         &m_parserError);
 
     return amount_of_rules;
 }
 
 
-int RulesSet::merge(RulesSet *from) {
+int RulesSet::merge(RulesSet &from) {
     int amount_of_rules = 0;
 
-    amount_of_rules = m_rulesSetPhases.append(&from->m_rulesSetPhases,
+    amount_of_rules = m_rulesSetPhases.append(from.m_rulesSetPhases,
         &m_parserError);
     mergeProperties(
-        dynamic_cast<RulesSetProperties *>(from),
-        dynamic_cast<RulesSetProperties *>(this),
+        *dynamic_cast<RulesSetProperties *>(&from),
+        *dynamic_cast<RulesSetProperties *>(this),
         &m_parserError);
 
     return amount_of_rules;
@@ -273,7 +273,7 @@ extern "C" void msc_rules_dump(RulesSet *rules) {
 
 extern "C" int msc_rules_merge(RulesSet *rules_dst,
     RulesSet *rules_from, const char **error) {
-    int ret = rules_dst->merge(rules_from);
+    int ret = rules_dst->merge(*rules_from);
     if (ret < 0) {
         *error = strdup(rules_dst->getParserError().c_str());
     }

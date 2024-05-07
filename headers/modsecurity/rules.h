@@ -47,10 +47,10 @@ class Rules {
         }
     }
 
-    int append(Rules *from, const std::vector<int64_t> &ids, std::ostringstream *err) {
+    int append(const Rules &from, const std::vector<int64_t> &ids, std::ostringstream *err) {
          size_t j = 0;
-         for (; j < from->size(); j++) {
-            RuleWithOperator *rule = dynamic_cast<RuleWithOperator *>(from->at(j).get());
+         for (; j < from.size(); j++) {
+            RuleWithOperator *rule = dynamic_cast<RuleWithOperator *>(from.at(j).get());
             if (rule && std::binary_search(ids.begin(), ids.end(), rule->m_ruleId)) {
                  if (err != NULL) {
                      *err << "Rule id: " << std::to_string(rule->m_ruleId) \
@@ -59,7 +59,7 @@ class Rules {
                  return -1;
              }
          }
-         m_rules.insert(m_rules.end(), from->m_rules.begin(), from->m_rules.end());
+         m_rules.insert(m_rules.end(), from.m_rules.begin(), from.m_rules.end());
          return j;
     }
 
