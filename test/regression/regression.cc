@@ -505,9 +505,7 @@ int main(int argc, char **argv) {
 #ifdef WITH_LUA
     resources.push_back("lua");
 #endif
-#ifdef WITH_LIBXML2
     resources.push_back("libxml2");
-#endif
 
 #ifdef NO_LOGS
     std::cout << "Test utility cannot work without logging support." \

@@ -19,10 +19,8 @@
 
 #include <yajl/yajl_tree.h>
 #include <yajl/yajl_gen.h>
-#ifdef WITH_LIBXML2
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
-#endif
 #ifdef MSC_WITH_CURL
 #include <curl/curl.h>
 #endif
@@ -83,9 +81,7 @@ ModSecurity::ModSecurity()
 #ifdef MSC_WITH_CURL
     curl_global_init(CURL_GLOBAL_ALL);
 #endif
-#ifdef WITH_LIBXML2
     xmlInitParser();
-#endif
 }
 
 
@@ -96,9 +92,7 @@ ModSecurity::~ModSecurity() {
 #ifdef WITH_GEOIP
     Utils::GeoLookup::getInstance().cleanUp();
 #endif
-#ifdef WITH_LIBXML2
     xmlCleanupParser();
-#endif
     delete m_global_collection;
     delete m_resource_collection;
     delete m_ip_collection;

@@ -4,7 +4,6 @@ set(BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/../..)
 
 option(WITHOUT_LMDB    "Include LMDB support"    OFF)
 option(WITHOUT_LUA     "Include LUA support"     OFF)
-option(WITHOUT_LIBXML2 "Include LibXML2 support" OFF)
 option(WITHOUT_MAXMIND "Include MaxMind support" OFF)
 option(WITHOUT_CURL    "Include CURL support"    OFF)
 
@@ -88,6 +87,7 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME "${PACKAGE_NAME}")
 
 set(HAVE_YAJL     1)    # should always be one, mandatory dependency
+set(HAVE_LIBXML2  1)    # should always be one, mandatory dependency
 set(HAVE_GEOIP    0)    # should always be zero, no conan package available
 set(HAVE_SSDEEP   0)    # should always be zero, no conan package available
 
@@ -101,7 +101,6 @@ endmacro()
 
 enable_feature(HAVE_LMDB ${WITHOUT_LMDB})
 enable_feature(HAVE_LUA ${WITHOUT_LUA})
-enable_feature(HAVE_LIBXML2 ${WITHOUT_LIBXML2})
 enable_feature(HAVE_MAXMIND ${WITHOUT_MAXMIND})
 enable_feature(HAVE_CURL ${WITHOUT_CURL})
 
@@ -168,6 +167,7 @@ function(setTestTargetProperties executable)
   target_include_directories(${executable} PRIVATE ${BASE_DIR} ${BASE_DIR}/headers)
   target_link_libraries(${executable} PRIVATE libModSecurity pcre2::pcre2 dirent::dirent)
   add_package_dependency(${executable} WITH_YAJL yajl::yajl HAVE_YAJL)
+  add_package_dependency(${executable} WITH_LIBXML2 LibXml2::LibXml2 HAVE_LIBXML2)
 endfunction()
 
 # unit tests

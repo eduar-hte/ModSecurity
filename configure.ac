@@ -105,6 +105,9 @@ AC_DEFUN([SECLANG_TEST_VERSION], m4_esyscmd_s(cd "test/test-cases/secrules-langu
 # Check for yajl
 CHECK_YAJL
 
+# Check for LibXML
+CHECK_LIBXML2
+
 # Check for LibGeoIP
 PROG_GEOIP
 AM_CONDITIONAL([GEOIP_CFLAGS], [test "GEOIP_CFLAGS" != ""])
@@ -135,12 +138,6 @@ CHECK_CURL
 if ! test -z "${CURL_VERSION}"; then
   AC_DEFINE([MSC_WITH_CURL], [1], [Define if libcurl is available])
 fi
-
-
-#
-# Check for LibXML
-#
-CHECK_LIBXML2
 
 
 #
@@ -456,6 +453,16 @@ else
 fi
 echo "      ${YAJL_DISPLAY}"
 
+## libxml2
+AS_ECHO_N("   + LibXML2                                       ....")
+if ! test "x$LIBXML2_VERSION" = "x"; then
+    echo "v${LIBXML2_VERSION}"
+else
+    echo ""
+fi
+echo "      ${LIBXML2_DISPLAY}"
+
+
 AS_ECHO_N("   + libInjection                                  ....")
 echo LIBINJECTION_VERSION
 AS_ECHO_N("   + Mbed TLS                                      ....")
@@ -522,24 +529,6 @@ if test "x$LMDB_FOUND" = "x1"; then
 fi
 if test "x$LMDB_FOUND" = "x2"; then
     echo "   + LMDB                                          ....disabled"
-fi
-
-
-## libxml2
-if test "x$LIBXML2_FOUND" = "x0"; then
-    echo "   + LibXML2                                       ....not found"
-fi
-if test "x$LIBXML2_FOUND" = "x1"; then
-    AS_ECHO_N("   + LibXML2                                       ....found ")
-    if ! test "x$LIBXML2_VERSION" = "x"; then
-        echo "v${LIBXML2_VERSION}"
-    else
-        echo ""
-    fi
-    echo "      ${LIBXML2_DISPLAY}"
-fi
-if test "x$LIBXML2_FOUND" = "x2"; then
-    echo "   + LibXML2                                       ....disabled"
 fi
 
 

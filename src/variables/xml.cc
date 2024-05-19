@@ -21,13 +21,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#ifdef WITH_LIBXML2
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpathInternals.h>
-#endif
 
 #include <iostream>
 #include <string>
@@ -45,12 +43,6 @@
 
 namespace modsecurity {
 namespace variables {
-
-#ifndef WITH_LIBXML2
-void XML::evaluate(Transaction *t,
-    RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) { }
-#else
 
 void XML::evaluate(Transaction *t,
     RuleWithActions *rule,
@@ -137,8 +129,6 @@ void XML::evaluate(Transaction *t,
     xmlXPathFreeObject(xpathObj);
     xmlXPathFreeContext(xpathCtx);
 }
-
-#endif
 
 }  // namespace variables
 }  // namespace modsecurity

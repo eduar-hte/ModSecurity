@@ -137,11 +137,7 @@ Transaction::Transaction(ModSecurity *ms, RulesSet *rules, void *logCbData)
         ms->m_session_collection, ms->m_user_collection,
         ms->m_resource_collection),
     m_matched(),
-#ifdef WITH_LIBXML2
     m_xml(new RequestBodyProcessor::XML(this)),
-#else
-    m_xml(NULL),
-#endif
     m_json(new RequestBodyProcessor::JSON(this)),
     m_secRuleEngine(RulesSetProperties::PropertyNotSetRuleEngine),
     m_variableDuration(""),
@@ -210,11 +206,7 @@ Transaction::Transaction(ModSecurity *ms, RulesSet *rules, char *id, void *logCb
         ms->m_session_collection, ms->m_user_collection,
         ms->m_resource_collection),
     m_matched(),
-#ifdef WITH_LIBXML2
     m_xml(new RequestBodyProcessor::XML(this)),
-#else
-    m_xml(NULL),
-#endif
     m_json(new RequestBodyProcessor::JSON(this)),
     m_secRuleEngine(RulesSetProperties::PropertyNotSetRuleEngine),
     m_variableDuration(""),
@@ -255,9 +247,7 @@ Transaction::~Transaction() {
     intervention::clean(&m_it);
 
     delete m_json;
-#ifdef WITH_LIBXML2
     delete m_xml;
-#endif
 }
 
 
@@ -812,7 +802,6 @@ int Transaction::processRequestBody() {
 	}
     }
 
-#ifdef WITH_LIBXML2
     if (m_requestBodyProcessor == XMLRequestBody) {
         // large size might cause issues in the parsing itself; omit if exceeded
         if (!requestBodyNoFilesLimitExceeded) {
@@ -835,12 +824,7 @@ int Transaction::processRequestBody() {
                 m_variableReqbodyProcessorError.set("0", m_variableOffset);
             }
         }
-#endif
-#ifdef WITH_LIBXML2
     } else if (m_requestBodyProcessor == JSONRequestBody) {
-#else
-    if (m_requestBodyProcessor == JSONRequestBody) {
-#endif
         // large size might cause issues in the parsing itself; omit if exceeded
         if (!requestBodyNoFilesLimitExceeded) {
             std::string error;

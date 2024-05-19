@@ -13,10 +13,8 @@
  *
  */
 
-#ifdef WITH_LIBXML2
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
-#endif
 
 #include <string>
 #include <iostream>
@@ -30,8 +28,6 @@
 
 namespace modsecurity {
 namespace RequestBodyProcessor {
-
-#ifdef WITH_LIBXML2
 
 struct xml_data {
     xmlSAXHandler *sax_handler;
@@ -63,8 +59,6 @@ class XML {
     Transaction *m_transaction;
     std::string m_header;
 };
-
-#endif
 
 }  // namespace RequestBodyProcessor
 }  // namespace modsecurity

@@ -19,10 +19,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef WITH_LIBXML2
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
-#endif
 #include <string>
 #include <memory>
 #include <utility>
@@ -33,7 +31,6 @@
 namespace modsecurity {
 namespace operators {
 
-#ifdef WITH_LIBXML2
 class XmlDtdPtrManager {
  public:
     /** @ingroup ModSecurity_Operator */
@@ -49,14 +46,12 @@ class XmlDtdPtrManager {
  private:
     xmlDtdPtr m_dtd; // The resource being managed
 };
-#endif
 
 class ValidateDTD : public Operator {
  public:
     /** @ingroup ModSecurity_Operator */
     explicit ValidateDTD(std::unique_ptr<RunTimeString> param)
         : Operator("ValidateDTD", std::move(param)) { }
-#ifdef WITH_LIBXML2
     ~ValidateDTD() { }
 
     bool evaluate(Transaction *transaction, const std::string  &str) override;
@@ -74,7 +69,7 @@ class ValidateDTD : public Operator {
         va_end(args);
 
         if (len > 0) {
-            s = "XML Error: " + std::string(buf);
+            s = "XML Error: " + std::string(buf); // cppcheck-suppress unreadVariable
         }
         ms_dbg_a(t, 4, s);
     }
@@ -91,7 +86,7 @@ class ValidateDTD : public Operator {
         va_end(args);
 
         if (len > 0) {
-            s = "XML Warning: " + std::string(buf);
+            s = "XML Warning: " + std::string(buf); // cppcheck-suppress unreadVariable
         }
         ms_dbg_a(t, 4, s);
     }
@@ -102,7 +97,6 @@ class ValidateDTD : public Operator {
 
  private:
     std::string m_resource;
-#endif
 };
 
 }  // namespace operators

@@ -22,7 +22,6 @@ jobs:
           - {label: "wo curl",    opt: "--without-curl" }
           - {label: "wo lua",     opt: "--without-lua" }
           - {label: "wo maxmind", opt: "--without-maxmind" }
-          - {label: "wo libxml",  opt: "--without-libxml" }
           - {label: "wo geoip",   opt: "--without-geoip" }
           - {label: "wo ssdeep",  opt: "--without-ssdeep" }
           - {label: "with lmdb",  opt: "--with-lmdb" }
@@ -84,7 +83,6 @@ jobs:
           - {label: "wo curl",    opt: "--without-curl" }
           - {label: "wo lua",     opt: "--without-lua" }
           - {label: "wo maxmind", opt: "--without-maxmind" }
-          - {label: "wo libxml",  opt: "--without-libxml" }
           - {label: "wo geoip",   opt: "--without-geoip" }
           - {label: "wo ssdeep",  opt: "--without-ssdeep" }
           - {label: "with lmdb",  opt: "--with-lmdb" }
@@ -98,10 +96,10 @@ jobs:
                        automake \
                        libtool \
                        yajl \
+                       libxml2 \
                        lmdb \
                        lua \
                        libmaxminddb \
-                       libxml2 \
                        geoip \
                        ssdeep \
                        pcre \
@@ -136,7 +134,6 @@ jobs:
           - {label: "wo lmdb",    opt: "-DWITHOUT_LMDB=ON" }
           - {label: "wo lua",     opt: "-DWITHOUT_LUA=ON" }
           - {label: "wo maxmind", opt: "-DWITHOUT_MAXMIND=ON" }
-          - {label: "wo libxml",  opt: "-WITHOUT_LIBXML2=ON" }
     steps:
       - uses: actions/checkout@v4
         with:

@@ -19,10 +19,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef WITH_LIBXML2
 #include <libxml/xmlschemas.h>
 #include <libxml/xpath.h>
-#endif
 #include <string>
 #include <memory>
 #include <utility>
@@ -39,7 +37,6 @@ class ValidateSchema : public Operator {
     explicit ValidateSchema(std::unique_ptr<RunTimeString> param)
         : Operator("ValidateSchema", std::move(param)) { }
     ~ValidateSchema() { }
-#ifdef WITH_LIBXML2
 
     bool evaluate(Transaction *transaction, const std::string  &str) override;
     bool init(const std::string &file, std::string *error) override;
@@ -86,7 +83,7 @@ class ValidateSchema : public Operator {
         va_end(args);
 
         if (len > 0) {
-            s = "XML Error: " + std::string(buf);
+            s = "XML Error: " + std::string(buf); // cppcheck-suppress unreadVariable
         }
         ms_dbg_a(t, 4, s);
     }
@@ -103,7 +100,7 @@ class ValidateSchema : public Operator {
         va_end(args);
 
         if (len > 0) {
-            s = "XML Warning: " + std::string(buf);
+            s = "XML Warning: " + std::string(buf); // cppcheck-suppress unreadVariable
         }
         ms_dbg_a(t, 4, s);
     }
@@ -114,7 +111,6 @@ class ValidateSchema : public Operator {
  private:
     std::string m_resource;
     std::string m_err;
-#endif
 };
 
 }  // namespace operators
