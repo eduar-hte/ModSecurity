@@ -25,7 +25,6 @@ jobs:
           - {label: "wo geoip",   opt: "--without-geoip" }
           - {label: "wo ssdeep",  opt: "--without-ssdeep" }
           - {label: "with lmdb",  opt: "--with-lmdb" }
-          - {label: "with pcre2", opt: "--with-pcre2" }
         exclude:
           - platform: {label: "x32"}
             configure: {label: "wo geoip"}
@@ -37,19 +36,18 @@ jobs:
           sudo dpkg --add-architecture ${{ matrix.platform.arch }}
           sudo apt-get update -y -qq
           sudo apt-get install -y libyajl-dev:${{ matrix.platform.arch }} \
+                                  libpcre2-dev:${{ matrix.platform.arch }} \
+                                  pcre2-utils:${{ matrix.platform.arch }} \
                                   libcurl4-openssl-dev:${{ matrix.platform.arch }} \
                                   liblmdb-dev:${{ matrix.platform.arch }} \
                                   liblua5.2-dev:${{ matrix.platform.arch }} \
                                   libmaxminddb-dev:${{ matrix.platform.arch }} \
-                                  libpcre2-dev:${{ matrix.platform.arch }} \
-                                  pcre2-utils:${{ matrix.platform.arch }} \
                                   bison flex
       - name: Setup Dependencies (x32)
         if: ${{ matrix.platform.label == 'x32' }}
         run: |
           sudo apt-get install g++-multilib
-          sudo apt-get install -y libxml2-dev:${{ matrix.platform.arch }} \
-                                  libpcre3-dev:${{ matrix.platform.arch }}
+          sudo apt-get install -y libxml2-dev:${{ matrix.platform.arch }}
       - name: Setup Dependencies (x64)
         if: ${{ matrix.platform.label == 'x64' }}
         run: |
@@ -86,7 +84,6 @@ jobs:
           - {label: "wo geoip",   opt: "--without-geoip" }
           - {label: "wo ssdeep",  opt: "--without-ssdeep" }
           - {label: "with lmdb",  opt: "--with-lmdb" }
-          - {label: "with pcre2", opt: "--with-pcre2" }
     steps:
       - name: Setup Dependencies
         # curl, pcre2 not installed because they're already
@@ -102,7 +99,6 @@ jobs:
                        libmaxminddb \
                        geoip \
                        ssdeep \
-                       pcre \
                        bison \
                        flex
       - uses: actions/checkout@v4

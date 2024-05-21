@@ -21,35 +21,12 @@
 
 #include "src/operators/operator.h"
 
-#ifndef WITH_PCRE2
-#if PCRE_HAVE_JIT
-#define pcre_study_opt PCRE_STUDY_JIT_COMPILE
-#else
-#define pcre_study_opt 0
-#endif
-#endif
-
 
 namespace modsecurity {
 namespace operators {
 
 VerifyCC::~VerifyCC() {
-#if WITH_PCRE2
     pcre2_code_free(m_pc);
-#else
-    if (m_pc != NULL) {
-        pcre_free(m_pc);
-        m_pc = NULL;
-    }
-    if (m_pce != NULL) {
-#if PCRE_HAVE_JIT
-        pcre_free_study(m_pce);
-#else
-        pcre_free(m_pce);
-#endif
-        m_pce = NULL;
-    }
-#endif
 }
 
 /**
@@ -94,7 +71,6 @@ int VerifyCC::luhnVerify(const char *ccnumber, int len) {
 
 
 bool VerifyCC::init(const std::string &param2, std::string *error) {
-#ifdef WITH_PCRE2
     PCRE2_SPTR pcre2_pattern = reinterpret_cast<PCRE2_SPTR>(m_param.c_str());
     uint32_t pcre2_options = (PCRE2_DOTALL|PCRE2_MULTILINE);
     int errornumber = 0;
@@ -105,30 +81,6 @@ bool VerifyCC::init(const std::string &param2, std::string *error) {
         return false;
     }
     m_pcje = pcre2_jit_compile(m_pc, PCRE2_JIT_COMPLETE);
-#else
-    const char *errptr = NULL;
-    int erroffset = 0;
-
-    m_pc = pcre_compile(m_param.c_str(), PCRE_DOTALL|PCRE_MULTILINE,
-        &errptr, &erroffset, NULL);
-    if (m_pc == NULL) {
-        error->assign(errptr);
-        return false;
-    }
-
-    m_pce = pcre_study(m_pc, pcre_study_opt, &errptr);
-    if (m_pce == NULL) {
-        if (errptr == NULL) {
-            /*
-             * Per pcre_study(3) m_pce == NULL && errptr == NULL means
-             * that no addional information is found, so no need to study
-             */
-            return true;
-        }
-        error->assign(errptr);
-        return false;
-    }
-#endif
 
     return true;
 }
@@ -136,7 +88,6 @@ bool VerifyCC::init(const std::string &param2, std::string *error) {
 
 bool VerifyCC::evaluate(Transaction *t, RuleWithActions *rule,
     const std::string& i, std::shared_ptr<RuleMessage> ruleMessage) {
-#ifdef WITH_PCRE2
     PCRE2_SIZE offset = 0;
     size_t target_length = i.length();
     PCRE2_SPTR pcre2_i = reinterpret_cast<PCRE2_SPTR>(i.c_str());
@@ -157,26 +108,8 @@ bool VerifyCC::evaluate(Transaction *t, RuleWithActions *rule,
         if (ret < 0) {
             break;
         }
-	PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
+        PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 
-#else
-    int offset = 0;
-    int target_length = i.length();
-
-    for (offset = 0; offset < target_length; offset++) {
-        int ovector[33];
-        memset(ovector, 0, sizeof(ovector));
-        int ret = pcre_exec(m_pc, m_pce, i.c_str(), i.size(), offset,
-            0, ovector, 33) > 0;
-
-        /* If there was no match, then we are done. */
-        if (ret == PCRE_ERROR_NOMATCH) {
-            break;
-        }
-        if (ret < 0) {
-            return false;
-        }
-#endif
         if (ret > 0) {
             std::string match = std::string(i, ovector[0], ovector[1] - ovector[0]);
             int is_cc = luhnVerify(match.c_str(), match.size());
@@ -192,17 +125,13 @@ bool VerifyCC::evaluate(Transaction *t, RuleWithActions *rule,
                         "\" at " + i + ". [offset " +
                         std::to_string(offset) + "]");
                 }
-#ifdef WITH_PCRE2
                 pcre2_match_data_free(match_data);
-#endif
                 return true;
             }
         }
     }
 
-#ifdef WITH_PCRE2
     pcre2_match_data_free(match_data);
-#endif
 
     return false;
 }

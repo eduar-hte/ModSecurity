@@ -108,6 +108,9 @@ CHECK_YAJL
 # Check for LibXML
 CHECK_LIBXML2
 
+# Check for pcre2
+CHECK_PCRE2
+
 # Check for LibGeoIP
 PROG_GEOIP
 AM_CONDITIONAL([GEOIP_CFLAGS], [test "GEOIP_CFLAGS" != ""])
@@ -138,19 +141,6 @@ CHECK_CURL
 if ! test -z "${CURL_VERSION}"; then
   AC_DEFINE([MSC_WITH_CURL], [1], [Define if libcurl is available])
 fi
-
-
-#
-# Check for libpcre
-#
-CHECK_PCRE
-
-
-#
-# Check for pcre2
-#
-PROG_PCRE2
-AM_CONDITIONAL([PCRE2_CFLAGS], [test "PCRE2_CFLAGS" != ""])
 
 
 # Checks for header files.
@@ -462,6 +452,14 @@ else
 fi
 echo "      ${LIBXML2_DISPLAY}"
 
+## PCRE2
+AS_ECHO_N("   + PCRE2                                         ....")
+if ! test "x$PCRE_VERSION" = "x"; then
+    echo "v${PCRE_VERSION}"
+else
+    echo ""
+fi
+echo "      ${PCRE_DISPLAY}"
 
 AS_ECHO_N("   + libInjection                                  ....")
 echo LIBINJECTION_VERSION
@@ -566,23 +564,6 @@ if test "x$LUA_FOUND" = "x2"; then
     echo "   + LUA                                           ....disabled"
 fi
 
-
-## PCRE2
-if test "x$PCRE2_FOUND" = "x0"; then
-    echo "   + PCRE2                                          ....not found"
-fi
-if test "x$PCRE2_FOUND" = "x1"; then
-    AS_ECHO_N("   + PCRE2                                          ....found ")
-    if ! test "x$PCRE2_VERSION" = "x"; then
-        echo "v${PCRE2_VERSION}"
-    else
-        echo ""
-    fi
-    echo "      ${PCRE2_DISPLAY}"
-fi
-if test "x$PCRE2_FOUND" = "x2"; then
-    echo "   + PCRE2                                          ....disabled"
-fi
 
 echo " "
 echo " Other Options"

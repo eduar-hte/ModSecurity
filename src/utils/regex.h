@@ -12,12 +12,8 @@
  * directly using the email address security@modsecurity.org.
  *
  */
-#if WITH_PCRE2
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
-#else
-#include <pcre.h>
-#endif
 
 #include <iostream>
 #include <fstream>
@@ -91,13 +87,8 @@ class Regex {
  private:
     RegexResult to_regex_result(int pcre_exec_result) const;
 
-#if WITH_PCRE2
     pcre2_code *m_pc;
     int m_pcje;
-#else
-    pcre *m_pc = NULL;
-    pcre_extra *m_pce = NULL;
-#endif
 };
 
 
