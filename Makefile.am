@@ -67,7 +67,7 @@ cppcheck:
 		--error-exitcode=1 \
 		-i "src/parser/seclang-parser.cc" -i "src/parser/seclang-scanner.cc" \
 		-i others \
-		--std=c++17 \
+		--std=c++20 \
 		--force --verbose .
 
 
