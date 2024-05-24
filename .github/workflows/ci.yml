@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-linux:
-    name: Linux (${{ matrix.platform.label }}, ${{ matrix.compiler.label }}, ${{ matrix.configure.label }})
+    name: Linux (${{ matrix.platform.label }}, ${{ matrix.compiler.label }}, ${{ matrix.cpp.label }}, ${{ matrix.configure.label }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -17,6 +17,9 @@ jobs:
         compiler:
           - {label: "gcc", cc: "gcc", cxx: "g++"}
           - {label: "clang", cc: "clang", cxx: "clang++"}
+        cpp:
+          - {label: "c++20", opt: ""}
+          - {label: "c++17", opt: "--enable-cpp17"}
         configure:
           - {label: "with parser generation", opt: "--enable-parser-generation" }
           - {label: "wo curl",    opt: "--without-curl" }
@@ -67,7 +70,7 @@ jobs:
         env:
           CC: ${{ matrix.compiler.cc }}
           CXX: ${{ matrix.compiler.cxx }}
-        run: ./configure ${{ matrix.platform.configure }} ${{ matrix.configure.opt }} --enable-assertions=yes
+        run: ./configure ${{ matrix.platform.configure }} ${{ matrix.cpp.opt }} ${{ matrix.configure.opt }} --enable-assertions=yes
       - uses: ammaraskar/gcc-problem-matcher@master
       - name: make
         run: make -j `nproc`

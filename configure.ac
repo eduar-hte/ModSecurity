@@ -51,9 +51,33 @@ AM_PROG_AR
 AC_PROG_MAKE_SET
 PKG_PROG_PKG_CONFIG
 
+# C++ standard to build library
+AC_ARG_ENABLE(cpp17,
+    [AS_HELP_STRING([--enable-cpp17],[Build with std C++17])],
 
-# Set C++ standard version and check if compiler supports it.
-AX_CXX_COMPILE_STDCXX(17, noext, mandatory)
+    [case "${enableval}" in
+        yes) cpp17=true ;;
+        no)  cpp17=false ;;
+        *) AC_MSG_ERROR(bad value ${enableval} for --enable-cpp17) ;;
+    esac],
+
+    [cpp17=false]
+    )
+
+if test "$cpp17" = "true"; then
+  # the user requested c++17
+  AX_CXX_COMPILE_STDCXX(17, noext, mandatory)
+  AC_SUBST([CXX_STANDARD], [17])
+else
+  # c++17 was not requested, so we'll prefer c++20, if available
+  AX_CXX_COMPILE_STDCXX(20, noext, optional)
+  if test "$HAVE_CXX20" = "1"; then
+    AC_SUBST([CXX_STANDARD], [20])
+  else
+    AX_CXX_COMPILE_STDCXX(17, noext, mandatory)
+    AC_SUBST([CXX_STANDARD], [17])
+  fi
+fi
 
 # Check for libinjection
 if ! test -f "${srcdir}/others/libinjection/src/libinjection_html5.c"; then
