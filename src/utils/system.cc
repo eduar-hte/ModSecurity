@@ -32,6 +32,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fmt/format.h>
 
 #if defined _MSC_VER
 #include "src/compat/msvc.h"
@@ -194,8 +195,8 @@ bool createDir(const std::string& dir, int mode, std::string *error) {
     int ret = _mkdir(dir.c_str());
 #endif
     if (ret != 0 && errno != EEXIST) {
-        error->assign("Not able to create directory: " + dir + ": " \
-            + strerror(errno) + ".");
+        error->assign(fmt::format("Not able to create directory: {}: {}.",
+            dir, strerror(errno)));
         return false;
     }
 

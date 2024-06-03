@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
@@ -49,8 +50,8 @@ bool XmlNS::init(std::string *error) {
     }
 
     if (m_href.compare(0, http.length(), http) != 0) {
-        error->assign("XMLS: Missing xmlns href for prefix: " \
-            "`" + m_href + "'.");
+        error->assign(fmt::format("XMLS: Missing xmlns href for prefix: " \
+            "`{}'.", m_href));
         return false;
     }
 

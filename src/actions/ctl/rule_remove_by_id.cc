@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "src/utils/string.h"
@@ -46,19 +47,19 @@ bool RuleRemoveById::init(std::string *error) {
                 n1n = std::stoi(n1s);
                 added = true;
             } catch (...) {
-                error->assign("Not a number: " + n1s);
+                error->assign(fmt::format("Not a number: {}", n1s));
                 return false;
             }
             try {
                 n2n = std::stoi(n2s);
                 added = true;
             } catch (...) {
-                error->assign("Not a number: " + n2s);
+                error->assign(fmt::format("Not a number: {}", n2s));
                 return false;
             }
 
             if (n1n > n2n) {
-                error->assign("Invalid range: " + b);
+                error->assign(fmt::format("Invalid range: {}", b));
                 return false;
             }
             m_ranges.push_back(std::make_pair(n1n, n2n));
@@ -69,7 +70,7 @@ bool RuleRemoveById::init(std::string *error) {
                 m_ids.push_back(num);
                 added = true;
             } catch (...) {
-                error->assign("Not a number or range: " + b);
+                error->assign(fmt::format("Not a number or range: {}", b));
                 return false;
             }
         }
@@ -79,7 +80,7 @@ bool RuleRemoveById::init(std::string *error) {
         return true;
     }
 
-    error->assign("Not a number or range: " + what);
+    error->assign(fmt::format("Not a number or range: {}", what));
     return false;
 }
 

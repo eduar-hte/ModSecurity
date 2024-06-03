@@ -618,7 +618,9 @@ class Variable : public VariableMonkeyResolution {
     }
 
 
-    std::string& operator+=(const char * p) {  return m_name; }
+    const std::string& to_string() const {
+        return *m_fullName.get();
+    }
 
 
     std::string m_name;
@@ -664,6 +666,17 @@ class Variables : public std::vector<Variable *> {
                 return v->getKeyWithCollection() == *m->m_fullName.get();
             }) != end();
     };
+
+    std::string to_string() const {
+        std::string s;
+        for (const auto &v : *this) {
+            if (!s.empty()) {
+                s.push_back('|');
+            }
+            s.append(v->to_string());
+        }
+        return s;
+    }
 };
 
 
@@ -716,10 +729,6 @@ class VariableModificatorCount : public Variable {
 
     std::unique_ptr<Variable> m_base;
 };
-
-
-std::string operator+(const std::string &a, const modsecurity::variables::Variable *v);
-std::string operator+(const std::string &a, const modsecurity::variables::Variables *v);
 
 
 }  // namespace variables

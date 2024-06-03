@@ -2,6 +2,7 @@
 #include "src/operators/verify_svnr.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -97,8 +98,8 @@ bool VerifySVNR::evaluate(Transaction *t, RuleWithActions *rule,
                 if (rule && t && rule->hasCaptureAction()) {
                     t->m_collections.m_tx_collection->storeOrUpdateFirst(
                         "0", j.str());
-                    ms_dbg_a(t, 7, "Added VerifySVNR match TX.0: " + \
-                        j.str());
+                    ms_dbg_a(t, 7, fmt::format("Added VerifySVNR match TX.0: {}",
+                        j.str()));
                 }
 
                 goto out;

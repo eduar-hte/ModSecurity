@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/actions/action.h"
@@ -28,7 +29,7 @@ namespace actions {
 
 
 bool SkipAfter::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    ms_dbg_a(transaction, 5, "Setting skipAfter for: " + *m_skipName);
+    ms_dbg_a(transaction, 5, fmt::format("Setting skipAfter for: {}", *m_skipName));
     transaction->addMarker(m_skipName);
     return true;
 }

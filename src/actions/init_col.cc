@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
@@ -67,8 +68,8 @@ bool InitCol::evaluate(RuleWithActions *rule, Transaction *t) {
         return false;
     }
 
-    ms_dbg_a(t, 5, "Collection `" + m_collection_key + "' initialized with " \
-        "value: " + collectionName);
+    ms_dbg_a(t, 5, fmt::format("Collection `{}' initialized with " \
+        "value: {}", m_collection_key, collectionName));
 
     return true;
 }

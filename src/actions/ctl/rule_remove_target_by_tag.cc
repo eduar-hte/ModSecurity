@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "src/utils/string.h"
@@ -34,7 +35,7 @@ bool RuleRemoveTargetByTag::init(std::string *error) {
     std::vector<std::string> param = utils::string::split(what, ';');
 
     if (param.size() < 2) {
-        error->assign(what + " is not a valid `TAG;VARIABLE'");
+        error->assign(fmt::format("{} is not a valid `TAG;VARIABLE'", what));
         return false;
     }
 

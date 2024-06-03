@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/transaction.h"
@@ -122,8 +123,8 @@ bool SetVar::evaluate(RuleWithActions *rule, Transaction *t) {
         }
     }
 
-    ms_dbg_a(t, 8, "Saving variable: " + m_variable->m_collectionName \
-        + ":" + m_variableNameExpanded + " with value: " + targetValue);
+    ms_dbg_a(t, 8, fmt::format("Saving variable: {}:{} with value: {}",
+        m_variable->m_collectionName, m_variableNameExpanded, targetValue));
 
     if (tx) {
         tx->storeOrUpdateFirst(t, m_variableNameExpanded, targetValue);

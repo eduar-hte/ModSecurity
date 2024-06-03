@@ -226,7 +226,6 @@ class RulesSetProperties {
         PropertyNotSetConfigBoolean
     };
 
-
     /**
      *
      * The RuleEngine enumerator consists in mapping the different states

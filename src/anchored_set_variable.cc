@@ -18,6 +18,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <fmt/format.h>
 
 #include "modsecurity/anchored_set_variable.h"
 #include "modsecurity/modsecurity.h"
@@ -81,8 +82,8 @@ void AnchoredSetVariable::resolve(
         if (!ke.toOmit(x.first)) {
             l->insert(l->begin(), new VariableValue(x.second));
         } else {
-            ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
-                + " from target value.");
+            ms_dbg_a(m_transaction, 7, fmt::format("Excluding key: {} " \
+                "from target value.", x.first));
         }
     }
 }
@@ -131,8 +132,8 @@ void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
         if (!ke.toOmit(x.first)) {
             l->insert(l->begin(), new VariableValue(x.second));
         } else {
-            ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
-                + " from target value.");
+            ms_dbg_a(m_transaction, 7, fmt::format("Excluding key: {} " \
+                " from target value.", x.first));
         }
     }
 }

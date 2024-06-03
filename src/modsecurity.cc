@@ -32,6 +32,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "modsecurity/rule.h"
 #include "modsecurity/rule_message.h"
@@ -147,7 +148,8 @@ const std::string& ModSecurity::whoAmI() {
 #endif
 
     if (m_whoami.empty()) {
-        m_whoami = "ModSecurity v" MODSECURITY_VERSION " (" + platform + ")";
+        m_whoami = fmt::format("ModSecurity v{} ({})",
+            MODSECURITY_VERSION, platform);
     }
 
     return m_whoami;
@@ -275,10 +277,9 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
 
         const auto value = std::string(content, stoi(startingAt), stoi(size));
         if (varValue.size() > 0) {
-            varValue.append(" " + value);
-        } else {
-            varValue.append(value);
+            varValue.push_back(' ');
         }
+        varValue.append(value);
     }
     yajl_gen_array_close(g);
 

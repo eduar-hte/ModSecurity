@@ -15,6 +15,8 @@
 
 #include "modsecurity/debug_log.h"
 
+#include <fmt/format.h>
+
 #include "src/debug_log/debug_log_writer.h"
 #include "src/debug_log_writer_agent.h"
 
@@ -71,20 +73,17 @@ int DebugLog::getDebugLogLevel() {
 void DebugLog::write(int level, const std::string &id,
     const std::string &uri, const std::string &msg) {
     if (level <= m_debugLevel) {
-        std::string msgf = "[" + std::to_string(level) + "] " + msg;
-        msgf = "[" + id + "] [" + uri + "] " + msgf;
-
         DebugLogWriter &d = DebugLogWriter::getInstance();
-        d.write_log(m_fileName, msgf);
+        d.write_log(m_fileName, fmt::format("[{}] [{}] [{}] {}",
+            id, uri, level, msg));
     }
 }
 
 
 void DebugLog::write(int level, const std::string &msg) {
     if (level <= m_debugLevel) {
-        std::string msgf = "[" + std::to_string(level) + "] " + msg;
         DebugLogWriter &d = DebugLogWriter::getInstance();
-        d.write_log(m_fileName, msgf);
+        d.write_log(m_fileName, fmt::format("[{}] {}", level, msg));
     }
 }
 

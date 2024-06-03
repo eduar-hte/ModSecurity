@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 
@@ -30,7 +31,7 @@ bool Status::init(std::string *error) {
     try {
         m_status = std::stoi(m_parser_payload);
     } catch (...) {
-        error->assign("Not a valid number: " + m_parser_payload);
+        error->assign(fmt::format("Not a valid number: {}", m_parser_payload));
         return false;
     }
 

@@ -18,6 +18,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "modsecurity/rule.h"
@@ -72,7 +73,7 @@ bool RxGlobal::evaluate(Transaction *transaction, RuleWithActions *rule,
             ms_dbg_a(transaction, 7, "Set TX.MSC_PCRE_LIMITS_EXCEEDED to 1");
         }
 
-        ms_dbg_a(transaction, 1, "rxGlobal: regex error '" + regex_error_str + "' for pattern '" + re->pattern + "'");
+        ms_dbg_a(transaction, 1, fmt::format("rxGlobal: regex error '{}' for pattern '{}'", regex_error_str, re->pattern));
 
         return false;
     }
@@ -83,8 +84,8 @@ bool RxGlobal::evaluate(Transaction *transaction, RuleWithActions *rule,
             const std::string capture_substring(input.substr(capture.m_offset,capture.m_length));
             transaction->m_collections.m_tx_collection->storeOrUpdateFirst(
                 std::to_string(capture.m_group), capture_substring);
-            ms_dbg_a(transaction, 7, "Added regex subexpression TX." +
-                std::to_string(capture.m_group) + ": " + capture_substring);
+            ms_dbg_a(transaction, 7, fmt::format("Added regex subexpression TX.{}: {}",
+                capture.m_group, capture_substring));
             transaction->m_matched.push_back(capture_substring);
         }
     }

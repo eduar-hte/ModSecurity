@@ -15,6 +15,8 @@
 
 #include "src/actions/accuracy.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rule_with_actions.h"
 
 
@@ -25,8 +27,8 @@ bool Accuracy::init(std::string *error) {
     try {
         m_accuracy = std::stoi(m_parser_payload);
     }  catch (...) {
-        error->assign("Accuracy: The input \"" + m_parser_payload + "\" is " \
-            "not a number.");
+        error->assign(fmt::format("Accuracy: The input \"{}\" is " \
+            "not a number.", m_parser_payload));
         return false;
     }
     return true;
