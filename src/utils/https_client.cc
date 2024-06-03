@@ -32,6 +32,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "modsecurity/modsecurity.h"
 #include "src/unique_id.h"
@@ -67,8 +68,8 @@ void HttpsClient::setRequestType(const std::string& requestType) {
 bool HttpsClient::download(const std::string &uri) {
     CURL *curl;
     CURLcode res;
-    std::string uniqueId = "ModSec-unique-id: " + UniqueId::uniqueId();
-    std::string status = "ModSec-status: " + std::to_string(MODSECURITY_VERSION_NUM);
+    const auto uniqueId = fmt::format("ModSec-unique-id: {}", UniqueId::uniqueId());
+    const auto status = fmt::format("ModSec-status: {}", MODSECURITY_VERSION_NUM);
 
     curl = curl_easy_init();
     if (!curl) {
@@ -83,7 +84,7 @@ bool HttpsClient::download(const std::string &uri) {
     headers_chunk = curl_slist_append(headers_chunk, status.c_str());
 
     if (m_requestType.empty() == false) {
-        std::string hdr = "Content-Type: " + m_requestType;
+        const auto hdr = fmt::format("Content-Type: {}", m_requestType);
         headers_chunk = curl_slist_append(headers_chunk, hdr.c_str());
     }
 

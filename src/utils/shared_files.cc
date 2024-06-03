@@ -20,6 +20,7 @@
 #include <algorithm>
 #endif
 
+#include <fmt/format.h>
 
 namespace modsecurity {
 namespace utils {
@@ -29,7 +30,7 @@ SharedFiles::handlers_map::iterator SharedFiles::add_new_handler(
     const std::string &fileName, std::string *error) {
     FILE *fp = fopen(fileName.c_str(), "a");
     if (fp == 0) {
-        error->assign("Failed to open file: " + fileName);
+        error->assign(fmt::format("Failed to open file: {}", fileName));
         return m_handlers.end();
     }
 
@@ -71,7 +72,7 @@ bool SharedFiles::open(const std::string& fileName, std::string *error) {
     }
 
     if (it == m_handlers.end()) {
-        error->assign("Not able to open: " + fileName);
+        error->assign(fmt::format("Not able to open: {}", fileName));
         return false;
     }
 
@@ -108,7 +109,7 @@ bool SharedFiles::write(const std::string& fileName,
 
     auto it = m_handlers.find(fileName);
     if (it == m_handlers.end()) {
-        error->assign("file is not open: " + fileName);
+        error->assign(fmt::format("file is not open: {}", fileName));
         return false;
     }
 
@@ -128,7 +129,7 @@ bool SharedFiles::write(const std::string& fileName,
 
     auto wrote = fwrite(msg.c_str(), 1, msg.size(), it->second.fp);
     if (wrote < msg.size()) {
-        error->assign("failed to write: " + fileName);
+        error->assign(fmt::format("failed to write: {}", fileName));
         ret = false;
     }
     fflush(it->second.fp);

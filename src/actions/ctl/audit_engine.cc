@@ -16,6 +16,7 @@
 #include "src/actions/ctl/audit_engine.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set_properties.h"
 #include "modsecurity/rules_set.h"
@@ -37,8 +38,8 @@ bool AuditEngine::init(std::string *error) {
     } else if (what == "relevantonly") {
         m_auditEngine = audit_log::AuditLog::AuditLogStatus::RelevantOnlyAuditLogStatus;
     } else {
-        error->assign("Internal error. Expected: On, Off or RelevantOnly; " \
-            "got: " + m_parser_payload);
+        error->assign(fmt::format("Internal error. Expected: On, Off or RelevantOnly; " \
+            "got: {}", m_parser_payload));
         return false;
     }
 
@@ -46,12 +47,8 @@ bool AuditEngine::init(std::string *error) {
 }
 
 bool AuditEngine::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    std::stringstream a;
-    a << "Setting SecAuditEngine to ";
-    a << std::to_string(m_auditEngine);
-    a << " as requested by a ctl:auditEngine action";
-
-    ms_dbg_a(transaction, 8, a.str());
+    ms_dbg_a(transaction, 8, fmt::format("Setting SecAuditEngine to {} " \
+        " as requested by a ctl:auditEngine action", (int)m_auditEngine));
 
     transaction->m_ctlAuditEngine = m_auditEngine;
     return true;

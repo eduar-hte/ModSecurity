@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/actions/action.h"
@@ -30,8 +31,8 @@ bool Skip::init(std::string *error) {
     try {
         m_skip_next = std::stoi(m_parser_payload);
     }  catch (...) {
-        error->assign("Skip: The input \"" + m_parser_payload + "\" is " \
-            "not a number.");
+        error->assign(fmt::format("Skip: The input \"{}\" is " \
+            "not a number.", m_parser_payload));
         return false;
     }
     return true;

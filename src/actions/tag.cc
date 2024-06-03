@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
@@ -59,7 +60,7 @@ std::string Tag::getName(Transaction *transaction) {
 
 bool Tag::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
     std::string tag = getName(transaction);
-    ms_dbg_a(transaction, 9, "Rule tag: " + tag);
+    ms_dbg_a(transaction, 9, fmt::format("Rule tag: {}", tag));
 
     ruleMessage.m_tags.push_back(tag);
 

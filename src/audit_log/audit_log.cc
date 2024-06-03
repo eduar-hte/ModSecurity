@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <fmt/format.h>
 
 #include <fstream>
 
@@ -299,10 +300,9 @@ bool AuditLog::saveIfRelevant(Transaction *transaction, int parts) {
     if ((transactionAuditLogStatus == RelevantOnlyAuditLogStatus
         && this->isRelevant(transaction->m_httpCodeReturned) == false)
         && saveAnyway == false) {
-        ms_dbg_a(transaction, 9, "Return code `" +
-            std::to_string(transaction->m_httpCodeReturned) + "'" \
-            " is not interesting to audit logs, relevant code(s): `" +
-            m_relevant + "'.");
+        ms_dbg_a(transaction, 9, fmt::format("Return code `{}'" \
+            " is not interesting to audit logs, relevant code(s): `{}'.",
+            transaction->m_httpCodeReturned, m_relevant));
 
         return false;
     }
@@ -318,7 +318,7 @@ bool AuditLog::saveIfRelevant(Transaction *transaction, int parts) {
         std::string error;
         bool a = m_writer->write(transaction, parts, &error);
         if (a == false) {
-            ms_dbg_a(transaction, 1, "Cannot save the audit log: " + error);
+            ms_dbg_a(transaction, 1, fmt::format("Cannot save the audit log: {}", error));
             return false;
         }
     }

@@ -15,6 +15,8 @@
 
 #include "modsecurity/rule_unconditional.h"
 
+#include <fmt/format.h>
+
 
 namespace modsecurity {
 
@@ -26,8 +28,9 @@ bool RuleUnconditional::evaluate(Transaction *trans,
     // FIXME: This needs to be romeved on the runtime exeption review.
     bool containsBlock = false;
 
-    ms_dbg_a(trans, 4, "(Rule: " + std::to_string(m_ruleId) \
-        + ") Executing unconditional rule...");
+    ms_dbg_a(trans, 4, fmt::format("(Rule: {}) "  \
+        "Executing unconditional rule...",
+        m_ruleId));
 
     executeActionsIndependentOfChainedRuleResult(trans,
         &containsBlock, ruleMessage);

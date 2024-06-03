@@ -18,6 +18,7 @@
 #include <list>
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 
 namespace modsecurity {
@@ -94,9 +95,9 @@ bool XML::processChunk(const char *buf, unsigned int size,
             buf, size, "body.xml");
 
         if (m_data.parsing_ctx == NULL) {
-            ms_dbg_a(m_transaction, 4,
-                "XML: Failed to create parsing context.");
-            error->assign("XML: Failed to create parsing context.");
+            const auto err = "XML: Failed to create parsing context.";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
 
@@ -108,8 +109,9 @@ bool XML::processChunk(const char *buf, unsigned int size,
     /* Not a first invocation. */
     xmlParseChunk(m_data.parsing_ctx, buf, size, 0);
     if (m_data.parsing_ctx->wellFormed != 1) {
-        error->assign("XML: Failed to create parsing context.");
-        ms_dbg_a(m_transaction, 4, "XML: Failed parsing document.");
+        const auto err = "XML: Failed to create parsing context.";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
@@ -130,12 +132,13 @@ bool XML::complete(std::string *error) {
         /* Clean up everything else. */
         xmlFreeParserCtxt(m_data.parsing_ctx);
         m_data.parsing_ctx = NULL;
-        ms_dbg_a(m_transaction, 4, "XML: Parsing complete (well_formed " \
-            + std::to_string(m_data.well_formed) + ").");
+        ms_dbg_a(m_transaction, 4, fmt::format("XML: Parsing complete " \
+            "(well_formed {}).", m_data.well_formed));
 
         if (m_data.well_formed != 1) {
-            error->assign("XML: Failed parsing document.");
-            ms_dbg_a(m_transaction, 4, "XML: Failed parsing document.");
+            const auto err = "XML: Failed parsing document.";
+            error->assign(err);
+            ms_dbg_a(m_transaction, 4, err);
             return false;
         }
     }

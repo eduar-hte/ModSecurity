@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "modsecurity/rule.h"
@@ -30,8 +31,8 @@ bool SetENV::evaluate(RuleWithActions *rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
 
     auto pair = utils::string::ssplit_pair(colNameExpanded, '=');
-    ms_dbg_a(t, 8, "Setting environment variable: "
-        + pair.first + " to " + pair.second);
+    ms_dbg_a(t, 8, fmt::format("Setting environment variable: {} to {}",
+        pair.first, pair.second));
 #ifndef WIN32
     setenv(pair.first.c_str(), pair.second.c_str(), /*overwrite*/ 1);
 #else

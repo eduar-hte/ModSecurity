@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set_properties.h"
 #include "modsecurity/transaction.h"
@@ -34,8 +35,8 @@ bool RequestBodyAccess::init(std::string *error) {
     } else if (what == "false") {
         m_request_body_access = false;
     } else {
-        error->assign("Internal error. Expected: true or false, got: " \
-            + m_parser_payload);
+        error->assign(fmt::format("Internal error. Expected: true or false, got: {}",
+            m_parser_payload));
         return false;
     }
 

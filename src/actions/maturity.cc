@@ -15,6 +15,8 @@
 
 #include "src/actions/maturity.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rule_with_actions.h"
 
 
@@ -25,8 +27,8 @@ bool Maturity::init(std::string *error) {
     try {
         m_maturity = std::stoi(m_parser_payload);
     }  catch (...) {
-        error->assign("Maturity: The input \"" + m_parser_payload + "\" is " \
-            "not a number.");
+        error->assign(fmt::format("Maturity: The input \"{}\" is " \
+            "not a number.", m_parser_payload));
         return false;
     }
     return true;

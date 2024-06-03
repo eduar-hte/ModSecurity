@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "src/utils/geo_lookup.h"
 #include "src/utils/https_client.h"
@@ -120,7 +121,7 @@ bool IpTree::addFromFile(const std::string& file, std::string *error) {
     std::ifstream myfile(file, std::ios::in);
 
     if (myfile.is_open() == false) {
-        error->assign("Failed to open file: " + file);
+        error->assign(fmt::format("Failed to open file: {}", file));
         return false;
     }
 

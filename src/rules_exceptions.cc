@@ -16,6 +16,7 @@
 #include "modsecurity/rules_exceptions.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/utils/string.h"
 #include "src/variables/variable.h"
@@ -138,19 +139,19 @@ bool RulesExceptions::load(const std::string &a, std::string *error) {
                 n1n = std::stoi(n1s);
                 added = true;
             } catch (...) {
-                error->assign("Not a number: " + n1s);
+                error->assign(fmt::format("Not a number: ", n1s));
                 return false;
             }
             try {
                 n2n = std::stoi(n2s);
                 added = true;
             } catch (...) {
-                error->assign("Not a number: " + n2s);
+                error->assign(fmt::format("Not a number: ", n2s));
                 return false;
             }
 
             if (n1s > n2s) {
-                error->assign("Invalid range: " + b);
+                error->assign(fmt::format("Invalid range: ", b));
                 return false;
             }
             addRange(n1n, n2n);
@@ -161,7 +162,7 @@ bool RulesExceptions::load(const std::string &a, std::string *error) {
                 addNumber(num);
                 added = true;
             } catch (...) {
-                error->assign("Not a number or range: " + b);
+                error->assign(fmt::format("Not a number or range: {}", b));
                 return false;
             }
         }
@@ -171,7 +172,7 @@ bool RulesExceptions::load(const std::string &a, std::string *error) {
         return true;
     }
 
-    error->assign("Not a number or range: " + a);
+    error->assign(fmt::format("Not a number or range: {}", a));
     return false;
 }
 

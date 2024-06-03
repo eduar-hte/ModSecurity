@@ -16,6 +16,7 @@
 #include "src/actions/expire_var.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/transaction.h"
@@ -81,7 +82,7 @@ bool ExpireVar::evaluate(RuleWithActions *rule, Transaction *t) {
     } else {
         ms_dbg_a(t, 5, "Invalid collection found in expirevar expression: collection must be `ip', `global', `resource', `user' or `session'");
     }
-    ms_dbg_a(t, 9, "Setting variable `" + variable_name + "' to expire in " + std::to_string(expirySeconds) + " seconds.");
+    ms_dbg_a(t, 9, fmt::format("Setting variable `{}' to expire in {} seconds.", variable_name, expirySeconds));
 
     return true;
 }

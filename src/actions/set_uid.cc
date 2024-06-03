@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "modsecurity/rule.h"
@@ -28,8 +29,8 @@ namespace actions {
 
 bool SetUID::evaluate(RuleWithActions *rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
-    ms_dbg_a(t, 8, "User collection initiated with value: \'"
-        + colNameExpanded + "\'.");
+    ms_dbg_a(t, 8, fmt::format("User collection initiated with value: \'{}\'.",
+        colNameExpanded));
 
     t->m_collections.m_user_collection_key = colNameExpanded;
     t->m_variableUserID.set(colNameExpanded, t->m_variableOffset);

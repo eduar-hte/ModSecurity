@@ -27,6 +27,7 @@
 #endif
 
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "src/operators/operator.h"
@@ -44,28 +45,24 @@ std::string Rbl::mapIpToAddress(const std::string &ipStr, Transaction *trans) co
     }
 
     if (sscanf(ipStr.c_str(), "%d.%d.%d.%d", &h0, &h1, &h2, &h3) != 4) {
-        ms_dbg_a(trans, 0, std::string("Failed to understand `" + ipStr +
-            "' as a valid IP address, assuming domain format input"));
+        ms_dbg_a(trans, 0, fmt::format("Failed to understand `{}' "
+            "as a valid IP address, assuming domain format input", ipStr));
 
         addr = ipStr + "." + m_service;
         return addr;
     }
 
     if (m_demandsPassword && key.empty()) {
-        ms_dbg_a(trans, 0, std::string("Missing RBL key, cannot continue " \
+        ms_dbg_a(trans, 0, "Missing RBL key, cannot continue " \
             "with the operator execution, please set the key using: " \
-            "SecHttpBlKey"));
+            "SecHttpBlKey");
         return addr;
     }
 
-    addr = std::to_string(h3) + "." +
-        std::to_string(h2) + "." +
-        std::to_string(h1) + "." +
-        std::to_string(h0) + "." +
-        m_service;
+    addr = fmt::format("{}.{}.{}.{}.{}", h3, h2, h1, h0, m_service);
 
     if (m_demandsPassword) {
-        addr = key + "." + addr;
+        addr = fmt::format("{}.{}", key, addr);
     }
 
     return addr;
@@ -83,12 +80,12 @@ void Rbl::futherInfo_httpbl(struct sockaddr_in *sin, const std::string &ipStr,
     respBl = inet_ntoa(sin->sin_addr);
 
     if (sscanf(respBl, "%d.%d.%d.%d", &first, &days, &score, &type) != 4) {
-        ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " failed: bad response");
+        ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} failed: bad response", ipStr));
         return;
     }
 
     if (first != 127) {
-        ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " failed: bad response");
+        ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} failed: bad response", ipStr));
         return;
     }
 
@@ -123,10 +120,9 @@ void Rbl::futherInfo_httpbl(struct sockaddr_in *sin, const std::string &ipStr,
     }
 #endif
 
-    ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded. %s: " \
-        + std::to_string(days) + " " \
-        "days since last activity, threat score " \
-        + std::to_string(score) +  ". Case: " + ptype);
+    ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded. %s: {} " \
+        "days since last activity, threat score {}. Case: {}",
+        ipStr, days, score, ptype));
 }
 
 
@@ -135,23 +131,24 @@ void Rbl::futherInfo_spamhaus(unsigned int high8bits, const std::string &ipStr,
     switch (high8bits) {
         case 2:
         case 3:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded " \
-                "(Static UBE sources).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded " \
+                "(Static UBE sources).", ipStr));
             break;
         case 4:
         case 5:
         case 6:
         case 7:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded " \
-                "(Illegal 3rd party exploits).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded " \
+                "(Illegal 3rd party exploits).", ipStr));
             break;
         case 10:
         case 11:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded " \
-                "(Delivering unauthenticated SMTP email).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded " \
+                "(Delivering unauthenticated SMTP email).", ipStr));
             break;
         default:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded ");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded ",
+                ipStr));
             break;
     }
 }
@@ -161,24 +158,28 @@ void Rbl::futherInfo_uribl(unsigned int high8bits, const std::string &ipStr,
     const Transaction *trans) {
     switch (high8bits) {
         case 2:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded (BLACK).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded (BLACK).",
+                ipStr));
         break;
         case 4:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded (GREY).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded (GREY).",
+                ipStr));
             break;
         case 8:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded (RED).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded (RED).",
+                ipStr));
             break;
         case 14:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded " \
-                "(BLACK,GREY,RED).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded " \
+                "(BLACK,GREY,RED).", ipStr));
             break;
         case 255:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded " \
-                "(DNS IS BLOCKED).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded " \
+                "(DNS IS BLOCKED).", ipStr));
             break;
         default:
-            ms_dbg_a(trans, 4, "RBL lookup of " + ipStr + " succeeded (WHITE).");
+            ms_dbg_a(trans, 4, fmt::format("RBL lookup of {} succeeded (WHITE).",
+                ipStr));
             break;
     }
 }
@@ -190,7 +191,8 @@ void Rbl::furtherInfo(struct sockaddr_in *sin, const std::string &ipStr,
 
     switch (provider) {
         case RblProvider::UnknownProvider:
-            ms_dbg_a(trans, 2, "RBL lookup of " + ipStr + " succeeded.");
+            ms_dbg_a(trans, 2, fmt::format("RBL lookup of {} succeeded.",
+                ipStr));
             break;
         case RblProvider::httpbl:
             futherInfo_httpbl(sin, ipStr, trans);
@@ -222,7 +224,7 @@ bool Rbl::evaluate(Transaction *t, RuleWithActions *rule,
         if (info != NULL) {
             freeaddrinfo(info);
         }
-        ms_dbg_a(t, 5, "RBL lookup of " + ipStr + " failed.");
+        ms_dbg_a(t, 5, fmt::format("RBL lookup of {} failed.", ipStr));
         return false;
     }
 
@@ -234,8 +236,7 @@ bool Rbl::evaluate(Transaction *t, RuleWithActions *rule,
     if (rule && t && rule->hasCaptureAction()) {
         t->m_collections.m_tx_collection->storeOrUpdateFirst(
         "0", std::string(ipStr));
-        ms_dbg_a(t, 7, "Added RXL match TX.0: " + \
-            std::string(ipStr));
+        ms_dbg_a(t, 7, fmt::format("Added RXL match TX.0: {}", ipStr));
     }
 
     return true;

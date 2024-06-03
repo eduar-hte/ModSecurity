@@ -15,6 +15,8 @@
 
 #include "src/rule_script.h"
 
+#include <fmt/format.h>
+
 
 namespace modsecurity {
 
@@ -25,7 +27,8 @@ bool RuleScript::init(std::string *err) {
 bool RuleScript::evaluate(Transaction *trans,
     RuleMessage &ruleMessage) {
 
-    ms_dbg_a(trans, 4, " Executing script: " + m_name + ".");
+    ms_dbg_a(trans, 4, fmt::format(" Executing script: {}.",
+        m_name));
 
     bool containsDisruptive = false;
 

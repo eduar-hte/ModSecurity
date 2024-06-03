@@ -24,6 +24,7 @@
 #include <list>
 #include <utility>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "src/operators/operator.h"
@@ -110,9 +111,10 @@ bool RuleWithOperator::executeOperatorAt(Transaction *trans, const std::string &
 #endif
     bool ret;
 
-    ms_dbg_a(trans, 9, "Target value: \"" + utils::string::limitTo(80,
-        utils::string::toHexIfNeeded(value)) \
-        + "\" (Variable: " + key + ")");
+    ms_dbg_a(trans, 9, fmt::format("Target value: \"{}\" (Variable: {})",
+        utils::string::limitTo(80,
+            utils::string::toHexIfNeeded(value)),
+        key));
 
     ret = this->m_operator->evaluateInternal(trans, this, value, ruleMessage);
 
@@ -124,8 +126,8 @@ bool RuleWithOperator::executeOperatorAt(Transaction *trans, const std::string &
     end = clock();
     elapsed_s = static_cast<double>(end - begin) / CLOCKS_PER_SEC;
 
-    ms_dbg_a(trans, 5, "Operator completed in " + \
-        std::to_string(elapsed_s) + " seconds");
+    ms_dbg_a(trans, 5, fmt::format("Operator completed in {} seconds",
+        elapsed_s));
 #endif
     return ret;
 }
@@ -218,16 +220,18 @@ bool RuleWithOperator::evaluate(Transaction *trans,
         if (m_ruleId != i) {
             continue;
         }
-        ms_dbg_a(trans, 9, "Rule id: " + std::to_string(m_ruleId) +
-            " was skipped due to a ruleRemoveById action...");
+        ms_dbg_a(trans, 9, fmt::format("Rule id: {} was skipped " \
+            "due to a ruleRemoveById action...",
+            m_ruleId));
         return true;
     }
     for (const auto &i : trans->m_ruleRemoveByIdRange) {
         if (!(i.first <= m_ruleId && i.second >= m_ruleId)) {
             continue;
         }
-        ms_dbg_a(trans, 9, "Rule id: " + std::to_string(m_ruleId) +
-            " was skipped due to a ruleRemoveById action...");
+        ms_dbg_a(trans, 9, fmt::format("Rule id: {} was skipped " \
+            "due to a ruleRemoveById action...",
+            m_ruleId));
         return true;
     }
 
@@ -235,22 +239,19 @@ bool RuleWithOperator::evaluate(Transaction *trans,
         eparam = m_operator->m_string->evaluate(trans);
 
         if (m_operator->m_string->containsMacro()) {
-            eparam = "\"" + eparam + "\" Was: \"" \
-                + m_operator->m_string->evaluate(NULL) + "\"";
+            eparam = fmt::format("\"{}\" Was \"{}\"",
+                eparam, m_operator->m_string->evaluate(NULL));
         } else {
-            eparam = "\"" + eparam + "\"";
+            eparam = fmt::format("\"{}\"", eparam);
         }
-    ms_dbg_a(trans, 4, "(Rule: " + std::to_string(m_ruleId) \
-        + ") Executing operator \"" + getOperatorName() \
-        + "\" with param " \
-        + eparam \
-        + " against " \
-        + m_variables + ".");
+        ms_dbg_a(trans, 4, fmt::format("(Rule: {}) " \
+            "Executing operator \"{}\" with param {} against {}.",
+            m_ruleId, getOperatorName(), eparam,
+            m_variables->to_string()));
     } else {
-        ms_dbg_a(trans, 4, "(Rule: " + std::to_string(m_ruleId) \
-            + ") Executing operator \"" + getOperatorName() \
-            + " against " \
-            + m_variables + ".");
+        ms_dbg_a(trans, 4, fmt::format("(Rule: {})" \
+            "Executing operator \"{}\" against {}.",
+            m_ruleId, getOperatorName(), m_variables->to_string()));
     }
 
 

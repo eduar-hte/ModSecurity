@@ -17,6 +17,7 @@
 
 #include <string>
 #include <list>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -127,8 +128,8 @@ bool VerifyCPF::evaluate(Transaction *t, RuleWithActions *rule,
                 if (rule && t && rule->hasCaptureAction()) {
                     t->m_collections.m_tx_collection->storeOrUpdateFirst(
                         "0", m.str());
-                    ms_dbg_a(t, 7, "Added VerifyCPF match TX.0: " + \
-                        m.str());
+                    ms_dbg_a(t, 7, fmt::format("Added VerifyCPF match TX.0: {}",
+                        m.str()));
                 }
 
                 goto out;

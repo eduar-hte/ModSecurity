@@ -18,6 +18,7 @@
 
 #include <ctime>
 #include <string>
+#include <string_view>
 #include <cstring>
 #include <vector>
 #include <algorithm>
@@ -25,6 +26,7 @@
 #include <sstream>
 #include <iomanip>
 #include <time.h>
+#include <fmt/format.h>
 
 #ifdef WIN32
 #include "src/compat/msvc.h"
@@ -88,14 +90,11 @@ inline std::string dash_if_empty(const std::string *str) {
 }
 
 
-inline std::string limitTo(int amount, const std::string &str) {
-    std::string ret;
-
+inline std::string limitTo(const std::string::size_type amount, const std::string &str) {
     if (str.length() > amount) {
-        ret.assign(str, 0, amount);
-        ret = ret + " (" + std::to_string(str.length() - amount) + " " \
-            "characters omitted)";
-        return ret;
+        return fmt::format("{} ({} characters omitted)",
+                           std::string_view{str.c_str(), amount},
+                           str.length() - amount);
     }
 
     return str;
@@ -108,9 +107,9 @@ inline std::string toHexIfNeeded(const std::string &str, bool escape_spec = fals
     std::stringstream res;
 
     for (const auto ch : str) {
-        int c = (unsigned char)ch;
+        const auto c = (unsigned char)ch;
         if (c < 32 || c > 126 || (escape_spec == true && (c == 34 || c == 92))) {
-            res << "\\x" << std::setw(2) << std::setfill('0') << std::hex << c;
+            res << fmt::format("\\x{:02x}", c);
         } else {
             res << ch;
         }

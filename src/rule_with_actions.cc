@@ -26,6 +26,7 @@
 #include <utility>
 #include <memory>
 #include <cassert>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "src/operators/operator.h"
@@ -203,8 +204,8 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
     bool *containsBlock, RuleMessage &ruleMessage) {
 
     for (actions::SetVar *a : m_actionsSetVar) {
-        ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
-            "action: " + *a->m_name.get());
+        ms_dbg_a(trans, 4, fmt::format("Running [independent] (non-disruptive) " \
+            "action: {}", *a->m_name.get()));
 
         a->evaluate(this, trans);
     }
@@ -219,8 +220,8 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
             ms_dbg_a(trans, 9, "Rule contains a `block' action");
                 *containsBlock = true;
         } else if (*a->m_name.get() == "setvar") {
-            ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
-                "action: " + *a->m_name.get());
+            ms_dbg_a(trans, 4, fmt::format("Running [independent] (non-disruptive) " \
+                "action: {}", *a->m_name.get()));
             a->evaluate(this, trans, ruleMessage);
         }
     }
@@ -257,8 +258,8 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
     }
 
     for (actions::Tag *a : this->m_actionsTag) {
-        ms_dbg_a(trans, 4, "Running (non-disruptive) action: " \
-            + *a->m_name.get());
+        ms_dbg_a(trans, 4, fmt::format("Running (non-disruptive) action: {}",
+            *a->m_name.get()));
         a->evaluate(this, trans, ruleMessage);
     }
 
@@ -300,27 +301,29 @@ void RuleWithActions::executeAction(Transaction *trans,
     bool containsBlock, RuleMessage &ruleMessage,
     Action *a, bool defaultContext) {
     if (a->isDisruptive() == false && *a->m_name.get() != "block") {
-        ms_dbg_a(trans, 9, "Running " \
-            "action: " + *a->m_name.get());
+        ms_dbg_a(trans, 9, fmt::format("Running action: {}",
+            *a->m_name.get()));
         a->evaluate(this, trans, ruleMessage);
         return;
     }
 
     if (defaultContext && !containsBlock) {
-        ms_dbg_a(trans, 4, "Ignoring action: " + *a->m_name.get() + \
-            " (rule does not cotains block)");
+        ms_dbg_a(trans, 4, fmt::format("Ignoring action: {}" \
+            " (rule does not cotains block)",
+            *a->m_name.get()));
         return;
     }
 
     if (trans->getRuleEngineState() == RulesSet::EnabledRuleEngine) {
-        ms_dbg_a(trans, 4, "Running (disruptive)     action: " + *a->m_name.get() + \
-            ".");
+        ms_dbg_a(trans, 4, fmt::format("Running (disruptive)     action: {}.",
+            *a->m_name.get()));
         a->evaluate(this, trans, ruleMessage);
         return;
     }
 
-    ms_dbg_a(trans, 4, "Not running any disruptive action (or block): " \
-        + *a->m_name.get() + ". SecRuleEngine is not On.");
+    ms_dbg_a(trans, 4, fmt::format("Not running any disruptive action " \
+        "(or block): {}. SecRuleEngine is not On.",
+        *a->m_name.get()));
 }
 
 
@@ -344,10 +347,8 @@ inline void RuleWithActions::executeTransformation(
         path.append("," + *a.m_name.get());
     }
 
-    ms_dbg_a(trans, 9, " T (" + \
-        std::to_string(nth) + ") " + \
-        *a.m_name.get() + ": \"" + \
-        utils::string::limitTo(80, value) +"\"");
+    ms_dbg_a(trans, 9, fmt::format(" T ({}) {}: \"{}\"",
+        nth, *a.m_name.get(), utils::string::limitTo(80, value)));
 }
 
 void RuleWithActions::executeTransformations(
@@ -429,9 +430,9 @@ void RuleWithActions::executeTransformations(
     }
 
     if (m_containsMultiMatchAction == true) {
-        ms_dbg_a(trans, 9, "multiMatch is enabled. " \
-            + std::to_string(ret.size()) + \
-            " values to be tested.");
+        ms_dbg_a(trans, 9, fmt::format("multiMatch is enabled. " \
+            "{} values to be tested.",
+            ret.size()));
     }
 
     if (!m_containsMultiMatchAction) {

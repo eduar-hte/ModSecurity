@@ -15,6 +15,8 @@
 
 #include "modsecurity/rule_message.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rules_set.h"
 #include "modsecurity/modsecurity.h"
 #include "modsecurity/transaction.h"
@@ -24,42 +26,38 @@ namespace modsecurity {
 
 
 std::string RuleMessage::_details(const RuleMessage &rm) {
-    std::string msg;
-
-    msg.append(" [file \"" + rm.m_rule.getFileName() + "\"]");
-    msg.append(" [line \"" + std::to_string(rm.m_rule.getLineNumber()) + "\"]");
-    msg.append(" [id \"" + std::to_string(rm.m_rule.m_ruleId) + "\"]");
-    msg.append(" [rev \"" + utils::string::toHexIfNeeded(rm.m_rule.m_rev, true) + "\"]");
-    msg.append(" [msg \"" + rm.m_message + "\"]");
-    msg.append(" [data \"" + utils::string::toHexIfNeeded(utils::string::limitTo(200, rm.m_data), true) + "\"]");
-    msg.append(" [severity \"" +
-        std::to_string(rm.m_severity) + "\"]");
-    msg.append(" [ver \"" + utils::string::toHexIfNeeded(rm.m_rule.m_ver, true) + "\"]");
-    msg.append(" [maturity \"" + std::to_string(rm.m_rule.m_maturity) + "\"]");
-    msg.append(" [accuracy \"" + std::to_string(rm.m_rule.m_accuracy) + "\"]");
+    auto msg = fmt::format(R"( [file "{}"] [line "{}"] [id "{}"] [rev "{}"] [msg "{}"])" \
+        R"( [data "{}"] [severity "{}"] [ver "{}"] [maturity "{}"] [accuracy "{}"])",
+        rm.m_rule.getFileName(),
+        rm.m_rule.getLineNumber(),
+        rm.m_rule.m_ruleId,
+        utils::string::toHexIfNeeded(rm.m_rule.m_rev, true),
+        rm.m_message,
+        utils::string::toHexIfNeeded(utils::string::limitTo(200, rm.m_data), true),
+        rm.m_severity,
+        utils::string::toHexIfNeeded(rm.m_rule.m_ver, true),
+        rm.m_rule.m_maturity,
+        rm.m_rule.m_accuracy);
 
     for (const auto &a : rm.m_tags) {
-        msg.append(" [tag \"" + utils::string::toHexIfNeeded(a, true) + "\"]");
+        msg.append(fmt::format(R"( [tag "{}"])", utils::string::toHexIfNeeded(a, true)));
     }
 
-    msg.append(" [hostname \"" + rm.m_transaction.m_requestHostName \
-        + "\"]");
-    msg.append(" [uri \"" + utils::string::limitTo(200, rm.m_transaction.m_uri_no_query_string_decoded) + "\"]");
-    msg.append(" [unique_id \"" + rm.m_transaction.m_id + "\"]");
-    msg.append(" [ref \"" + utils::string::limitTo(200, rm.m_reference) + "\"]");
+    msg.append(fmt::format(R"( [hostname "{}"] [uri "{}"] [unique_id "{}"] [ref "{}"])",
+        rm.m_transaction.m_requestHostName,
+        utils::string::limitTo(200, rm.m_transaction.m_uri_no_query_string_decoded),
+        rm.m_transaction.m_id,
+        utils::string::limitTo(200, rm.m_reference)));
 
     return msg;
 }
 
 
 std::string RuleMessage::_errorLogTail(const RuleMessage &rm) {
-    std::string msg;
-
-    msg.append("[hostname \"" + rm.m_transaction.m_serverIpAddress + "\"]");
-    msg.append(" [uri \"" + utils::string::limitTo(200, rm.m_transaction.m_uri_no_query_string_decoded) + "\"]");
-    msg.append(" [unique_id \"" + rm.m_transaction.m_id + "\"]");
-
-    return msg;
+    return fmt::format(R"([hostname "{}"] [uri "{}"] [unique_id "{}"])",
+        rm.m_transaction.m_serverIpAddress,
+        utils::string::limitTo(200, rm.m_transaction.m_uri_no_query_string_decoded),
+        rm.m_transaction.m_id);
 }
 
 
@@ -68,27 +66,24 @@ std::string RuleMessage::log(const RuleMessage &rm, int props, int code) {
     msg.reserve(2048);
 
     if (props & ClientLogMessageInfo) {
-        msg.append("[client " + rm.m_transaction.m_clientIpAddress + "] ");
+        msg.append(fmt::format(R"([client {}])", rm.m_transaction.m_clientIpAddress));
     }
 
     if (rm.m_isDisruptive) {
-        msg.append("ModSecurity: Access denied with code ");
-        if (code == -1) {
-            msg.append("%d");
-        } else {
-            msg.append(std::to_string(code));
-        }
-        msg.append(" (phase ");
-        msg.append(std::to_string(rm.getPhase()) + "). ");
+        msg.append(
+            (code == -1) ?
+                fmt::format("ModSecurity: Access denied with code %d (phase {})",
+                    rm.getPhase()) :
+                fmt::format("ModSecurity: Access denied with code {} (phase {})",
+                    code, rm.getPhase()));
     } else {
         msg.append("ModSecurity: Warning. ");
     }
 
-    msg.append(rm.m_match);
-    msg.append(_details(rm));
+    msg.append(fmt::format("{}{}", rm.m_match, _details(rm)));
 
     if (props & ErrorLogTailLogMessageInfo) {
-        msg.append(" " + _errorLogTail(rm));
+        msg.append(fmt::format(" {}", _errorLogTail(rm)));
     }
 
     return modsecurity::utils::string::toHexIfNeeded(msg);

@@ -14,6 +14,7 @@
  */
 
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set_properties.h"
 #include "src/utils/string.h"
@@ -59,24 +60,18 @@ void ConfigUnicodeMap::loadConfig(std::string f, double configCodePage,
         length = file_stream.tellg();
         file_stream.seekg (0, file_stream.beg);
     } else {
-        std::stringstream ss;
-        ss << "Failed to open the unicode map file from: " << f << " ";
-        errg->assign(ss.str());
+        errg->assign(fmt::format("Failed to open the unicode map file from: {}", f));
         return;
     }
 
     if (length <= 0) {
-        std::stringstream ss;
-        ss << "Failed to open the unicode map file from: " << f << " ";
-        errg->assign(ss.str());
+        errg->assign(fmt::format("Failed to open the unicode map file from: {}", f));
         return;
     }
 
     buf = new char[length+1];
     if (!buf) {
-        std::stringstream ss;
-        ss << "Failed to open the unicode map file from: " << f << " ";
-        errg->assign(ss.str());
+        errg->assign(fmt::format("Failed to open the unicode map file from: {}", f));
         return;
     }
 

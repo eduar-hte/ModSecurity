@@ -15,6 +15,8 @@
 
 #include "src/parser/driver.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rules_set_properties.h"
 #include "src/parser/seclang-parser.hh"
 #include "modsecurity/audit_log.h"
@@ -56,8 +58,8 @@ int Driver::addSecMarker(const std::string& marker, const std::string &fileName,
 
 int Driver::addSecAction(std::unique_ptr<RuleWithActions> rule) {
     if (rule->getPhase() >= modsecurity::Phases::NUMBER_OF_PHASES) {
-        m_parserError << "Unknown phase: " << std::to_string(rule->getPhase());
-        m_parserError << std::endl;
+        m_parserError << fmt::format("Unknown phase: {}", rule->getPhase()) 
+            << std::endl;
         return false;
     }
 
@@ -75,8 +77,8 @@ int Driver::addSecRuleScript(std::unique_ptr<RuleScript> rule) {
 
 int Driver::addSecRule(std::unique_ptr<RuleWithActions> r) {
     if (r->getPhase() >= modsecurity::Phases::NUMBER_OF_PHASES) {
-        m_parserError << "Unknown phase: " << std::to_string(r->getPhase());
-        m_parserError << std::endl;
+        m_parserError << fmt::format("Unknown phase: {}", r->getPhase()) 
+            << std::endl;
         return false;
     }
 
@@ -84,8 +86,8 @@ int Driver::addSecRule(std::unique_ptr<RuleWithActions> r) {
     if (m_lastRule != nullptr && m_lastRule->isChained()) {
         r->setPhase(m_lastRule->getPhase());
         if (r->hasDisruptiveAction()) {
-            m_parserError << "Disruptive actions can only be specified by";
-            m_parserError << " chain starter rules.";
+            m_parserError << "Disruptive actions can only be specified by " \
+                             "chain starter rules.";
             return false;
         }
         m_lastRule->m_chainedRuleChild = std::move(r);
@@ -100,9 +102,8 @@ int Driver::addSecRule(std::unique_ptr<RuleWithActions> r) {
      * by other rule
      */
     if (rule->m_ruleId == 0) {
-        m_parserError << "Rules must have an ID. File: ";
-        m_parserError << rule->getFileName() << " at line: ";
-        m_parserError << std::to_string(rule->getLineNumber()) << std::endl;
+        m_parserError << fmt::format("Rules must have an ID. File: {} at line: {}",
+            rule->getFileName(), rule->getLineNumber()) << std::endl;
         return false;
     }
 
@@ -111,8 +112,8 @@ int Driver::addSecRule(std::unique_ptr<RuleWithActions> r) {
         for (int j = 0; j < rules->size(); j++) {
             const RuleWithOperator *lr = dynamic_cast<RuleWithOperator *>(rules->at(j).get());
             if (lr && lr->m_ruleId == rule->m_ruleId) {
-                m_parserError << "Rule id: " << std::to_string(rule->m_ruleId) \
-                    << " is duplicated" << std::endl;
+                m_parserError << fmt::format("Rule id: {} is duplicated",
+                    rule->m_ruleId) << std::endl;
                 return false;
             }
         }
@@ -177,7 +178,7 @@ int Driver::parseFile(const std::string &f) {
     std::string str;
 
     if (utils::isFile(f) == false) {
-        m_parserError << "Failed to open the file: " << f << std::endl;
+        m_parserError << fmt::format("Failed to open the file: {}", f) << std::endl;
         return false;
     }
 
@@ -200,14 +201,12 @@ void Driver::error(const yy::location& l, const std::string& m) {
 void Driver::error(const yy::location& l, const std::string& m,
     const std::string& c) {
     if (m_parserError.tellp() == 0) {
-        m_parserError << "Rules error. ";
-        m_parserError << "File: " << *l.end.filename << ". ";
-        m_parserError << "Line: " << l.end.line << ". ";
-        m_parserError << "Column: " << l.end.column - 1 << ". ";
+        m_parserError << fmt::format("Rules error. File: {}. Line: {}. Column: {}. ",
+            *l.end.filename, l.end.line, l.end.column - 1);
     }
 
     if (m.empty() == false) {
-        m_parserError << "" << m << " ";
+        m_parserError << m << " ";
     }
 
     if (c.empty() == false) {

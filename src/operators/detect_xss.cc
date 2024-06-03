@@ -16,6 +16,7 @@
 #include "src/operators/detect_xss.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "libinjection/src/libinjection.h"
@@ -37,13 +38,13 @@ bool DetectXSS::evaluate(Transaction *t, RuleWithActions *rule,
             if (rule && rule->hasCaptureAction()) {
                 t->m_collections.m_tx_collection->storeOrUpdateFirst(
                     "0", std::string(input));
-                ms_dbg_a(t, 7, "Added DetectXSS match TX.0: " + \
-                    std::string(input));
+                ms_dbg_a(t, 7, fmt::format("Added DetectXSS match TX.0: {}",
+                    input));
             }
         } else {
-            ms_dbg_a(t, 9, "libinjection was not able to " \
-                "find any XSS in: " + input);
-            }
+            ms_dbg_a(t, 9, fmt::format("libinjection was not able to " \
+                "find any XSS in: {}", input));
+        }
     }
     return is_xss != 0;
 }

@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
@@ -49,7 +50,7 @@ namespace actions {
 bool Msg::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
     const auto msg = data(transaction);
     ruleMessage.m_message = msg;
-    ms_dbg_a(transaction, 9, "Saving msg: " + msg);
+    ms_dbg_a(transaction, 9, fmt::format("Saving msg: {}", msg));
 
     return true;
 }

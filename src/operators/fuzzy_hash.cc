@@ -16,6 +16,7 @@
 #include "src/operators/fuzzy_hash.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "src/utils/system.h"
@@ -27,7 +28,6 @@ bool FuzzyHash::init(const std::string &param2, std::string *error) {
 #ifdef WITH_SSDEEP
     std::string digit;
     std::string file;
-    std::istream *iss;
     struct fuzzy_hash_chunk *chunk, *t;
     std::string err;
 
@@ -41,20 +41,19 @@ bool FuzzyHash::init(const std::string &param2, std::string *error) {
     try {
         m_threshold = std::stoi(digit);
     } catch (...) {
-        error->assign("Expecting a digit, got: " + digit);
+        error->assign(fmt::format("Expecting a digit, got: {}", digit));
         return false;
     }
 
     std::string resource = utils::find_resource(file, param2, &err);
-    iss = new std::ifstream(resource, std::ios::in);
+    std::ifstream iss(resource, std::ios::in);
 
-    if (((std::ifstream *)iss)->is_open() == false) {
-        error->assign("Failed to open file: " + m_param + ". " + err);
-        delete iss;
+    if (iss.is_open() == false) {
+        error->assign(fmt::format("Failed to open file: {}. {}", m_param, err));
         return false;
     }
 
-    for (std::string line; std::getline(*iss, line); ) {
+    for (std::string line; std::getline(iss, line); ) {
        chunk = (struct fuzzy_hash_chunk *)calloc(1,
             sizeof(struct fuzzy_hash_chunk));
 
@@ -74,7 +73,6 @@ bool FuzzyHash::init(const std::string &param2, std::string *error) {
         }
     }
 
-    delete iss;
     return true;
 #else
     error->assign("@fuzzyHash: SSDEEP support was not enabled " \
@@ -110,8 +108,8 @@ bool FuzzyHash::evaluate(Transaction *t, const std::string &str) {
     while (chunk != NULL) {
         int i = fuzzy_compare(chunk->data, result);
         if (i >= m_threshold) {
-            ms_dbg_a(t, 4, "Fuzzy hash: matched " \
-                "with score: " + std::to_string(i) + ".");
+            ms_dbg_a(t, 4, fmt::format("Fuzzy hash: matched " \
+                "with score: {}.", i));
             return true;
         }
         chunk = chunk->next;

@@ -15,6 +15,8 @@
 
 #include "src/actions/phase.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rule_with_actions.h"
 #include "src/utils/string.h"
 
@@ -47,7 +49,7 @@ bool Phase::init(std::string *error) {
             m_phase = modsecurity::Phases::LoggingPhase;
             m_secRulesPhase = 5;
         } else {
-            error->assign("Unknown phase: " + m_parser_payload);
+            error->assign(fmt::format("Unknown phase: {}", m_parser_payload));
             return false;
         }
     } catch (...) {
