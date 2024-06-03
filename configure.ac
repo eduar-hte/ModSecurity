@@ -101,6 +101,8 @@ AC_DEFUN([MBEDTLS_VERSION], m4_esyscmd_s(cd "others/mbedtls" && git describe && 
 # SecLang test version
 AC_DEFUN([SECLANG_TEST_VERSION], m4_esyscmd_s(cd "test/test-cases/secrules-language-tests" && git log -1 --format="%h" --abbrev-commit && cd ../../..))
 
+# Check for fmt
+CHECK_FMTLIB
 
 # Check for yajl
 PROG_YAJL
@@ -448,6 +450,21 @@ echo " "
 echo "ModSecurity - ${MSC_GIT_VERSION} for $PLATFORM"
 echo " "
 echo " Mandatory dependencies"
+
+## fmt
+if test "x$FMT_FOUND" = "x0"; then
+    echo "   + fmt                                           ....not found"
+fi
+if test "x$FMT_FOUND" = "x1"; then
+    AS_ECHO_N("   + fmt                                           ....")
+    if ! test "x$FMT_VERSION" = "x"; then
+        echo "v${FMT_VERSION}"
+    else
+        echo ""
+    fi
+    echo "      ${FMT_DISPLAY}"
+fi
+
 AS_ECHO_N("   + libInjection                                  ....")
 echo LIBINJECTION_VERSION
 AS_ECHO_N("   + Mbed TLS                                      ....")

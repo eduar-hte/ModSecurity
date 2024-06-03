@@ -111,6 +111,7 @@ configure_file(config.h.cmake ${BASE_DIR}/src/config.h)
 
 find_package(PCRE2 REQUIRED)
 find_package(Poco REQUIRED)
+find_package(fmt REQUIRED)
 find_package(dirent REQUIRED)		# used only by tests (check dirent::dirent refernces)
 
 macro(include_package package flag)
@@ -138,7 +139,7 @@ add_library(libModSecurity SHARED ${libModSecuritySources})
 
 target_compile_definitions(libModSecurity PRIVATE WITH_PCRE2)
 target_include_directories(libModSecurity PRIVATE ${BASE_DIR} ${BASE_DIR}/headers ${BASE_DIR}/others ${MBEDTLS_DIR}/include)
-target_link_libraries(libModSecurity PRIVATE pcre2::pcre2 libinjection mbedcrypto Poco::Poco Iphlpapi.lib)
+target_link_libraries(libModSecurity PRIVATE pcre2::pcre2 libinjection mbedcrypto Poco::Poco fmt::fmt Iphlpapi.lib)
 
 macro(add_package_dependency project compile_definition link_library flag)
   if(${flag})
@@ -165,7 +166,7 @@ project(libModSecurityTests)
 function(setTestTargetProperties executable)
   target_compile_definitions(${executable} PRIVATE WITH_PCRE2)
   target_include_directories(${executable} PRIVATE ${BASE_DIR} ${BASE_DIR}/headers)
-  target_link_libraries(${executable} PRIVATE libModSecurity pcre2::pcre2 dirent::dirent)
+  target_link_libraries(${executable} PRIVATE libModSecurity pcre2::pcre2 dirent::dirent fmt::fmt)
   add_package_dependency(${executable} WITH_YAJL yajl::yajl HAVE_YAJL)
 endfunction()
 
@@ -240,7 +241,7 @@ project(libModSecurityExamples)
 
 function(setExampleTargetProperties executable)
   target_include_directories(${executable} PRIVATE ${BASE_DIR} ${BASE_DIR}/headers)
-  target_link_libraries(${executable} PRIVATE libModSecurity)
+  target_link_libraries(${executable} PRIVATE libModSecurity fmt::fmt)
 endfunction()
 
 # simple_example_using_c
@@ -269,4 +270,4 @@ setExampleTargetProperties(multithread)
 # rules_check
 add_executable(rules_check ${BASE_DIR}/tools/rules-check/rules-check.cc)
 target_include_directories(rules_check PRIVATE ${BASE_DIR} ${BASE_DIR}/headers)
-target_link_libraries(rules_check PRIVATE libModSecurity)
+target_link_libraries(rules_check PRIVATE libModSecurity fmt::fmt)
