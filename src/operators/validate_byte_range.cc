@@ -17,6 +17,7 @@
 
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -33,8 +34,8 @@ bool ValidateByteRange::getRange(const std::string &rangeRepresentation,
         try {
             start = std::stoi(rangeRepresentation);
         } catch(...) {
-            error->assign("Not able to convert '" + rangeRepresentation +
-                "' into a number");
+            error->assign(fmt::format("Not able to convert '{}' into a number",
+                rangeRepresentation));
             return false;
         }
         table[start >> 3] = (table[start >> 3] | (1 << (start & 0x7)));
@@ -44,9 +45,8 @@ bool ValidateByteRange::getRange(const std::string &rangeRepresentation,
     try {
         start = std::stoi(std::string(rangeRepresentation, 0, pos));
     } catch (...) {
-        error->assign("Not able to convert '" +
-            std::string(rangeRepresentation, 0, pos) +
-            "' into a number");
+        error->assign(fmt::format("Not able to convert '{}' into a number",
+            std::string(rangeRepresentation, 0, pos)));
         return false;
     }
 
@@ -54,24 +54,23 @@ bool ValidateByteRange::getRange(const std::string &rangeRepresentation,
         end = std::stoi(std::string(rangeRepresentation, pos + 1,
             rangeRepresentation.length() - (pos + 1)));
     } catch (...) {
-        error->assign("Not able to convert '" + std::string(rangeRepresentation,
-            pos + 1, rangeRepresentation.length() - (pos + 1)) +
-            "' into a number");
+        error->assign(fmt::format("Not able to convert '{}' into a number",
+            std::string(rangeRepresentation,
+                pos + 1, rangeRepresentation.length() - (pos + 1))));
         return false;
     }
 
     if ((start < 0) || (start > 255)) {
-        error->assign("Invalid range start value: " +
-            std::to_string(start));
+        error->assign(fmt::format("Invalid range start value: {}",
+            start));
         return false;
     }
     if ((end < 0) || (end > 255)) {
-       error->assign("Invalid range end value: " + std::to_string(end));
+       error->assign(fmt::format("Invalid range end value: {}", end));
        return false;
     }
     if (start > end) {
-       error->assign("Invalid range: " + std::to_string(start) + "-" +
-           std::to_string(end));
+       error->assign(fmt::format("Invalid range: {}-{}", start, end));
        return false;
     }
 

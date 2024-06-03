@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/transaction.h"
@@ -50,9 +51,9 @@ bool Allow::init(std::string *error) {
 
 
 bool Allow::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    ms_dbg_a(transaction, 4, "Dropping the evaluation of upcoming rules " \
-        "in favor of an `allow' action of type: " \
-        + allowTypeToName(m_allowType));
+    ms_dbg_a(transaction, 4, fmt::format("Dropping the evaluation of upcoming rules " \
+        "in favor of an `allow' action of type: {}",
+        allowTypeToName(m_allowType)));
 
     transaction->m_allowType = m_allowType;
 

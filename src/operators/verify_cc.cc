@@ -18,6 +18,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -185,12 +186,11 @@ bool VerifyCC::evaluate(Transaction *t, RuleWithActions *rule,
                     if (rule && rule->hasCaptureAction()) {
                         t->m_collections.m_tx_collection->storeOrUpdateFirst(
                             "0", std::string(match));
-                        ms_dbg_a(t, 7, "Added VerifyCC match TX.0: " + \
-                            std::string(match));
+                        ms_dbg_a(t, 7, fmt::format("Added VerifyCC match TX.0: {}",
+                            match));
                     }
-                    ms_dbg_a(t, 9, "CC# match \"" + m_param +
-                        "\" at " + i + ". [offset " +
-                        std::to_string(offset) + "]");
+                    ms_dbg_a(t, 9, fmt::format("CC# match \"{}\" at {}. [offset {}]",
+                        m_param, i, offset));
                 }
 #ifdef WITH_PCRE2
                 pcre2_match_data_free(match_data);

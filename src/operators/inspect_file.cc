@@ -19,6 +19,7 @@
 
 #include <string>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "src/utils/system.h"
@@ -31,16 +32,14 @@ namespace modsecurity {
 namespace operators {
 
 bool InspectFile::init(const std::string &param2, std::string *error) {
-    std::istream *iss;
     std::string err;
     std::string err_lua;
 
     m_file = utils::find_resource(m_param, param2, &err);
-    iss = new std::ifstream(m_file, std::ios::in);
+    std::ifstream iss(m_file, std::ios::in);
 
-    if (((std::ifstream *)iss)->is_open() == false) {
-        error->assign("Failed to open file: " + m_param + ". " + err);
-        delete iss;
+    if (iss.is_open() == false) {
+        error->assign(fmt::format("Failed to open file: {}. {}", m_param, err));
         return false;
     }
 
@@ -48,7 +47,6 @@ bool InspectFile::init(const std::string &param2, std::string *error) {
         m_isScript = true;
     }
 
-    delete iss;
     return true;
 }
 
@@ -61,11 +59,8 @@ bool InspectFile::evaluate(Transaction *transaction, const std::string &str) {
         char buff[512];
         std::stringstream s;
         std::string res;
-        std::string openstr;
 
-        openstr.append(m_param);
-        openstr.append(" ");
-        openstr.append(str);
+        const auto openstr = fmt::format("{} {}", m_param, str);
         if (!(in = popen(openstr.c_str(), "r"))) {
             return false;
         }

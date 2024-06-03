@@ -31,6 +31,7 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <fmt/format.h>
 
 #include "modsecurity/actions/action.h"
 #include "src/actions/disruptive/deny.h"
@@ -278,12 +279,11 @@ bool Transaction::extractArguments(const std::string &orig,
 
 bool Transaction::addArgument(const std::string& orig, const std::string& key,
     const std::string& value, size_t offset) {
-    ms_dbg(4, "Adding request argument (" + orig + "): name \"" + \
-                key + "\", value \"" + value + "\"");
+    ms_dbg(4, fmt::format(R"(Adding request argument ({}): name "{}", value "{}")", orig, key, value));
 
     if (m_rules->m_argumentsLimit.m_set
             && m_variableArgs.size() >= m_rules->m_argumentsLimit.m_value) {
-        ms_dbg(4, "Skipping request argument, over limit (" + std::to_string(m_rules->m_argumentsLimit.m_value) + ")")
+        ms_dbg(4, fmt::format("Skipping request argument, over limit ({})", m_rules->m_argumentsLimit.m_value))
         return false;
     }
 
@@ -336,6 +336,8 @@ int Transaction::processURI(const char *uri, const char *method,
 
     ms_dbg(4, "Starting phase URI. (SecRules 0 + 1/2)");
 
+    const auto method_size = strlen(method) + 1;
+
     m_httpVersion = http_version;
     m_uri = uri;
     std::string uri_s(uri);
@@ -344,42 +346,43 @@ int Transaction::processURI(const char *uri, const char *method,
     // - m_uri
     // - m_variableRequestURIRaw
     // - m_variableRequestLine
-    size_t pos_raw_fragment = uri_s.find("#");
+    const auto pos_raw_fragment = uri_s.find("#");
     if (pos_raw_fragment != std::string::npos) {
         uri_s = uri_s.substr(0, pos_raw_fragment);
     }
 
-    size_t pos_raw_query = uri_s.find("?");
+    const auto pos_raw_query = uri_s.find("?");
 
-    std::string path_info_raw;
-    if (pos_raw_query == std::string::npos) {
-        path_info_raw = std::string(uri_s, 0);
-    } else {
-        path_info_raw = std::string(uri_s, 0, pos_raw_query);
-    }
-    std::string path_info = utils::uri_decode(path_info_raw);
+    const auto path_info_raw =
+        (pos_raw_query == std::string::npos)
+            ? uri_s
+            : std::string(uri_s, 0, pos_raw_query);
+
+    const auto path_info = utils::uri_decode(path_info_raw);
 
     m_uri_decoded = utils::uri_decode(uri_s);
 
-    size_t var_size = pos_raw_query;
+    auto var_size = pos_raw_query;
 
     m_variableRequestMethod.set(method, 0);
 
 
-    std::string requestLine(std::string(method) + " " + std::string(uri));
-    m_variableRequestLine.set(requestLine \
-        + " HTTP/" + std::string(http_version), m_variableOffset);
+    const auto requestLine = fmt::format("{} {}", method, uri);
+    m_variableRequestLine.set(
+        fmt::format("{} HTTP/{}", requestLine, http_version),
+        m_variableOffset);
 
-    m_variableRequestProtocol.set("HTTP/" + std::string(http_version),
+    m_variableRequestProtocol.set(
+        fmt::format("HTTP/{}", http_version),
         m_variableOffset + requestLine.size() + 1);
 
     m_uri_no_query_string_decoded = path_info;
 
     if (pos_raw_query != std::string::npos) {
-        std::string qry = std::string(uri_s, pos_raw_query + 1,
+        const auto qry = std::string(uri_s, pos_raw_query + 1,
             uri_s.length() - (pos_raw_query + 1));
         m_variableQueryString.set(qry, pos_raw_query + 1
-            + std::string(method).size() + 1);
+            + method_size);
     }
 
 
@@ -387,39 +390,39 @@ int Transaction::processURI(const char *uri, const char *method,
         var_size = uri_s.size();
     }
 
-    m_variablePathInfo.set(path_info, m_variableOffset + strlen(method) +
-        1, var_size);
+    m_variablePathInfo.set(path_info, m_variableOffset + method_size,
+        var_size);
     m_variableRequestFilename.set(path_info,  m_variableOffset +
-        strlen(method) + 1, var_size);
+        method_size, var_size);
 
 
-    size_t offset = path_info.find_last_of("/\\");
+    const auto offset = path_info.find_last_of("/\\");
     if (offset != std::string::npos && path_info.length() > offset + 1) {
-        std::string basename = std::string(path_info, offset + 1,
+        const auto basename = std::string(path_info, offset + 1,
             path_info.length() - (offset + 1));
         m_variableRequestBasename.set(basename, m_variableOffset +
-            strlen(method) + 1 + offset + 1);
+            method_size + offset + 1);
     }
 
     m_variableOffset = m_variableRequestLine.m_value.size();
 
-    std::string parsedURI = m_uri_decoded;
+    auto parsedURI = m_uri_decoded;
     // The more popular case is without domain
     if (!m_uri_decoded.empty() && m_uri_decoded[0] != '/') {
         bool fullDomain = true;
-        size_t scheme = m_uri_decoded.find(":")+1;
+        const auto scheme = m_uri_decoded.find(":")+1;
         if (scheme == std::string::npos) {
             fullDomain = false;
         }
         // Searching with a pos of -1 is undefined we also shortcut
         if (scheme != std::string::npos && fullDomain == true) {
             // Assuming we found a colon make sure its followed
-            size_t netloc = m_uri_decoded.find("//", scheme) + 2;
+            const auto netloc = m_uri_decoded.find("//", scheme) + 2;
             if (netloc == std::string::npos || (netloc != scheme + 2)) {
                 fullDomain = false;
             }
             if (netloc != std::string::npos && fullDomain == true) {
-                size_t path = m_uri_decoded.find("/", netloc);
+                const auto path = m_uri_decoded.find("/", netloc);
                 if (path != std::string::npos) {
                     parsedURI = m_uri_decoded.substr(path);
                 }
@@ -427,9 +430,9 @@ int Transaction::processURI(const char *uri, const char *method,
         }
     }
 
-    m_variableRequestURI.set(parsedURI, std::string(method).size() + 1,
+    m_variableRequestURI.set(parsedURI, method_size,
         uri_s.size());
-    m_variableRequestURIRaw.set(uri, std::string(method).size() + 1);
+    m_variableRequestURIRaw.set(uri, method_size);
 
     if (m_variableQueryString.m_value.empty() == false) {
         extractArguments("GET", m_variableQueryString.m_value,
@@ -898,7 +901,7 @@ int Transaction::requestBodyFromFile(const char *path) {
     std::string str;
 
     if (request_body.is_open() == false) {
-        ms_dbg(3, "Failed to open request body at: " + std::string(path));
+        ms_dbg(3, fmt::format("Failed to open request body at: {}", path));
         return false;
     }
 
@@ -916,9 +919,8 @@ int Transaction::requestBodyFromFile(const char *path) {
     const char *buf = str.c_str();
     int len = request_body.tellg();
 
-    ms_dbg(9, "Adding request body: " + std::to_string(len) + " bytes. " \
-        "Limit set to: "
-        + std::to_string(this->m_rules->m_requestBodyLimit.m_value));
+    ms_dbg(9, fmt::format("Adding request body: {} bytes. Limit set to: {}",
+        len, this->m_rules->m_requestBodyLimit.m_value));
 
     return appendRequestBody(reinterpret_cast<const unsigned char*>(buf), len);
 }
@@ -926,9 +928,8 @@ int Transaction::requestBodyFromFile(const char *path) {
 int Transaction::appendRequestBody(const unsigned char *buf, size_t len) {
     int current_size = this->m_requestBody.tellp();
 
-    ms_dbg(9, "Appending request body: " + std::to_string(len) + " bytes. " \
-        "Limit set to: "
-        + std::to_string(this->m_rules->m_requestBodyLimit.m_value));
+    ms_dbg(9, fmt::format("Appending request body: {} bytes. Limit set to: {}",
+            len, this->m_rules->m_requestBodyLimit.m_value));
 
     if (this->m_rules->m_requestBodyLimit.m_value > 0
         && this->m_rules->m_requestBodyLimit.m_value < len + current_size) {
@@ -1120,25 +1121,24 @@ int Transaction::processResponseBody() {
     }
 
     if (m_rules->m_secResponseBodyAccess != RulesSetProperties::TrueConfigBoolean) {
-        ms_dbg(4, "Response body is disabled, returning... " + std::to_string(m_rules->m_secResponseBodyAccess));
+        ms_dbg(4, fmt::format("Response body is disabled, returning... ", 
+            (int)m_rules->m_secResponseBodyAccess));
         return true;
     }
 
-    const std::set<std::string> &bi = \
-        m_rules->m_responseBodyTypeToBeInspected.m_value;
-    auto t = bi.find(m_variableResponseContentType.m_value);
+    const auto &bi = m_rules->m_responseBodyTypeToBeInspected.m_value;
+    const auto t = bi.find(m_variableResponseContentType.m_value);
     if (t == bi.end()
         && m_rules->m_responseBodyTypeToBeInspected.m_set == true) {
-        ms_dbg(5, "Response Content-Type is " \
-            + m_variableResponseContentType.m_value \
-            + ". It is not marked to be inspected.");
-        std::string validContetTypes("");
-        for (std::set<std::string>::iterator i = bi.begin();
-             i != bi.end(); ++i) {
-            validContetTypes.append(*i + " ");
+        ms_dbg(5, fmt::format("Response Content-Type is {}" \
+            ". It is not marked to be inspected.",
+            m_variableResponseContentType.m_value));
+        std::string validContetTypes;
+        for (const auto &s : bi) {
+            validContetTypes.append(s + " ");
         }
-        ms_dbg(8, "Content-Type(s) marked to be inspected: " \
-            + validContetTypes);
+        ms_dbg(8, fmt::format("Content-Type(s) marked to be inspected: {}",
+            validContetTypes));
         return true;
     }
     if (m_variableOutboundDataError.m_value.empty() == true) {
@@ -1179,16 +1179,16 @@ int Transaction::appendResponseBody(const unsigned char *buf, size_t len) {
         this->m_rules->m_responseBodyTypeToBeInspected.m_value;
     auto t = bi.find(m_variableResponseContentType.m_value);
     if (t == bi.end() && bi.empty() == false) {
-        ms_dbg(4, "Not appending response body. " \
-            "Response Content-Type is " \
-            + m_variableResponseContentType.m_value \
-            + ". It is not marked to be inspected.");
+        ms_dbg(4, fmt::format("Not appending response body. " \
+            "Response Content-Type is {}. " \
+            "It is not marked to be inspected.",
+            m_variableResponseContentType.m_value));
         return true;
     }
 
-    ms_dbg(9, "Appending response body: " + std::to_string(len + current_size)
-        + " bytes. Limit set to: " +
-        std::to_string(this->m_rules->m_responseBodyLimit.m_value));
+    ms_dbg(9, fmt::format("Appending response body: {} bytes." \
+        "Limit set to: {}", len + current_size,
+        this->m_rules->m_responseBodyLimit.m_value));
 
     if (this->m_rules->m_responseBodyLimit.m_value > 0
         && this->m_rules->m_responseBodyLimit.m_value < len + current_size) {
@@ -1317,8 +1317,8 @@ int Transaction::processLogging() {
         if (!this->m_auditLogModifier.empty()) {
             ms_dbg(4, "There was an audit log modifier for this transaction.");
             std::list<std::pair<int, std::string>>::iterator it;
-            ms_dbg(7, "AuditLog parts before modification(s): " +
-                std::to_string(parts) + ".");
+            ms_dbg(7, fmt::format("AuditLog parts before modification(s): {}.",
+                parts));
             for (it = m_auditLogModifier.begin();
                 it != m_auditLogModifier.end(); ++it) {
                 std::pair <int, std::string> p = *it;
@@ -1396,18 +1396,20 @@ std::string Transaction::toOldAuditLogFormatIndex(const std::string &filename,
     char tstr[std::size("[dd/Mmm/yyyy:hh:mm:ss shhmm]")];
     strftime(tstr, std::size(tstr), "[%d/%b/%Y:%H:%M:%S %z]", &timeinfo);
 
-    ss << utils::string::dash_if_empty(
-       m_variableRequestHeaders.resolveFirst("Host").get())
-        << " ";
-    ss << utils::string::dash_if_empty(&this->m_clientIpAddress) << " ";
+    ss << fmt::format("{} {} ",
+        utils::string::dash_if_empty(
+            m_variableRequestHeaders.resolveFirst("Host").get()),
+        utils::string::dash_if_empty(&this->m_clientIpAddress));
+    
     /** TODO: Check variable */
-    variables::RemoteUser *r = new variables::RemoteUser("REMOTE_USER");
-    std::vector<const VariableValue *> l;
-    r->evaluate(this, NULL, &l);
-    for (auto &a : l) {
-        delete a;
+    {
+        auto r = std::make_unique<variables::RemoteUser>("REMOTE_USER");
+        std::vector<const VariableValue *> l;
+        r->evaluate(this, nullptr, &l);
+        for (auto &a : l) {
+            delete a;
+        }
     }
-    delete r;
 
     ss << utils::string::dash_if_empty(
         &m_variableRemoteUser);
@@ -1418,31 +1420,26 @@ std::string Transaction::toOldAuditLogFormatIndex(const std::string &filename,
     //ss << " ";
     ss << tstr << " ";
 
-    ss << "\"";
-    ss << utils::string::dash_if_empty(m_variableRequestMethod.evaluate());
-    ss << " ";
-    ss << this->m_uri.c_str() << " ";
-    ss << "HTTP/" << m_httpVersion.c_str();
-    ss << "\" ";
+    ss << fmt::format("\"{} {} HTTP/{}\" ",
+        utils::string::dash_if_empty(m_variableRequestMethod.evaluate()),
+        this->m_uri,
+        m_httpVersion);
 
-    ss << this->m_httpCodeReturned << " ";
-    ss << this->m_responseBody.tellp() << " ";
-    /** TODO: Check variable */
-    ss << utils::string::dash_if_empty(
-        m_variableRequestHeaders.resolveFirst("REFERER").get()) << " ";
-    ss << "\"";
-    ss << utils::string::dash_if_empty(
-        m_variableRequestHeaders.resolveFirst("User-Agent").get());
-    ss << "\" ";
-    ss << m_id << " ";
-    /** TODO: Check variable */
-    ss << utils::string::dash_if_empty(
-        m_variableRequestHeaders.resolveFirst("REFERER").get()) << " ";
+    ss << fmt::format("{} {} {} \"{}\" {} {} ",
+        this->m_httpCodeReturned,
+        static_cast<std::streamoff>(this->m_responseBody.tellp()),
+        utils::string::dash_if_empty(
+            m_variableRequestHeaders.resolveFirst("REFERER").get()),    /** TODO: Check variable */
+        utils::string::dash_if_empty(
+            m_variableRequestHeaders.resolveFirst("User-Agent").get()),
+        m_id,
+        utils::string::dash_if_empty(
+            m_variableRequestHeaders.resolveFirst("REFERER").get()));   /** TODO: Check variable */
 
-    ss << filename << " ";
-    ss << "0" << " ";
-    ss << std::to_string(size) << " ";
-    ss << "md5:" << md5 << std::endl;
+    ss << fmt::format("{} 0 {} md5: {}\n",
+        filename,
+        size,
+        md5);
 
     return ss.str();
 }
@@ -1458,77 +1455,79 @@ std::string Transaction::toOldAuditLogFormat(int parts,
     char tstr[std::size("[dd/Mmm/yyyy:hh:mm:ss shhmm]")];
     strftime(tstr, std::size(tstr), "[%d/%b/%Y:%H:%M:%S %z]", &timeinfo);
 
-    audit_log << "--" << trailer << "-" << "A--" << std::endl;
-    audit_log << tstr;
-    audit_log << " " << m_id;
-    audit_log << " " << this->m_clientIpAddress;
-    audit_log << " " << this->m_clientPort;
-    audit_log << " " << m_serverIpAddress;
-    audit_log << " " << this->m_serverPort;
-    audit_log << std::endl;
+    audit_log << fmt::format("--{}-A--\n{} {} {} {} {} {}\n",
+        trailer,
+        tstr,
+        m_id,
+        this->m_clientIpAddress,
+        this->m_clientPort,
+        m_serverIpAddress,
+        this->m_serverPort);
 
     if (parts & audit_log::AuditLog::BAuditLogPart) {
         std::vector<const VariableValue *> l;
-        audit_log << "--" << trailer << "-" << "B--" << std::endl;
-        audit_log << utils::string::dash_if_empty(
-            m_variableRequestMethod.evaluate());
-        audit_log << " " << this->m_uri.c_str() << " " << "HTTP/";
-        audit_log << this->m_httpVersion.c_str() << std::endl;
+        audit_log << fmt::format("--{}-B--\n{} {} HTTP/{}\n",
+            trailer,
+            utils::string::dash_if_empty(
+                m_variableRequestMethod.evaluate()),
+            this->m_uri,
+            this->m_httpVersion);
 
         m_variableRequestHeaders.resolve(&l);
         for (auto &h : l) {
-            size_t pos = strlen("REQUEST_HEADERS:");
-            audit_log << h->getKeyWithCollection().c_str() + pos << ": ";
-            audit_log << h->getValue().c_str() << std::endl;
+            const auto pos = std::size("REQUEST_HEADERS:") - 1;
+            audit_log << fmt::format("{}: {}\n",
+                std::string_view(h->getKeyWithCollection().c_str() + pos),
+                h->getValue());
             delete h;
         }
         audit_log << std::endl;
     }
     if (parts & audit_log::AuditLog::CAuditLogPart
         &&  m_requestBody.tellp() > 0) {
-        std::string body =  m_requestBody.str();
-        audit_log << "--" << trailer << "-" << "C--" << std::endl;
-        if (body.size() > 0) {
+        const auto body =  m_requestBody.str();
+        audit_log << fmt::format("--{}-C--\n", trailer);
+        if (!body.empty()) {
             audit_log << body << std::endl;
         }
         audit_log << std::endl;
     }
     if (parts & audit_log::AuditLog::DAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "D--" << std::endl;
+        audit_log << fmt::format("--{}-D--\n", trailer);
         audit_log << std::endl;
         /** TODO: write audit_log D part. */
     }
     if (parts & audit_log::AuditLog::EAuditLogPart
         && m_responseBody.tellp() > 0) {
-        std::string body = utils::string::toHexIfNeeded(m_responseBody.str());
-        audit_log << "--" << trailer << "-" << "E--" << std::endl;
-        if (body.size() > 0) {
+        audit_log << fmt::format("--{}-E--\n", trailer);
+        const auto body = utils::string::toHexIfNeeded(m_responseBody.str());
+        if (!body.empty()) {
             audit_log << body << std::endl;
         }
         audit_log << std::endl;
     }
     if (parts & audit_log::AuditLog::FAuditLogPart) {
         std::vector<const VariableValue *> l;
-
-        audit_log << "--" << trailer << "-" << "F--" << std::endl;
-        audit_log << "HTTP/" << m_httpVersion.c_str()  << " ";
-        audit_log << this->m_httpCodeReturned << std::endl;
+        audit_log << fmt::format("--{}-F--\nHTTP/{} {}\n",
+            trailer,
+            m_httpVersion,
+            this->m_httpCodeReturned);
         m_variableResponseHeaders.resolve(&l);
         for (auto &h : l) {
-            audit_log << h->getKey().c_str() << ": ";
-            audit_log << h->getValue().c_str() << std::endl;
+            audit_log << fmt::format("{}: {}\n",
+                h->getKey(), h->getValue());
             delete h;
         }
     }
     audit_log << std::endl;
 
     if (parts & audit_log::AuditLog::GAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "G--" << std::endl;
+        audit_log << fmt::format("--{}-G--\n", trailer);
         audit_log << std::endl;
         /** TODO: write audit_log G part. */
     }
     if (parts & audit_log::AuditLog::HAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "H--" << std::endl;
+        audit_log << fmt::format("--{}-H--\n", trailer);
         for (const auto &a : m_rulesMessages) {
             audit_log << a.log(0, m_httpCodeReturned) << std::endl;
         }
@@ -1536,21 +1535,21 @@ std::string Transaction::toOldAuditLogFormat(int parts,
         /** TODO: write audit_log H part. */
     }
     if (parts & audit_log::AuditLog::IAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "I--" << std::endl;
+        audit_log << fmt::format("--{}-I--\n", trailer);
         audit_log << std::endl;
         /** TODO: write audit_log I part. */
     }
     if (parts & audit_log::AuditLog::JAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "J--" << std::endl;
+        audit_log << fmt::format("--{}-J--\n", trailer);
         audit_log << std::endl;
         /** TODO: write audit_log J part. */
     }
     if (parts & audit_log::AuditLog::KAuditLogPart) {
-        audit_log << "--" << trailer << "-" << "K--" << std::endl;
+        audit_log << fmt::format("--{}-K--\n", trailer);
         audit_log << std::endl;
         /** TODO: write audit_log K part. */
     }
-    audit_log << "--" << trailer << "-" << "Z--" << std::endl << std::endl;
+    audit_log << fmt::format("--{}-Z--\n\n", trailer);
 
     return audit_log.str();
 }

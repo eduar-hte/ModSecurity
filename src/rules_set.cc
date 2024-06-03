@@ -18,6 +18,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/modsecurity.h"
@@ -113,8 +114,8 @@ int RulesSet::evaluate(int phase, Transaction *t) {
 
     Rules *rules = m_rulesSetPhases[phase];
 
-    ms_dbg_a(t, 9, "This phase consists of " \
-        + std::to_string(rules->size()) + " rule(s).");
+    ms_dbg_a(t, 9, fmt::format("This phase consists of {} rule(s).",
+        rules->size()));
 
     if (t->m_allowType == actions::disruptive::FromNowOnAllowType
         && phase != modsecurity::Phases::LoggingPhase) {
@@ -137,36 +138,39 @@ int RulesSet::evaluate(int phase, Transaction *t) {
         //        the shared pointer won't be used.
         auto rule = rules->at(i);
         if (t->isInsideAMarker() && !rule->isMarker()) {
-            ms_dbg_a(t, 9, "Skipped rule id '" + rule->getReference() \
-                + "' due to a SecMarker: " + *t->getCurrentMarker());
+            ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}' due to a " \
+                "SecMarker: {}",
+                rule->getReference(), *t->getCurrentMarker()));
 
         } else if (rule->isMarker()) {
             rule->evaluate(t);
         } else if (t->m_skip_next > 0) {
             t->m_skip_next--;
-            ms_dbg_a(t, 9, "Skipped rule id '" + rule->getReference() \
-                + "' due to a `skip' action. Still " + \
-                std::to_string(t->m_skip_next) + " to be skipped.");
+            ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}' due to a " \
+                "`skip' action. Still {} to be skipped.",
+                rule->getReference(), t->m_skip_next));
         } else if (t->m_allowType
             != actions::disruptive::NoneAllowType) {
-            ms_dbg_a(t, 9, "Skipped rule id '" + rule->getReference() \
-                + "' as request trough the utilization of an `allow' action.");
+            ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}' " \
+                "as request trough the utilization of an `allow' action.",
+                rule->getReference()));
         } else {
             Rule *base = rule.get();
             RuleWithActions *ruleWithActions = dynamic_cast<RuleWithActions *>(base);
             // FIXME: Those should be treated inside the rule itself
             if (ruleWithActions && m_exceptions.contains(ruleWithActions->m_ruleId)) {
-                ms_dbg_a(t, 9, "Skipped rule id '" + rule->getReference() \
-                    + "'. Removed by an SecRuleRemove directive.");
+                ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}'. " \
+                    "Removed by an SecRuleRemove directive.",
+                    rule->getReference()));
                 continue;
             }
             bool remove_rule = false;
             if (ruleWithActions && m_exceptions.m_remove_rule_by_msg.empty() == false) {
                 for (const auto &z : m_exceptions.m_remove_rule_by_msg) {
                     if (ruleWithActions->containsMsg(z, t) == true) {
-                        ms_dbg_a(t, 9, "Skipped rule id '" \
-                            + ruleWithActions->getReference() \
-                            + "'. Removed by a SecRuleRemoveByMsg directive.");
+                        ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}'. " \
+                            "Removed by a SecRuleRemoveByMsg directive.",
+                            ruleWithActions->getReference()));
                         remove_rule = true;
                         break;
                     }
@@ -179,9 +183,9 @@ int RulesSet::evaluate(int phase, Transaction *t) {
             if (ruleWithActions && m_exceptions.m_remove_rule_by_tag.empty() == false) {
                 for (const auto &z : m_exceptions.m_remove_rule_by_tag) {
                     if (ruleWithActions->containsTag(z, t) == true) {
-                        ms_dbg_a(t, 9, "Skipped rule id '" \
-                            + ruleWithActions->getReference() \
-                            + "'. Removed by a SecRuleRemoveByTag directive.");
+                        ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}'. " \
+                            "Removed by a SecRuleRemoveByTag directive.",
+                            ruleWithActions->getReference()));
                         remove_rule = true;
                         break;
                     }
@@ -195,9 +199,9 @@ int RulesSet::evaluate(int phase, Transaction *t) {
             if (ruleWithActions) {
                 for (const auto &z : t->m_ruleRemoveByTag) {
                     if (ruleWithActions->containsTag(z, t) == true) {
-                        ms_dbg_a(t, 9, "Skipped rule id '" \
-                            + ruleWithActions->getReference() \
-                            + "'. Skipped due to a ruleRemoveByTag action.");
+                        ms_dbg_a(t, 9, fmt::format("Skipped rule id '{}'. " \
+                            "Skipped due to a ruleRemoveByTag action.",
+                            ruleWithActions->getReference()));
                         remove_rule = true;
                         break;
                     }

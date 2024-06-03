@@ -15,6 +15,8 @@
 
 #include "src/actions/rule_id.h"
 
+#include <fmt/format.h>
+
 #include "modsecurity/rule_with_actions.h"
 
 
@@ -22,22 +24,22 @@ namespace modsecurity::actions {
 
 
 bool RuleId::init(std::string *error) {
-    std::string a = m_parser_payload;
+    const auto &a = m_parser_payload;
 
     try {
         m_ruleId = std::stod(a);
     } catch (...) {
         m_ruleId = 0;
-        error->assign("The input \"" + a + "\" does not " \
-            "seems to be a valid rule id.");
+        error->assign(fmt::format("The input \"{}\" does not " \
+            "seems to be a valid rule id.", a));
         return false;
     }
 
     std::ostringstream oss;
     oss << std::setprecision(40) << m_ruleId;
     if (a != oss.str() || m_ruleId < 0) {
-        error->assign("The input \"" + a + "\" does not seems " \
-            "to be a valid rule id.");
+        error->assign(fmt::format("The input \"{}\" does not seems " \
+            "to be a valid rule id.", a));
         return false;
     }
     return true;

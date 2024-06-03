@@ -16,6 +16,7 @@
 #include "src/operators/validate_dtd.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/request_body_processor/xml.h"
 #include "src/utils/system.h"
@@ -29,7 +30,7 @@ bool ValidateDTD::init(const std::string &file, std::string *error) {
     std::string err;
     m_resource = utils::find_resource(m_param, file, &err);
     if (m_resource == "") {
-        error->assign("XML: File not found: " + m_param + ". " + err);
+        error->assign(fmt::format("XML: File not found: {}. {}", m_param, err));
         return false;
     }
 
@@ -47,8 +48,7 @@ bool ValidateDTD::evaluate(Transaction *transaction, const std::string &str) {
 
     XmlDtdPtrManager dtd(xmlParseDTD(NULL, (const xmlChar *)m_resource.c_str()));
     if (dtd.get() == NULL) {
-        std::string err = std::string("XML: Failed to load DTD: ") \
-            + m_resource;
+        const auto err = fmt::format("XML: Failed to load DTD: {}", m_resource);
         ms_dbg_a(transaction, 4, err);
         return true;
     }
@@ -92,8 +92,8 @@ bool ValidateDTD::evaluate(Transaction *transaction, const std::string &str) {
         return true;
     }
 
-    ms_dbg_a(transaction, 4, std::string("XML: Successfully validated " \
-        "payload against DTD: ") + m_resource);
+    ms_dbg_a(transaction, 4, fmt::format("XML: Successfully validated " \
+        "payload against DTD: {}", m_resource));
 
     xmlFreeValidCtxt(cvp);
 

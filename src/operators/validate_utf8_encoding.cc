@@ -16,6 +16,7 @@
 #include "src/operators/validate_utf8_encoding.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -134,44 +135,39 @@ bool ValidateUtf8Encoding::evaluate(Transaction *transaction, RuleWithActions *r
         switch (rc) {
             case UNICODE_ERROR_CHARACTERS_MISSING :
                 if (transaction) {
-                    ms_dbg_a(transaction, 8, "Invalid UTF-8 encoding: "
-                        "not enough bytes in character "
-                        "at " + str + ". [offset \"" +
-                        std::to_string(i) + "\"]");
+                    ms_dbg_a(transaction, 8, fmt::format("Invalid UTF-8 encoding: " \
+                        "not enough bytes in character " \
+                        "at {}. [offset \"{}\"]", str, i));
                 }
                 return true;
             case UNICODE_ERROR_INVALID_ENCODING :
                 if (transaction) {
-                    ms_dbg_a(transaction, 8, "Invalid UTF-8 encoding: "
-                        "invalid byte value in character "
-                        "at " + str + ". [offset \"" +
-                        std::to_string(i) + "\"]");
+                    ms_dbg_a(transaction, 8, fmt::format("Invalid UTF-8 encoding: " \
+                        "invalid byte value in character " \
+                        "at {}. [offset \"{}\"]", str, i));
                     logOffset(ruleMessage, i, str.size());
                 }
                 return true;
             case UNICODE_ERROR_OVERLONG_CHARACTER :
                 if (transaction) {
-                    ms_dbg_a(transaction, 8, "Invalid UTF-8 encoding: "
-                        "overlong character detected "
-                        "at " + str + ". [offset \"" +
-                        std::to_string(i) + "\"]");
+                    ms_dbg_a(transaction, 8, fmt::format("Invalid UTF-8 encoding: " \
+                        "overlong character detected " \
+                        "at {}. [offset \"{}\"]", str, i));
                     logOffset(ruleMessage, i, str.size());
                 }
                 return true;
             case UNICODE_ERROR_RESTRICTED_CHARACTER :
                 if (transaction) {
-                    ms_dbg_a(transaction, 8, "Invalid UTF-8 encoding: "
-                        "use of restricted character "
-                        "at " + str + ". [offset \"" +
-                        std::to_string(i) + "\"]");
+                    ms_dbg_a(transaction, 8, fmt::format("Invalid UTF-8 encoding: " \
+                        "use of restricted character " \
+                        "at {}. [offset \"{}\"]", str, i));
                     logOffset(ruleMessage, i, str.size());
                 }
                 return true;
             case UNICODE_ERROR_DECODING_ERROR :
                 if (transaction) {
-                    ms_dbg_a(transaction, 8, "Error validating UTF-8 decoding "
-                        "at " + str + ". [offset \"" +
-                        std::to_string(i) + "\"]");
+                    ms_dbg_a(transaction, 8, fmt::format("Error validating UTF-8 decoding " \
+                        "at {}. [offset \"{}\"]", str, i));
                     logOffset(ruleMessage, i, str.size());
                 }
                 return true;
@@ -179,9 +175,8 @@ bool ValidateUtf8Encoding::evaluate(Transaction *transaction, RuleWithActions *r
 
         if (rc <= 0) {
             if (transaction) {
-                ms_dbg_a(transaction, 8, "Internal error during UTF-8 validation "
-                    "at " + str + ". [offset \"" +
-                    std::to_string(i) + "\"]");
+                ms_dbg_a(transaction, 8, fmt::format("Internal error during UTF-8 validation " \
+                    "at {}. [offset \"{}\"]", str, i));
                 logOffset(ruleMessage, i, str.size());
             }
             return true;

@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/actions/action.h"
@@ -36,12 +37,12 @@ bool Exec::init(std::string *error) {
     m_script = utils::find_resource(m_parser_payload, "", &err);
 
     if (m_script.size() == 0) {
-        error->assign("exec: Script not found: " + err);
+        error->assign(fmt::format("exec: Script not found: {}", err));
         return false;
     }
 
     if (engine::Lua::isCompatible(m_script, &m_lua, &err) == false) {
-        error->assign("exec: " + err);
+        error->assign(fmt::format("exec: {}", err));
         return false;
     }
 
@@ -50,7 +51,7 @@ bool Exec::init(std::string *error) {
 
 
 bool Exec::evaluate(RuleWithActions *rule, Transaction *t) {
-    ms_dbg_a(t, 8, "Running script... " + m_script);
+    ms_dbg_a(t, 8, fmt::format("Running script... {}", m_script));
     m_lua.run(t);
     return true;
 }

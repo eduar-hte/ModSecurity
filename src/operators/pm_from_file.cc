@@ -16,6 +16,7 @@
 #include "src/operators/pm_from_file.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "src/utils/https_client.h"
@@ -60,7 +61,7 @@ bool PmFromFile::init(const std::string &config, std::string *error) {
         iss = new std::ifstream(resource, std::ios::in);
 
         if (((std::ifstream *)iss)->is_open() == false) {
-            error->assign("Failed to open file: " + m_param + ". " + err);
+            error->assign(fmt::format("Failed to open file: {}. {}", m_param, err));
             delete iss;
             return false;
         }
@@ -69,7 +70,7 @@ bool PmFromFile::init(const std::string &config, std::string *error) {
     for (std::string line; std::getline(*iss, line); ) {
         if (isComment(line) == false) {
             acmp_add_pattern(m_p, line.c_str(), NULL, NULL, line.length());
-	}
+	    }
     }
 
     while (m_p->is_failtree_done == 0) {

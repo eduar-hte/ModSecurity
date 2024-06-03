@@ -31,6 +31,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/collection/collections.h"
@@ -52,15 +53,14 @@ MultipartPartTmpFile::~MultipartPartTmpFile() {
 
         const int unlink_rc = unlink(m_tmp_file_name.c_str());
         if (unlink_rc < 0) {
-            ms_dbg_a(m_transaction, 1, "Multipart: Failed to delete file (part) \"" \
-                + m_tmp_file_name + "\" because " \
-                + std::to_string(errno) +  "(" \
-                + strerror(errno) + ")");
+            ms_dbg_a(m_transaction, 1, fmt::format("Multipart: " \
+                "Failed to delete file (part) \"{}\" because {}({})",
+                m_tmp_file_name, errno, strerror(errno)));
         } else {
-                ms_dbg_a(m_transaction, 4, "Multipart: file deleted successfully (part) \"" \
-                            + m_tmp_file_name + "\"");
+            ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                "file deleted successfully (part) \"{}\"",
+                m_tmp_file_name));
         }
-
     }
 }
 
@@ -74,8 +74,7 @@ void MultipartPartTmpFile::Open() {
     strftime(tstr, std::size(tstr), "/%Y%m%d-%H%M%S", &timeinfo);
 
     std::string path = m_transaction->m_rules->m_uploadDirectory.m_value;
-    path = path + tstr + "-" + m_transaction->m_id;
-    path += "-file-XXXXXX";
+    path.append(fmt::format("{}-{}-file-XXXXXX", tstr, m_transaction->m_id));
 
 #ifndef WIN32
     m_tmp_file_fd = mkstemp(path.data());
@@ -84,7 +83,8 @@ void MultipartPartTmpFile::Open() {
     m_tmp_file_fd = _open(path.c_str(), _O_CREAT | _O_EXCL | _O_RDWR);
 #endif
     m_tmp_file_name = path;
-    ms_dbg_a(m_transaction, 4, "MultipartPartTmpFile: Create filename= " + m_tmp_file_name);
+    ms_dbg_a(m_transaction, 4, fmt::format("MultipartPartTmpFile: " \
+        "Create filename= {}", m_tmp_file_name));
 
     int mode = m_transaction->m_rules->m_uploadFileMode.m_value;
     if ((m_tmp_file_fd != -1) && (mode != 0)) {
@@ -140,11 +140,10 @@ Multipart::Multipart(const std::string &header, Transaction *transaction)
 
 
 Multipart::~Multipart() {
-    ms_dbg_a(m_transaction, 4,
-        "Multipart: Cleanup started (keep files set to " \
-        + RulesSetProperties::configBooleanString(
-            m_transaction->m_rules->m_uploadKeepFiles) \
-        + ")");
+    ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+        "Cleanup started (keep files set to {})",
+        RulesSetProperties::configBooleanString(
+            m_transaction->m_rules->m_uploadKeepFiles)));
 
     if (m_transaction->m_rules->m_uploadKeepFiles
         != RulesSetProperties::TrueConfigBoolean) {
@@ -152,8 +151,9 @@ Multipart::~Multipart() {
             if ((m->m_type == MULTIPART_FILE) && (m->m_tmp_file)) {
                 // only mark for deletion for now; the file should stay on disk until
                 // the transaction is complete
-                ms_dbg_a(m_transaction, 9, "Multipart: Marking temporary file for deletion: " \
-                    + m->m_tmp_file->getFilename());
+                ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                    "Marking temporary file for deletion: {}",
+                    m->m_tmp_file->getFilename()));
                 m->m_tmp_file->setDelete();
             }
 
@@ -257,10 +257,9 @@ void Multipart::validate_quotes(const char *data, char quote)  {
 
     for (int i = 0;i < len;i++)   {
         if (data[i] == '\'') {
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Invalid quoting detected: " \
-                + std::string(data) + " length " \
-                + std::to_string(len) + " bytes");
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Invalid quoting detected: {} length {} bytes",
+                data, len));
             m_flag_invalid_quoting = 1;
         }
     }
@@ -435,41 +434,41 @@ int Multipart::parse_content_disposition(const char *c_d_value, int offset) {
                 offset + ((p - c_d_value) - value.size()));
 
             if (!m_mpp->m_name.empty()) {
-                ms_dbg_a(m_transaction, 4,
-                    "Multipart: Warning: Duplicate Content-Disposition " \
-                    "name: " + value + ". Previously: " + m_mpp->m_name + "");
+                ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                    "Warning: Duplicate Content-Disposition name: {}. Previously: {}",
+                    value, m_mpp->m_name));
                 return -14;
             }
             m_mpp->m_name.assign(value);
             m_mpp->m_nameOffset = offset + ((p - c_d_value) - value.size());
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Content-Disposition name: " + value + ".");
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Content-Disposition name: {}.", value));
         } else if (name == "filename") {
             validate_quotes(value.c_str(), quote);
             m_transaction->m_variableMultipartFileName.set(value, value, \
                 offset + ((p - c_d_value) - value.size()));
 
             if (!m_mpp->m_filename.empty()) {
-                ms_dbg_a(m_transaction, 4,
-                    "Multipart: Warning: Duplicate Content-Disposition " \
-                    "filename: " + value + ".");
+                ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                    "Warning: Duplicate Content-Disposition filename: {}.",
+                    value));
                 return -15;
             }
             m_mpp->m_filename.assign(value);
             m_mpp->m_filenameOffset = offset + ((p - c_d_value) - value.size());
 
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Content-Disposition filename: " + value + ".");
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Content-Disposition filename: {}.", value));
         } else if (name == "filename*") {
             if (!filenameStar.empty()) {
-                ms_dbg_a(m_transaction, 4,
-                    "Multipart: Warning: Duplicate Content-Disposition " \
-                    "filename*: " + value + ".");
+                ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                    "Warning: Duplicate Content-Disposition filename: {}.",
+                    value));
                 return -20;
             }
             filenameStar.assign(value);
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Content-Disposition filename*: " + value + ".");
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Content-Disposition filename*: {}.", value));
         } else {
             return -11;
         }
@@ -486,10 +485,9 @@ int Multipart::parse_content_disposition(const char *c_d_value, int offset) {
                 if (*p != ';') {
                     p--;
                     if (*p == '\'' || *p == '\"') {
-                        ms_dbg_a(m_transaction, 9,
-                            "Multipart: Invalid quoting detected: " \
-                            + std::string(p) + " length " \
-                            + std::to_string(strlen(p)) + " bytes");
+                        ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                            "Invalid quoting detected: {} length {} bytes",
+                            p, strlen(p)));
                         m_flag_invalid_quoting = 1;
                     }
                     /* p++; */
@@ -503,9 +501,9 @@ int Multipart::parse_content_disposition(const char *c_d_value, int offset) {
     }
 
     if (!filenameStar.empty() && m_mpp->m_filename.empty()) {
-        ms_dbg_a(m_transaction, 4,
-            "Multipart: Warning: no filename= but filename*:" \
-            + filenameStar + ".");
+        ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+            "Warning: no filename= but filename*:{}.",
+            filenameStar));
         return -21;
     }
 
@@ -556,15 +554,11 @@ int Multipart::process_part_data(std::string *error, size_t offset) {
             && (m_nfiles >=
                 m_transaction->m_rules->m_uploadFileLimit.m_value)) {
             if (m_flag_file_limit_exceeded == 0) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Upload file limit exceeded " \
-                    + std::to_string(
-                        m_transaction->m_rules->m_uploadFileLimit.m_value) \
-                    + ". Use SecUploadFileLimit to change the limit.");
-               error->assign("Multipart: Upload file limit exceeded " \
-                + std::to_string(
-                    m_transaction->m_rules->m_uploadFileLimit.m_value) \
-                + ". Use SecUploadFileLimit to change the limit.");
+                const auto err = fmt::format("Multipart: Upload file limit exceeded {}. " \
+                    "Use SecUploadFileLimit to change the limit.",
+                    m_transaction->m_rules->m_uploadFileLimit.m_value);
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 m_flag_file_limit_exceeded = 1;
             }
             extract = 0;
@@ -581,32 +575,30 @@ int Multipart::process_part_data(std::string *error, size_t offset) {
 
                 /* do we have an opened file? */
                 if (!m_mpp->m_tmp_file || m_mpp->m_tmp_file->getFd() < 0) {
-                    ms_dbg_a(m_transaction, 1,
-                        "Multipart: Failed to create file: " \
-                        + m_mpp->m_tmp_file->getFilename());
-                    error->assign("Multipart: Failed to create file: " \
-                        + m_mpp->m_tmp_file->getFilename());
+                    const auto err = fmt::format("Multipart: Failed to create file: {}",
+                        m_mpp->m_tmp_file->getFilename());
+                    ms_dbg_a(m_transaction, 1, err);
+                    error->assign(err);
                     return -1;
                 }
                 /* keep track of the files count */
 
                 m_nfiles++;
 
-                ms_dbg_a(m_transaction, 4,
-                    "Multipart: Created temporary file " \
-                    + std::to_string(m_nfiles) + " (mode o" + std::to_string(m_transaction->m_rules->m_uploadFileMode.m_value) + "): " \
-                    + m_mpp->m_tmp_file->getFilename());
+                ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                    "Created temporary file {} (mode o{}): {}",
+                    m_nfiles, m_transaction->m_rules->m_uploadFileMode.m_value,
+                    m_mpp->m_tmp_file->getFilename()));
             }
 
             /* write the reserve first */
             if (m_reserve[0] != 0) {
                 if (write(m_mpp->m_tmp_file->getFd(), &m_reserve[1], m_reserve[0])
                     != m_reserve[0]) {
-                    ms_dbg_a(m_transaction, 1,
-                        "Multipart: writing to \"" \
-                        + m_mpp->m_tmp_file->getFilename() + "\" failed");
-                    error->assign("Multipart: writing to \"" \
-                        + m_mpp->m_tmp_file->getFilename() + "\" failed");
+                    const auto err = fmt::format("Multipart: writing to \"{}\" failed",
+                        m_mpp->m_tmp_file->getFilename());
+                    ms_dbg_a(m_transaction, 1, err);
+                    error->assign(err);
                     return -1;
                 }
 
@@ -623,11 +615,10 @@ int Multipart::process_part_data(std::string *error, size_t offset) {
             if (write(m_mpp->m_tmp_file->getFd(), m_buf,
                 MULTIPART_BUF_SIZE - m_bufleft)
                 != (MULTIPART_BUF_SIZE - m_bufleft)) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: writing to \"" \
-                    + m_mpp->m_tmp_file->getFilename() + "\" failed");
-                error->assign("Multipart: writing to \"" \
-                    + m_mpp->m_tmp_file->getFilename() + "\" failed");
+                const auto err = fmt::format("Multipart: writing to \"{}\" failed",
+                    m_mpp->m_tmp_file->getFilename());
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return -1;
             }
 
@@ -679,15 +670,13 @@ int Multipart::process_part_data(std::string *error, size_t offset) {
 
         m_mpp->m_value_parts.push_back(std::make_pair(d, m_buf_offset));
 
-        ms_dbg_a(m_transaction, 9,
-            "Multipart: Added data to variable: " + d);
+        ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+            "Added data to variable: {}", d));
     } else {
-        ms_dbg_a(m_transaction, 1,
-            "Multipart: unknown part type: " \
-            + std::to_string(m_mpp->m_type));
-
-        error->assign("Multipart: unknown part type: " \
-            + std::to_string(m_mpp->m_type));
+        const auto err = fmt::format("Multipart: unknown part type: {}",
+            m_mpp->m_type);
+        ms_dbg_a(m_transaction, 1, err);
+        error->assign(err);
         return false;
     }
 
@@ -716,10 +705,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
     int len_without_termination = len - 1;
     for (i = 0; i < len; i++) {
         if (m_buf[i] == '\0') {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: Nul byte in part headers.");
-
-            error->assign("Multipart: Nul byte in part headers.");
+            const auto err = "Multipart: Nul byte in part headers.";
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
     }
@@ -753,11 +741,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
         }
 
         if (m_mpp->m_headers.count("Content-Disposition") == 0) {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: Part missing Content-Disposition header.");
-
-            error->assign("Multipart: Part missing " \
-                "Content-Disposition header.");
+            const auto err = "Multipart: Part missing Content-Disposition header.";
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
         header_value = m_mpp->m_headers.at("Content-Disposition").second;
@@ -771,23 +757,18 @@ int Multipart::process_part_header(std::string *error, int offset) {
             rc = -99;
         }
         if (rc < 0) {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: Invalid Content-Disposition header ("
-                + std::to_string(rc) + "): " + header_value);
-
-            error->assign("Multipart: Invalid Content-Disposition header ("
-                + std::to_string(rc) + "): " + header_value);
+            const auto err = fmt::format("Multipart: " \
+                "Invalid Content-Disposition header ({}): {}", rc, header_value);
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
 
         if (m_mpp->m_name.empty()) {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: Content-Disposition header missing " \
-                "name field.");
-
-            error->assign("Multipart: Content-Disposition header missing " \
-                "name field.");
-
+            const auto err = "Multipart: Content-Disposition header missing " \
+                "name field.";
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
 
@@ -797,12 +778,10 @@ int Multipart::process_part_header(std::string *error, int offset) {
              * didn't understand C-D but we did.
              */
             if (strstr(header_value.c_str(), "filename=") == NULL) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Invalid Content-Disposition " \
-                    "header (filename).");
-
-                error->assign("Multipart: Invalid Content-Disposition " \
-                    "header (filename).");
+                const auto err = "Multipart: Invalid Content-Disposition " \
+                    "header (filename).";
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return false;
             }
 
@@ -833,11 +812,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
             if (m_mpp->m_last_header_name.empty()) {
                 /* we are not building a header at this moment */
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Invalid part header (folding error).");
-
-                error->assign("Multipart: Invalid part header " \
-                    "(folding error).");
+                const auto err = "Multipart: Invalid part header (folding error).";
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return false;
             }
 
@@ -860,22 +837,21 @@ int Multipart::process_part_header(std::string *error, int offset) {
             /* update the header value in the table */
             header_value = m_mpp->m_headers.at(
                 m_mpp->m_last_header_name).second;
-            new_value = header_value + " " +  new_value;
+            new_value = fmt::format("{} {}", header_value, new_value);
             m_mpp->m_headers.at(m_mpp->m_last_header_name).second = new_value;
 
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Continued folder header \"" \
-                + m_mpp->m_last_header_name + "\" with \"" \
-                + std::string(data) + "\"");
-
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Continued folder header \"{}\" with \"{}\"",
+                m_mpp->m_last_header_name, data));
             if (new_value.size() > MULTIPART_BUF_SIZE) {
-                ms_dbg_a(m_transaction, 1, "Multipart: Part header too long.");
-
-                error->assign("Multipart: Part header too long.");
+                const auto err = "Multipart: Part header too long.";
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return false;
             }
 
-            m_mpp->m_last_header_line = m_mpp->m_last_header_name + ": " + new_value;
+            m_mpp->m_last_header_line = fmt::format("{}: {}",
+                m_mpp->m_last_header_name, new_value);
         } else {
             char *data;
             std::string header_value;
@@ -895,25 +871,21 @@ int Multipart::process_part_header(std::string *error, int offset) {
                 i++;
             }
             if (*data == '\0') {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Invalid part header (colon missing): " \
-                    + std::string(m_buf));
-
-                error->assign("Multipart: Invalid part header " \
-                    "(colon missing): " + std::string(m_buf));
+                const auto err = fmt::format("Multipart: " \
+                    "Invalid part header (colon missing): {}", m_buf);
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return false;
             }
 
             /* extract header name */
             header_name = std::string(m_buf, data - m_buf);
             if (data == m_buf) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Invalid part header " \
-                    "(header name missing).");
-
-                error->assign("Multipart: Invalid part header " \
-                    "(header name missing).");
-                 return false;
+                const auto err = "Multipart: Invalid part header " \
+                    "(header name missing).";
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
+                return false;
             }
 
             /* check if multipart header contains any invalid characters */
@@ -940,9 +912,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
             /* error if the name already exists */
             if (m_mpp->m_headers.count(header_name) > 0) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Duplicate part header: " \
-                    + header_name + ".");
+                ms_dbg_a(m_transaction, 1, fmt::format("Multipart: " \
+                    "Duplicate part header: {}.",
+                    header_name));
 
                 return false;
             }
@@ -954,9 +926,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
                 std::string(header_name), std::make_pair(offset - len + i,
                     std::string(header_value)));
 
-            ms_dbg_a(m_transaction, 9,
-                "Multipart: Added part header \"" + header_name \
-                + "\" \"" + header_value + "\".");
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Added part header \"{}\" \"{}\".",
+                header_name, header_value));
             if (len_without_termination > 0) {
                 m_mpp->m_last_header_line.assign(m_buf, len_without_termination);
             } else {
@@ -976,7 +948,8 @@ int Multipart::process_boundary(int last_part) {
         for (const auto& header_line : m_mpp->m_header_lines) {
             m_transaction->m_variableMultipartPartHeaders.set(m_mpp->m_name,
                 header_line.second, header_line.first);
-            ms_dbg_a(m_transaction, 9, "Multipart: Added part header line:" + header_line.second );
+            ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                "Added part header line:{}", header_line.second));
         }
 
         /* close the temp file */
@@ -1000,25 +973,23 @@ int Multipart::process_boundary(int last_part) {
             m_parts.push_back(m_mpp);
 
             if (m_mpp->m_type == MULTIPART_FILE) {
-                ms_dbg_a(m_transaction, 9,
-                    "Multipart: Added file part to the list: name \"" \
-                    + m_mpp->m_name + "\" "
-                    "file name \"" + m_mpp->m_filename + "\" (offset " \
-                    + std::to_string(m_mpp->m_offset) +
-                    ", length " + std::to_string(m_mpp->m_length) + ")");
+                ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                    "Added file part to the list: name \"{}\" " \
+                    "file name \"{}\" (offset {}, length {})",
+                    m_mpp->m_name, m_mpp->m_filename,
+                    m_mpp->m_offset, m_mpp->m_length));
             } else {
-                ms_dbg_a(m_transaction, 9,
-                    "Multipart: Added part to the list: name \"" \
-                    + m_mpp->m_name + "\" "
-                    "(offset " + std::to_string(m_mpp->m_offset) \
-                    + ", length " + std::to_string(m_mpp->m_length) + ")");
+                ms_dbg_a(m_transaction, 9, fmt::format("Multipart: " \
+                    "Added part to the list: name \"{}\" " \
+                    "(offset {}, length {})",
+                    m_mpp->m_name, m_mpp->m_offset, m_mpp->m_length));
             }
         } else {
             m_flag_invalid_part = true;
-            ms_dbg_a(m_transaction, 3,
-                "Multipart: Skipping invalid part (part name missing): "
-                "(offset " + std::to_string(m_mpp->m_offset) + ", length "
-                + std::to_string(m_mpp->m_length) + ")");
+            ms_dbg_a(m_transaction, 3, fmt::format("Multipart: " \
+                "Skipping invalid part (part name missing): " \
+                "(offset {}, length {}",
+                m_mpp->m_offset, m_mpp->m_length));
 
             delete m_mpp;
         }
@@ -1198,15 +1169,15 @@ int Multipart::multipart_complete(std::string *error) {
             }
 
             if (m_is_complete == 0) {
-                ms_dbg_a(m_transaction, 1,
-                    "Multipart: Final boundary missing.");
-                error->assign("Multipart: Final boundary missing.");
+                const auto err = "Multipart: Final boundary missing.";
+                ms_dbg_a(m_transaction, 1, err);
+                error->assign(err);
                 return false;
             }
         } else {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: No boundaries found in payload.");
-            error->assign("Multipart: No boundaries found in payload.");
+            const auto err = "Multipart: No boundaries found in payload.";
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
     }
@@ -1246,9 +1217,8 @@ int Multipart::multipart_complete(std::string *error) {
                std::to_string(file_combined_size),
                m->m_tmp_file_size.second, m->m_tmp_file_size.first);
         } else {
-            ms_dbg_a(m_transaction, 4,
-                "Adding request argument (BODY): name \"" +
-                m->m_name + "\", value \"" + m->m_value + "\"");
+            ms_dbg_a(m_transaction, 4, fmt::format("Adding request argument (BODY): " \
+                "name \"{}\", value \"{}\"", m->m_name, m->m_value));
             m_transaction->m_variableArgs.set(m->m_name, m->m_value,
                 offset + m->m_valueOffset);
             m_transaction->m_variableArgsPost.set(m->m_name, m->m_value,
@@ -1306,33 +1276,34 @@ bool Multipart::init(std::string *error) {
 
     if (m_header.empty()) {
         m_flag_error = true;
-        ms_dbg_a(m_transaction, 4,
-            "Multipart: Content-Type header not available.");
-        error->assign("Multipart: Content-Type header not available.");
+        const auto err = "Multipart: Content-Type header not available.";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
     if (m_header.size() > 1024) {
         m_flag_error = 1;
-        ms_dbg_a(m_transaction, 4,
-            "Multipart: Invalid boundary in C-T (length).");
-        error->assign("Multipart: Invalid boundary in C-T (length).");
+        const auto err = "Multipart: Invalid boundary in C-T (length).";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
     if (strncasecmp(m_header.c_str(), "multipart/form-data", 19) != 0) {
         m_flag_error = 1;
-        ms_dbg_a(m_transaction, 4, "Multipart: Invalid MIME type.");
-        error->assign("Multipart: Invalid MIME type.");
+        const auto err = "Multipart: Invalid MIME type.";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
     /* Count how many times the word "boundary" appears in the C-T header. */
     if (count_boundary_params(m_header) > 1) {
         m_flag_error = 1;
-        ms_dbg_a(m_transaction, 4,
-            "Multipart: Multiple boundary parameters in C-T.");
-        error->assign("Multipart: Multiple boundary parameters in C-T.");
+        const auto err = "Multipart: Multiple boundary parameters in C-T.";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
@@ -1352,11 +1323,9 @@ bool Multipart::init(std::string *error) {
                     seen_semicolon = 1; /* It is OK to have one semicolon. */
                 } else {
                     m_flag_error = 1;
-                    ms_dbg_a(m_transaction, 4,
-                        "Multipart: Invalid boundary in C-T " \
-                        "(malformed).");
-                    error->assign("Multipart: Invalid boundary in C-T " \
-                        "(malformed).");
+                    const auto err = "Multipart: Invalid boundary in C-T (malformed).";
+                    ms_dbg_a(m_transaction, 4, err);
+                    error->assign(err);
                     return false;
                 }
             }
@@ -1370,9 +1339,9 @@ bool Multipart::init(std::string *error) {
         b = strchr(m_boundary_tmp + 8, '=');
         if (b == NULL) {
             m_flag_error = 1;
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Invalid boundary in C-T (malformed).");
-            error->assign("Multipart: Invalid boundary in C-T (malformed).");
+            const auto err = "Multipart: Invalid boundary in C-T (malformed).";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
 
@@ -1387,11 +1356,10 @@ bool Multipart::init(std::string *error) {
                     m_flag_boundary_whitespace = 1;
                 } else {
                     m_flag_error = 1;
-                    ms_dbg_a(m_transaction, 4,
-                        "Multipart: Invalid boundary in C-T " \
-                        "(parameter name).");
-                    error->assign("Multipart: Invalid boundary in C-T " \
-                        "(parameter name).");
+                    const auto err = "Multipart: Invalid boundary in C-T " \
+                        "(parameter name).";
+                    ms_dbg_a(m_transaction, 4, err);
+                    error->assign(err);
                     return false;
                 }
             }
@@ -1420,9 +1388,9 @@ bool Multipart::init(std::string *error) {
             if ((*b == '"')
                 || ((len >= 2) && (*(b + len - 1) == '"'))) {
                 m_flag_error = 1;
-                ms_dbg_a(m_transaction, 4,
-                    "Multipart: Invalid boundary in C-T (quote).");
-                error->assign("Multipart: Invalid boundary in C-T (quote).");
+                const auto err = "Multipart: Invalid boundary in C-T (quote).";
+                ms_dbg_a(m_transaction, 4, err);
+                error->assign(err);
                 return false;
             }
 
@@ -1437,9 +1405,9 @@ bool Multipart::init(std::string *error) {
         /* Case-insensitive test for the string "boundary" in the boundary. */
         if (count_boundary_params(m_boundary) != 0) {
             m_flag_error = 1;
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Invalid boundary in C-T (content).");
-            error->assign("Multipart: Invalid boundary in C-T (content).");
+            const auto err = "Multipart: Invalid boundary in C-T (content).";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
 
@@ -1456,9 +1424,9 @@ bool Multipart::init(std::string *error) {
         /* Validate the characters used in the boundary. */
         if (boundary_characters_valid(m_boundary.c_str()) != 1) {
             m_flag_error = 1;
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Invalid boundary in C-T (characters).");
-            error->assign("Multipart: Invalid boundary in C-T (characters).");
+            const auto err = "Multipart: Invalid boundary in C-T (characters).";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
 
@@ -1469,9 +1437,9 @@ bool Multipart::init(std::string *error) {
 
         if (m_boundary.size() == 0) {
             m_flag_error = 1;
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Invalid boundary in C-T (empty).");
-            error->assign("Multipart: Invalid boundary in C-T (empty).");
+            const auto err = "Multipart: Invalid boundary in C-T (empty).";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
     } else { /* Could not find boundary in the C-T header. */
@@ -1480,15 +1448,15 @@ bool Multipart::init(std::string *error) {
         /* Test for case-insensitive boundary. Allowed by the RFC but
          * highly unusual. */
         if (count_boundary_params(m_header) > 0) {
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Invalid boundary in C-T (case sensitivity).");
-            error->assign("Multipart: Invalid boundary in C-T " \
-                "(case sensitivity).");
+            const auto err = "Multipart: Invalid boundary in C-T (case sensitivity).";
+            ms_dbg_a(m_transaction, 4, err);
+            error->assign(err);
             return false;
         }
 
-        ms_dbg_a(m_transaction, 4, "Multipart: Boundary not found in C-T.");
-        error->assign("Multipart: Boundary not found in C-T.");
+        const auto err = "Multipart: Boundary not found in C-T.";
+        ms_dbg_a(m_transaction, 4, err);
+        error->assign(err);
         return false;
     }
 
@@ -1512,9 +1480,9 @@ bool Multipart::process(const std::string& data, std::string *error,
     if (m_is_complete) {
         m_flag_data_before = true;
 
-        ms_dbg_a(m_transaction, 4,
-            "Multipart: Ignoring data after last boundary (received " \
-            + std::to_string(data.size()) + " bytes)");
+        ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+            "Ignoring data after last boundary (received {} bytes)",
+            data.size()));
 
         return true;
     }
@@ -1592,12 +1560,10 @@ bool Multipart::process(const std::string& data, std::string *error,
 
                             if (m_is_complete != 0) {
                                 m_flag_error = 1;
-                                ms_dbg_a(m_transaction, 4,
-                                    "Multipart: Invalid boundary " \
-                                    "(final duplicate).");
-
-                                error->assign("Multipart: Invalid boundary " \
-                                    "(final duplicate).");
+                                const auto err = "Multipart: Invalid boundary " \
+                                    "(final duplicate).";
+                                ms_dbg_a(m_transaction, 4, err);
+                                error->assign(err);
                                 return false;
                             }
                         }
@@ -1628,11 +1594,10 @@ bool Multipart::process(const std::string& data, std::string *error,
                         } else {
                             /* error */
                             m_flag_error = 1;
-                            ms_dbg_a(m_transaction, 4,
-                                "Multipart: Invalid boundary: " \
-                                + std::string(m_buf));
-                            error->assign("Multipart: Invalid boundary: " \
-                                + std::string(m_buf));
+                            const auto err = fmt::format("Multipart: " \
+                                "Invalid boundary: {}", m_buf);
+                            ms_dbg_a(m_transaction, 4, err);
+                            error->assign(err);
                             return false;
                         }
                     }
@@ -1648,9 +1613,9 @@ bool Multipart::process(const std::string& data, std::string *error,
                         && (strncmp(m_buf + 3, m_boundary.c_str(),
                             m_boundary.size()) == 0)) {
                         m_flag_error = 1;
-                        ms_dbg_a(m_transaction, 4,
-                            "Multipart: Invalid boundary (quotes).");
-                        error->assign("Multipart: Invalid boundary (quotes).");
+                        const auto err = "Multipart: Invalid boundary (quotes).";
+                        ms_dbg_a(m_transaction, 4, err);
+                        error->assign(err);
                         return false;
                     }
 
@@ -1665,10 +1630,9 @@ bool Multipart::process(const std::string& data, std::string *error,
                             m_boundary.size()) == 0)) {
                         /* Found whitespace in front of a boundary. */
                         m_flag_error = 1;
-                        ms_dbg_a(m_transaction, 4,
-                            "Multipart: Invalid boundary (whitespace).");
-                        error->assign("Multipart: Invalid boundary " \
-                            "(whitespace).");
+                        const auto err = "Multipart: Invalid boundary (whitespace).";
+                        ms_dbg_a(m_transaction, 4, err);
+                        error->assign(err);
                         return false;
                     }
 
@@ -1709,13 +1673,11 @@ bool Multipart::process(const std::string& data, std::string *error,
                              * MULTIPART_BUF_SIZE bytes
                              */
                             m_flag_error = 1;
-                            ms_dbg_a(m_transaction, 4,
-                                "Multipart: Part header line over " \
-                                + std::to_string(MULTIPART_BUF_SIZE) \
-                                + " bytes long");
-                            error->assign("Multipart: Part header line over " \
-                                + std::to_string(MULTIPART_BUF_SIZE) \
-                                + " bytes long");
+                            const auto err = fmt::format("Multipart: " \
+                                "Part header line over {} bytes long",
+                                MULTIPART_BUF_SIZE);
+                            ms_dbg_a(m_transaction, 4, err);
+                            error->assign(err);
                             return false;
                         }
 
@@ -1766,9 +1728,9 @@ bool Multipart::process(const std::string& data, std::string *error,
 
         if ((m_is_complete) && (inleft != 0)) {
             m_flag_data_after = 1;
-            ms_dbg_a(m_transaction, 4,
-                "Multipart: Ignoring data after last boundary (" \
-                + std::to_string(inleft) + "bytes left)");
+            ms_dbg_a(m_transaction, 4, fmt::format("Multipart: " \
+                "Ignoring data after last boundary ({} bytes left)",
+                inleft));
             return true;
         }
     }

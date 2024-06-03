@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "src/utils/string.h"
@@ -34,15 +35,15 @@ bool RuleRemoveTargetById::init(std::string *error) {
     std::vector<std::string> param = utils::string::split(what, ';');
 
     if (param.size() < 2) {
-        error->assign(what + " is not a valid `ID;VARIABLE'");
+        error->assign(fmt::format("{} is not a valid `ID;VARIABLE'", what));
         return false;
     }
 
     try {
         m_id = std::stoi(param[0]);
     } catch(...) {
-        error->assign("Not able to convert '" + param[0] +
-            "' into a number");
+        error->assign(fmt::format("Not able to convert '{}' into a number",
+            param[0]));
         return false;
     }
 

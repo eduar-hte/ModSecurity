@@ -21,6 +21,7 @@
 #include <list>
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 
 namespace modsecurity {
@@ -133,11 +134,11 @@ int JSON::addArgument(const std::string& value) {
     for (size_t i =  0; i < m_containers.size(); i++) {
         const JSONContainerArray *a = dynamic_cast<JSONContainerArray *>(
             m_containers[i]);
-        path = path + m_containers[i]->m_name;
+        path.append(m_containers[i]->m_name);
         if (a != NULL) {
-            path = path + ".array_" + std::to_string(a->m_elementCounter);
+            path.append(fmt::format(".array_{}", a->m_elementCounter));
         } else {
-            path = path + ".";
+            path.push_back('.');
         }
     }
 

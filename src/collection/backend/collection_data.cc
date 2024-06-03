@@ -15,10 +15,15 @@
 
 #include "src/collection/backend/collection_data.h"
 
+#include <string_view>
+#include <fmt/format.h>
 
-namespace modsecurity {
-namespace collection {
-namespace backend {
+using namespace std::literals;
+
+constexpr auto EXPIRY_PREFIX = "\"__expire_\":"sv;
+constexpr auto VALUE_PREFIX = "\"__value_\":\""sv;
+
+namespace modsecurity::collection::backend {
 
 
 bool CollectionData::isExpired() const {
@@ -40,23 +45,20 @@ std::string CollectionData::getSerialized() const {
     if (hasValue()) {
         serialized.reserve(30 + 10 + getValue().size());
     } else {
-        serialized.reserve(16+10);
+        serialized.reserve(16 + 10);
     }
 
     serialized.assign("{");
 
     if (hasExpiry()) {
-        serialized.append("\"__expire_\":");
-        uint64_t expiryEpochSeconds = std::chrono::duration_cast<std::chrono::seconds>(m_expiryTime.time_since_epoch()).count();
-        serialized.append(std::to_string(expiryEpochSeconds));
-	if (hasValue()) {
+        const auto expiryEpochSeconds = std::chrono::duration_cast<std::chrono::seconds>(m_expiryTime.time_since_epoch()).count();
+        serialized.append(fmt::format("{}{}", EXPIRY_PREFIX, expiryEpochSeconds));
+        if (hasValue()) {
             serialized.append(",");
-	}
+        }
     }
     if (hasValue()) {
-        serialized.append("\"__value_\":\"");
-        serialized.append(getValue());
-        serialized.append("\"");
+        serialized.append(fmt::format("{}{}\"", VALUE_PREFIX, getValue()));
     }
 
     serialized.append("}");
@@ -65,8 +67,6 @@ std::string CollectionData::getSerialized() const {
 }
 
 void CollectionData::setFromSerialized(const char* serializedData, size_t length) {
-    const static std::string expiryPrefix("\"__expire_\":");
-    const static std::string valuePrefix("\"__value_\":\"");
     m_hasValue = false;
     m_hasExpiryTime = false;
 
@@ -78,8 +78,8 @@ void CollectionData::setFromSerialized(const char* serializedData, size_t length
         bool doneParsing = false;
 
         // Extract the expiry time, if it exists
-        if (serializedString.find(expiryPrefix, currentPos) == currentPos) {
-            currentPos += expiryPrefix.length();
+        if (serializedString.find(EXPIRY_PREFIX, currentPos) == currentPos) {
+            currentPos += EXPIRY_PREFIX.length();
             std::string expiryDigits = serializedString.substr(currentPos, 10);
             if (expiryDigits.find_first_not_of("0123456789") == std::string::npos) {
                 expiryEpochSeconds = strtoll(expiryDigits.c_str(), NULL, 10);
@@ -95,14 +95,14 @@ void CollectionData::setFromSerialized(const char* serializedData, size_t length
             } else if (currentPos == serializedString.length()-1) {
 	        doneParsing = true;
 	    } else {
-                invalidSerializedFormat = true;
+            invalidSerializedFormat = true;
 	    }
 	}
 
         if ((!invalidSerializedFormat) && (!doneParsing)) {
             // Extract the value
-            if ((serializedString.find(valuePrefix, currentPos) == currentPos)) {
-                currentPos += valuePrefix.length();
+            if ((serializedString.find(VALUE_PREFIX, currentPos) == currentPos)) {
+                currentPos += VALUE_PREFIX.length();
                 size_t expectedCloseQuotePos = serializedString.length() - 2;
                 if ((serializedString.substr(expectedCloseQuotePos, 1) == "\"") && (expectedCloseQuotePos >= currentPos)) {
                     m_value = serializedString.substr(currentPos);
@@ -122,10 +122,10 @@ void CollectionData::setFromSerialized(const char* serializedData, size_t length
             std::chrono::system_clock::time_point expiryTimePoint(expiryDuration);
             m_expiryTime = expiryTimePoint;
             m_hasExpiryTime = true;
-	}
+	    }
         if (!invalidSerializedFormat) {
             return;
-	}
+	    }
     }
 
     // this is the residual case; the entire string is a simple value (not JSON-ish encoded)
@@ -135,6 +135,5 @@ void CollectionData::setFromSerialized(const char* serializedData, size_t length
     return;
 }
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
+
+}  // namespace modsecurity::collection::backend

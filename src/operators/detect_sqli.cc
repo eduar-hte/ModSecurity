@@ -17,6 +17,7 @@
 
 #include <string>
 #include <list>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "libinjection/src/libinjection.h"
@@ -38,18 +39,17 @@ bool DetectSQLi::evaluate(Transaction *t, RuleWithActions *rule,
 
     if (issqli) {
         t->m_matched.push_back(fingerprint);
-        ms_dbg_a(t, 4, "detected SQLi using libinjection with " \
-            "fingerprint '" + std::string(fingerprint) + "' at: '" +
-            input + "'");
+        ms_dbg_a(t, 4, fmt::format("detected SQLi using libinjection with " \
+            "fingerprint '{}' at: '{}'", fingerprint, input));
         if (rule && rule->hasCaptureAction()) {
             t->m_collections.m_tx_collection->storeOrUpdateFirst(
                 "0", std::string(fingerprint));
-            ms_dbg_a(t, 7, "Added DetectSQLi match TX.0: " + \
-                std::string(fingerprint));
+            ms_dbg_a(t, 7, fmt::format("Added DetectSQLi match TX.0: {}",
+                fingerprint));
         }
     } else {
-        ms_dbg_a(t, 9, "detected SQLi: not able to find an " \
-            "inject on '" + input + "'");
+        ms_dbg_a(t, 9, fmt::format("detected SQLi: not able to find an " \
+            "inject on '{}'", input));
     }
 
 tisempty:

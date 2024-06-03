@@ -18,6 +18,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "src/run_time_string.h"
@@ -110,31 +111,28 @@ std::string Operator::resolveMatchMessage(Transaction *t,
 
     if (ret.empty() == true) {
         if (m_couldContainsMacro == false) {
-            ret = "Matched \"Operator `" + m_op + "' with parameter `" +
-                utils::string::limitTo(200, m_param) +
-                "' against variable `" + key + "' (Value: `" +
-                utils::string::limitTo(100,
-                    utils::string::toHexIfNeeded(value)) + \
-                "' )";
+            ret = fmt::format("Matched \"Operator `{}' with parameter `{}' " \
+                "against variable `{}' (Value: `{}' )",
+                m_op, utils::string::limitTo(200, m_param),
+                key, utils::string::limitTo(100,
+                    utils::string::toHexIfNeeded(value)));
         } else {
-            std::string p(m_string->evaluate(t));
-            ret = "Matched \"Operator `" + m_op + "' with parameter `" +
-                utils::string::limitTo(200, p) +
-                "' against variable `" + key + "' (Value: `" +
-                utils::string::limitTo(100,
-                    utils::string::toHexIfNeeded(value)) +
-                "' )";
+            const auto p = m_string->evaluate(t);
+            ret = fmt::format("Matched \"Operator `{}' with parameter `{}' " \
+                "against variable `{}' (Value: `{}' )",
+                m_op, utils::string::limitTo(200, p),
+                key, utils::string::limitTo(100,
+                    utils::string::toHexIfNeeded(value)));
         }
     }
-
 
     return ret;
 }
 
 
 bool Operator::evaluate(Transaction *transaction, const std::string& a) {
-    ms_dbg_a(transaction, 2, "Operator: " + m_op + \
-        " is not implemented or malfunctioning.");
+    ms_dbg_a(transaction, 2, fmt::format("Operator: {}" \
+        " is not implemented or malfunctioning.", m_op));
     return true;
 }
 

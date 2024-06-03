@@ -25,6 +25,7 @@
 #include <sstream>
 #include <iterator>
 #include <iostream>
+#include <fmt/format.h>
 
 #include "modsecurity/variable_value.h"
 #include "modsecurity/modsecurity.h"
@@ -46,12 +47,12 @@ bool Lua::isCompatible(const std::string &script, Lua *l, std::string *error) {
 
     if (!(script.size() >= lua.size() &&
         script.compare(script.size() - lua.size(), lua.size(), lua) == 0)) {
-        error->assign("Expecting a Lua script: " + script);
+        error->assign(fmt::format("Expecting a Lua script: {}", script));
         return false;
     }
 
     if (l->load(script, &err) == false) {
-        error->assign("Problems load script: " + err);
+        error->assign(fmt::format("Problems load script: {}", err));
         return false;
     }
 
@@ -71,7 +72,7 @@ bool Lua::load(const std::string &script, std::string *err) {
     m_scriptName = script;
     if (luaL_loadfile(L, script.c_str())) {
         const char *luaerr = lua_tostring(L, -1);
-        err->assign("Failed to compile script '" + script + "");
+        err->assign(fmt::format("Failed to compile script '{}'", script));
         if (luaerr) {
             err->append(": " + std::string(luaerr));
         }
@@ -87,7 +88,7 @@ bool Lua::load(const std::string &script, std::string *err) {
     if (lua_dump(L, Lua::blob_keeper, reinterpret_cast<void *>(&m_blob), 0)) {
 #endif
         const char *luaerr = lua_tostring(L, -1);
-        err->assign("Failed to compile script '" + script + "");
+        err->assign(fmt::format("Failed to compile script '{}'", script));
         if (luaerr) {
             err->append(": " + std::string(luaerr));
         }
@@ -146,7 +147,7 @@ int Lua::run(Transaction *t, const std::string &str) { // cppcheck-suppress cons
 #endif
     if (rc != LUA_OK) {
         std::string e;
-        e.assign("Failed to execute lua script: " + m_scriptName + ". ");
+        e.assign(fmt::format("Failed to execute lua script {}. ", m_scriptName));
         switch (rc) {
             case LUA_ERRSYNTAX:
                 e.assign("Syntax error. ");
@@ -169,8 +170,8 @@ int Lua::run(Transaction *t, const std::string &str) { // cppcheck-suppress cons
     if (lua_pcall(L, 0, 0, 0)) {
         std::string e;
         const char *luaerr = lua_tostring(L, -1);
-        e.assign("Failed to execute lua script: " + m_scriptName \
-            + " (before main)");
+        e.assign(fmt::format("Failed to execute lua script {} (before main)",
+            m_scriptName));
         if (luaerr != NULL) {
             e.append(" - ");
             e.append(luaerr);
@@ -195,7 +196,8 @@ int Lua::run(Transaction *t, const std::string &str) { // cppcheck-suppress cons
     if (lua_pcall(L, ((!str.empty()) ? 1 : 0), 1, 0)) {
         std::string e;
         const char *luaerr = lua_tostring(L, -1);
-        e.assign("Failed to execute lua script: " + m_scriptName + " (main)");
+        e.assign(fmt::format("Failed to execute lua script {} (main)",
+            m_scriptName));
         if (luaerr != NULL) {
             e.append(" - ");
             e.append(luaerr);
@@ -211,7 +213,7 @@ int Lua::run(Transaction *t, const std::string &str) { // cppcheck-suppress cons
         luaRet.assign(a);
     }
 
-    ms_dbg_a(t, 9, "Returning from lua script: " + luaRet);
+    ms_dbg_a(t, 9, fmt::format("Returning from lua script: {}", luaRet));
 
     if (luaRet.size() == 0) {
         ret = false;
@@ -438,8 +440,8 @@ void Lua::applyTransformations(lua_State *L, const Transaction *t,
                 tfn->transform(var, t);
             } else {
                 ms_dbg_a(t, 1,
-                    "SecRuleScript: Invalid transformation function: " \
-                    + std::string(name));
+                    fmt::format("SecRuleScript: Invalid transformation function: {}",
+                        name));
             }
             delete tfn;
         }
@@ -460,8 +462,8 @@ void Lua::applyTransformations(lua_State *L, const Transaction *t,
             tfn->transform(var, t);
             delete tfn;
         } else {
-            ms_dbg_a(t, 1, "SecRuleScript: Invalid transformation function: " \
-                + std::string(name));
+            ms_dbg_a(t, 1, fmt::format("SecRuleScript: Invalid transformation function: {}",
+                name));
         }
         return;
     }

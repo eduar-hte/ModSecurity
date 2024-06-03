@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "src/utils/string.h"
@@ -38,8 +39,8 @@ Variable::Variable(const std::string &name)
     if (a != std::string::npos) {
         m_collectionName = utils::string::toupper(std::string(m_name, 0, a));
         m_name = std::string(m_name, a + 1, m_name.size());
-        m_fullName = std::make_shared<std::string>(m_collectionName
-            + ":" + m_name);
+        m_fullName = std::make_shared<std::string>(fmt::format("{}:{}",
+            m_collectionName, m_name));
     } else {
         m_fullName = std::make_shared<std::string>(m_name);
         m_collectionName = m_name;
@@ -73,25 +74,6 @@ void Variable::addsKeyExclusion(const Variable *v) {
     }
 
     m_keyExclusion.push_back(std::move(r));
-}
-
-
-std::string operator+(const std::string &a, const Variable *v) {
-    return a + *v->m_fullName.get();
-}
-
-
-std::string operator+(const std::string &a, const Variables *v) {
-    std::string test;
-    for (const auto &b : *v) {
-        if (test.empty()) {
-            test = std::string("") + b;
-        } else {
-            test = test + "|" + b;
-        }
-    }
-
-    return a + test;
 }
 
 

@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <fmt/format.h>
 
 #include "modsecurity/transaction.h"
 #include "modsecurity/rule.h"
@@ -28,8 +29,8 @@ namespace actions {
 
 bool SetSID::evaluate(RuleWithActions *rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
-    ms_dbg_a(t, 8, "Session ID initiated with value: \'"
-        + colNameExpanded + "\'.");
+    ms_dbg_a(t, 8, fmt::format("Session ID initiated with value: \'{}\'.",
+        colNameExpanded));
 
     t->m_collections.m_session_collection_key = colNameExpanded;
     t->m_variableSessionID.set(colNameExpanded, t->m_variableOffset);

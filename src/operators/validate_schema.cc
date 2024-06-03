@@ -16,6 +16,7 @@
 #include "src/operators/validate_schema.h"
 
 #include <string>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 #include "src/request_body_processor/xml.h"
@@ -31,7 +32,7 @@ bool ValidateSchema::init(const std::string &file, std::string *error) {
     std::string err;
     m_resource = utils::find_resource(m_param, file, &err);
     if (m_resource == "") {
-        error->assign("XML: File not found: " + m_param + ". " + err);
+        error->assign(fmt::format("XML: File not found: {}. {}", m_param, err));
         return false;
     }
 
@@ -56,14 +57,9 @@ bool ValidateSchema::evaluate(Transaction *transaction,
 
     xmlSchemaParserCtxtPtr parserCtx = xmlSchemaNewParserCtxt(m_resource.c_str());
     if (parserCtx == NULL) {
-        std::stringstream err;
-        err << "XML: Failed to load Schema from file: ";
-        err << m_resource;
-        err << ". ";
-        if (m_err.empty() == false) {
-            err << m_err;
-        }
-        ms_dbg_a(transaction, 4, err.str());
+        const auto err = fmt::format("XML: Failed to load Schema from file: {}. {}",
+            m_resource, !m_err.empty() ? m_err : "");
+        ms_dbg_a(transaction, 4, err);
         return true;
     }
 
@@ -79,25 +75,18 @@ bool ValidateSchema::evaluate(Transaction *transaction,
 
     xmlSchemaPtr schema = xmlSchemaParse(parserCtx);
     if (schema == NULL) {
-        std::stringstream err;
-        err << "XML: Failed to load Schema: ";
-        err << m_resource;
-        err << ".";
-        if (m_err.empty() == false) {
-            err << " " << m_err;
-        }
-        ms_dbg_a(transaction, 4, err.str());
+        const auto err = fmt::format("XML: Failed to load Schema: {}. {}",
+            m_resource, !m_err.empty() ? m_err : "");
+        ms_dbg_a(transaction, 4, err);
         xmlSchemaFreeParserCtxt(parserCtx);
         return true;
     }
 
     xmlSchemaValidCtxtPtr validCtx = xmlSchemaNewValidCtxt(schema);
     if (validCtx == NULL) {
-        std::stringstream err("XML: Failed to create validation context.");
-        if (m_err.empty() == false) {
-            err << " " << m_err;
-        }
-        ms_dbg_a(transaction, 4, err.str());
+        const auto err = fmt::format("XML: Failed to create validation context. {}",
+            !m_err.empty() ? m_err : "");
+        ms_dbg_a(transaction, 4, err);
         xmlSchemaFree(schema);
         xmlSchemaFreeParserCtxt(parserCtx);
         return true;
@@ -117,8 +106,8 @@ bool ValidateSchema::evaluate(Transaction *transaction,
         ms_dbg_a(transaction, 4, "XML: Schema validation failed.");
         return true; /* No match. */
     } else {
-        ms_dbg_a(transaction, 4, "XML: Successfully validated payload against " \
-            "Schema: " + m_resource);
+        ms_dbg_a(transaction, 4, fmt::format("XML: Successfully validated payload against " \
+            "Schema: {}", m_resource));
         return false;
     }
 }

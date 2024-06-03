@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
+#include <fmt/format.h>
 
 #include "src/utils/acmp.h"
 #include "src/utils/string.h"
@@ -156,8 +157,8 @@ bool Pm::evaluate(Transaction *transaction, RuleWithActions *rule,
         if (rule && rule->hasCaptureAction()) {
             transaction->m_collections.m_tx_collection->storeOrUpdateFirst("0",
                 match_);
-            ms_dbg_a(transaction, 7, "Added pm match TX.0: " + \
-                match_);
+            ms_dbg_a(transaction, 7, fmt::format("Added pm match TX.0: {}",
+                match_));
         }
     }
 

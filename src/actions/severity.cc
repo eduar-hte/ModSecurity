@@ -18,6 +18,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/actions/action.h"
@@ -62,8 +63,8 @@ bool Severity::init(std::string *error) {
             m_severity = std::stoi(a);
             return true;
         }  catch (...) {
-            error->assign("Severity: The input \"" + a + "\" is " \
-                "not a number.");
+            error->assign(fmt::format("Severity: The input \"{}\" is " \
+                "not a number.", a));
         }
     }
 
