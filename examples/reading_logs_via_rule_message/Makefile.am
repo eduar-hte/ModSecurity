@@ -15,7 +15,8 @@ simple_request_LDADD = \
 	$(LUA_LDADD) \
 	$(PCRE_LDADD) \
 	$(SSDEEP_LDADD) \
-	$(YAJL_LDADD)
+	$(YAJL_LDADD) \
+	$(FMT_LDADD)
 
 simple_request_LDFLAGS = \
 	-L$(top_builddir)/src/.libs/ \
@@ -28,7 +29,8 @@ simple_request_LDFLAGS = \
 	$(LUA_LDFLAGS) \
 	$(MAXMIND_LDFLAGS) \
 	$(SSDEEP_LDFLAGS) \
-	$(YAJL_LDFLAGS)
+	$(YAJL_LDFLAGS) \
+	$(FMT_LDFLAGS)
 
 simple_request_CPPFLAGS = \
 	$(GLOBAL_CFLAGS) \
@@ -46,7 +48,8 @@ simple_request_CPPFLAGS = \
 	$(LMDB_CFLAGS) \
 	$(LUA_CFLAGS) \
 	$(PCRE_CFLAGS) \
-	$(LIBXML2_CFLAGS)
+	$(LIBXML2_CFLAGS) \
+	$(FMT_CFLAGS)
 
 
 MAINTAINERCLEANFILES = \
