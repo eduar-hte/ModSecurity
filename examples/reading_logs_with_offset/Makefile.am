@@ -15,7 +15,8 @@ read_LDADD = \
 	$(LUA_LDADD) \
 	$(PCRE_LDADD) \
 	$(SSDEEP_LDADD) \
-	$(YAJL_LDADD)
+	$(YAJL_LDADD) \
+	$(FMT_LDADD)
 
 read_LDFLAGS = \
 	-L$(top_builddir)/src/.libs/ \
@@ -27,7 +28,8 @@ read_LDFLAGS = \
 	$(LUA_LDFLAGS) \
 	$(SSDEEP_LDFLAGS) \
 	$(MAXMIND_LDFLAGS) \
-	$(YAJL_LDFLAGS)
+	$(YAJL_LDFLAGS) \
+	$(FMT_LDFLAGS)
 
 read_CPPFLAGS = \
 	$(GLOBAL_CFLAGS) \
@@ -46,7 +48,8 @@ read_CPPFLAGS = \
 	$(LMDB_CFLAGS) \
 	$(LUA_CFLAGS) \
 	$(PCRE_CFLAGS) \
-	$(LIBXML2_CFLAGS)
+	$(LIBXML2_CFLAGS) \
+	$(FMT_CFLAGS)
 
 
 MAINTAINERCLEANFILES = \
