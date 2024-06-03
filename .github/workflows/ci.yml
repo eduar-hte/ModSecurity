@@ -44,6 +44,7 @@ jobs:
                                   libmaxminddb-dev:${{ matrix.platform.arch }} \
                                   libpcre2-dev:${{ matrix.platform.arch }} \
                                   pcre2-utils:${{ matrix.platform.arch }} \
+                                  libfmt-dev:${{ matrix.platform.arch }} \
                                   bison flex
       - name: Setup Dependencies (x32)
         if: ${{ matrix.platform.label == 'x32' }}
@@ -106,7 +107,8 @@ jobs:
                        ssdeep \
                        pcre \
                        bison \
-                       flex
+                       flex \
+                       fmt
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -185,6 +187,7 @@ jobs:
           brew install autoconf \
                        automake \
                        libtool \
+                       fmt \
                        cppcheck
       - uses: actions/checkout@v4
         with:

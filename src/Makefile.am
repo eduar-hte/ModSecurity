@@ -325,7 +325,8 @@ libmodsecurity_la_CPPFLAGS = \
 	$(SSDEEP_CFLAGS) \
 	$(MAXMIND_CFLAGS) \
 	$(LUA_CFLAGS) \
-	$(LIBXML2_CFLAGS)
+	$(LIBXML2_CFLAGS) \
+	$(FMT_CFLAGS)
 
 
 libmodsecurity_la_LDFLAGS = \
@@ -341,6 +342,7 @@ libmodsecurity_la_LDFLAGS = \
 	$(SSDEEP_LDFLAGS) \
 	$(MAXMIND_LDFLAGS) \
 	$(YAJL_LDFLAGS) \
+	$(FMT_LDFLAGS) \
 	-version-info @MSC_VERSION_INFO@
 
 
@@ -357,5 +359,5 @@ libmodsecurity_la_LIBADD = \
 	$(PCRE2_LDADD) \
 	$(MAXMIND_LDADD) \
 	$(SSDEEP_LDADD) \
-	$(YAJL_LDADD)
-
+	$(YAJL_LDADD) \
+	$(FMT_LDADD)
