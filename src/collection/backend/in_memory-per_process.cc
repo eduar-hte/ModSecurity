@@ -35,7 +35,7 @@ namespace collection {
 namespace backend {
 
 
-InMemoryPerProcess::InMemoryPerProcess(const std::string &name) :
+InMemoryPerProcess::InMemoryPerProcess(std::string_view name) :
     Collection(name) {
     m_map.reserve(1000);
 }
@@ -46,7 +46,7 @@ InMemoryPerProcess::~InMemoryPerProcess() {
 
 
 template<typename Map>
-inline void __store(Map &map, std::string key, std::string value) {
+inline void __store(Map &map, const std::string& key, std::string_view value) {
     // NOTE: should be called with write-lock previously acquired
 
     map.emplace(key, value);
@@ -55,8 +55,8 @@ inline void __store(Map &map, std::string key, std::string value) {
 
 template<typename Map>
 inline bool __updateFirst(Map &map,
-    const std::string &key,
-    const std::string &value) {
+    const std::string& key,
+    std::string_view value) {
     // NOTE: should be called with write-lock previously acquired
 
     if (auto search = map.find(key); search != map.end()) {
@@ -68,14 +68,14 @@ inline bool __updateFirst(Map &map,
 }
 
 
-void InMemoryPerProcess::store(const std::string &key, const std::string &value) {
+void InMemoryPerProcess::store(const std::string& key, std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     __store(m_map, key, value);
 }
 
 
-bool InMemoryPerProcess::storeOrUpdateFirst(const std::string &key,
-    const std::string &value) {
+bool InMemoryPerProcess::storeOrUpdateFirst(const std::string& key,
+    std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     if (__updateFirst(m_map, key, value) == false) {
         __store(m_map, key, value);
@@ -84,8 +84,8 @@ bool InMemoryPerProcess::storeOrUpdateFirst(const std::string &key,
 }
 
 
-bool InMemoryPerProcess::updateFirst(const std::string &key,
-    const std::string &value) {
+bool InMemoryPerProcess::updateFirst(const std::string& key,
+    std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     return __updateFirst(m_map, key, value);
 }
