@@ -81,11 +81,11 @@ class Regex {
     bool hasError() const {
         return (m_pc == NULL);
     }
-    std::list<SMatch> searchAll(const std::string& s) const;
-    RegexResult searchOneMatch(const std::string& s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
-    RegexResult searchGlobal(const std::string& s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
-    int search(const std::string &s, SMatch *match) const;
-    int search(const std::string &s) const;
+    std::list<SMatch> searchAll(std::string_view s) const;
+    RegexResult searchOneMatch(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
+    RegexResult searchGlobal(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
+    int search(std::string_view s, SMatch *match) const;
+    int search(std::string_view s) const;
 
     const std::string pattern;
  private:
