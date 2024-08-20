@@ -51,8 +51,8 @@ void TimeWDay::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeWDay.assign(tstr);
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeWDay));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeWDay));
 }
 
 

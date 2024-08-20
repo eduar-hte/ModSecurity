@@ -66,8 +66,8 @@ void Env::evaluate(Transaction *transaction,
         // the environment differs.
         const auto &key = hasName ? m_name : x.first;
         if (!m_keyExclusion.toOmit(key)) {
-            l.push_back(new VariableValue(&m_collectionName, &key,
-                &x.second));
+            l.push_back(new VariableValue(m_collectionName, key,
+                x.second));
         }
     }
 }

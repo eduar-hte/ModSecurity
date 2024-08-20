@@ -38,8 +38,8 @@ void TimeEpoch::evaluate(Transaction *transaction,
     std::vector<const VariableValue *> &l) {
     transaction->m_variableTimeEpoch.assign(
         std::to_string(std::time(nullptr)));
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeEpoch));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeEpoch));
 }
 
 

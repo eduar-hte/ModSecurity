@@ -39,7 +39,7 @@ class XML_NoDictElement : public Variable {
     XML_NoDictElement()
         : Variable("XML"),
         m_plain("[XML document tree]"),
-        m_var(&m_name, &m_plain) {
+        m_var(m_name, m_plain) {
         }
 
     void evaluate(Transaction *transaction,
