@@ -16,11 +16,10 @@
 
 #ifdef __cplusplus
 #include <string>
-#include <unordered_map>
-#include <list>
 #include <vector>
 #include <algorithm>
-#include <memory>
+#include <string_view>
+#include <fmt/format.h>
 #endif
 
 
@@ -43,14 +42,14 @@ namespace collection {
 
 class Collection {
  public:
-    explicit Collection(const std::string &a) : m_name(a) { }
+    explicit Collection(std::string_view a) : m_name(a) { }
     virtual ~Collection() { }
 
-    virtual bool storeOrUpdateFirst(const std::string &key,
-        const std::string &value) = 0;
+    virtual bool storeOrUpdateFirst(const std::string& key,
+        std::string_view value) = 0;
 
-    virtual bool updateFirst(const std::string &key,
-        const std::string &value) = 0;
+    virtual bool updateFirst(const std::string& key,
+        std::string_view value) = 0;
 
     virtual void del(const std::string& key) = 0;
 
@@ -70,131 +69,124 @@ class Collection {
 
 
     /* storeOrUpdateFirst */
-    virtual bool storeOrUpdateFirst(const std::string &key,
-        std::string compartment, const std::string &value) {
-        std::string nkey = compartment + "::" + key;
-        return storeOrUpdateFirst(nkey, value);
+    bool storeOrUpdateFirst(std::string_view key,
+        std::string_view compartment, std::string_view value) {
+        return storeOrUpdateFirst(nkey(compartment, key), value);
     }
 
 
-    virtual bool storeOrUpdateFirst(const std::string &key,
-        std::string compartment, std::string compartment2,
-        const std::string &value) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + key;
-        return storeOrUpdateFirst(nkey, value);
+    bool storeOrUpdateFirst(std::string_view key,
+        std::string_view compartment, std::string_view compartment2,
+        std::string_view value) {
+        return storeOrUpdateFirst(nkey(compartment, compartment2, key), value);
     }
 
 
     /* updateFirst */
-    virtual bool updateFirst(const std::string &key, std::string compartment,
-        const std::string &value) {
-        std::string nkey = compartment + "::" + key;
-        return updateFirst(nkey, value);
+    bool updateFirst(std::string_view key, std::string_view compartment,
+        std::string_view value) {
+        return updateFirst(nkey(compartment, key), value);
     }
 
 
-    virtual bool updateFirst(const std::string &key, std::string compartment,
-        std::string compartment2, const std::string &value) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + key;
-        return updateFirst(nkey, value);
+    bool updateFirst(std::string_view key, std::string_view compartment,
+        std::string_view compartment2, std::string_view value) {
+        return updateFirst(nkey(compartment, compartment2, key), value);
     }
 
 
     /* del */
-    virtual void del(const std::string& key, std::string compartment) {
-        std::string nkey = compartment + "::" + key;
-        del(nkey);
+    void del(std::string_view key, std::string_view compartment) {
+        del(nkey(compartment, key));
     }
 
 
-    virtual void del(const std::string& key, std::string compartment,
-        std::string compartment2) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + key;
-        del(nkey);
+    void del(std::string_view key, std::string_view compartment,
+        std::string_view compartment2) {
+        del(nkey(compartment, compartment2, key));
     }
 
 
     /* setExpiry */
-    virtual void setExpiry(const std::string& key, std::string compartment,
+    void setExpiry(std::string_view key, std::string_view compartment,
         int32_t expiry_seconds) {
-        std::string nkey = compartment + "::" + key;
-        setExpiry(nkey, expiry_seconds);
+        setExpiry(nkey(compartment, key), expiry_seconds);
     }
 
 
-    virtual void setExpiry(const std::string& key, std::string compartment,
-        std::string compartment2, int32_t expiry_seconds) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + key;
-        setExpiry(nkey, expiry_seconds);
+    void setExpiry(std::string_view key, std::string_view compartment,
+        std::string_view compartment2, int32_t expiry_seconds) {
+        setExpiry(nkey(compartment, compartment2, key), expiry_seconds);
     }
 
 
     /* resolveFirst */
-    virtual std::unique_ptr<std::string> resolveFirst(const std::string& var,
-        std::string compartment) {
-        std::string nkey = compartment + "::" + var;
-        return resolveFirst(nkey);
+    std::unique_ptr<std::string> resolveFirst(std::string_view var,
+        std::string_view compartment) {
+        return resolveFirst(nkey(compartment, var));
     }
 
 
-    virtual std::unique_ptr<std::string> resolveFirst(const std::string& var,
-        std::string compartment, std::string compartment2) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + var;
-        return resolveFirst(nkey);
+    std::unique_ptr<std::string> resolveFirst(std::string_view var,
+        std::string_view compartment, std::string_view compartment2) {
+        return resolveFirst(nkey(compartment, compartment2, var));
     }
 
 
     /* resolveSingleMatch */
-    virtual void resolveSingleMatch(const std::string& var,
-        std::string compartment, std::vector<const VariableValue *> *l) {
-        std::string nkey = compartment + "::" + var;
-        resolveSingleMatch(nkey, l);
+    void resolveSingleMatch(std::string_view var,
+        std::string_view compartment, std::vector<const VariableValue *> *l) {
+        resolveSingleMatch(nkey(compartment, var), l);
     }
 
 
-    virtual void resolveSingleMatch(const std::string& var,
-        std::string compartment, std::string compartment2,
+    void resolveSingleMatch(std::string_view var,
+        std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> *l) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + var;
-        resolveSingleMatch(nkey, l);
+        resolveSingleMatch(nkey(compartment, compartment2, var), l);
     }
 
 
     /* resolveMultiMatches */
-    virtual void resolveMultiMatches(const std::string& var,
-        std::string compartment, std::vector<const VariableValue *> *l,
+    void resolveMultiMatches(std::string_view var,
+        std::string_view compartment, std::vector<const VariableValue *> *l,
         variables::KeyExclusions &ke) {
-        std::string nkey = compartment + "::" + var;
-        resolveMultiMatches(nkey, l, ke);
+        resolveMultiMatches(nkey(compartment, var), l, ke);
     }
 
 
-    virtual void resolveMultiMatches(const std::string& var,
-        std::string compartment, std::string compartment2,
+    void resolveMultiMatches(std::string_view var,
+        std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> *l,
         variables::KeyExclusions &ke) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + var;
-        resolveMultiMatches(nkey, l, ke);
+        resolveMultiMatches(nkey(compartment, compartment2, var), l, ke);
     }
 
 
     /* resolveRegularExpression */
-    virtual void resolveRegularExpression(const std::string& var,
-        std::string compartment, std::vector<const VariableValue *> *l,
+    void resolveRegularExpression(std::string_view var,
+        std::string_view compartment, std::vector<const VariableValue *> *l,
         variables::KeyExclusions &ke) {
-        std::string nkey = compartment + "::" + var;
-        resolveRegularExpression(nkey, l, ke);
+        resolveRegularExpression(nkey(compartment, var), l, ke);
     }
 
 
-    virtual void resolveRegularExpression(const std::string& var,
-        std::string compartment, std::string compartment2,
+    void resolveRegularExpression(std::string_view var,
+        std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> *l, variables::KeyExclusions &ke) {
-        std::string nkey = compartment + "::" + compartment2 + "::" + var;
-        resolveRegularExpression(nkey, l, ke);
+        resolveRegularExpression(nkey(compartment, compartment2, var), l, ke);
     }
 
     std::string m_name;
+
+ protected:
+
+    static inline std::string nkey(std::string_view compartment, std::string_view key) {
+        return fmt::format("{}::{}", compartment, key);
+    }
+    static inline std::string nkey(std::string_view compartment, std::string_view compartment2, std::string_view key) {
+        return fmt::format("{}::{}::{}", compartment, compartment2, key);
+    }
 };
 
 }  // namespace collection
