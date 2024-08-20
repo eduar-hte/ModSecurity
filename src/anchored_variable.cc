@@ -63,7 +63,7 @@ void AnchoredVariable::evaluate(std::vector<const VariableValue *> &l) {
     }
 
     m_var.setValue(m_value);
-    l.push_back(new VariableValue(&m_var));
+    l.push_back(new VariableValue(m_var));
 }
 
 

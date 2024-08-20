@@ -57,19 +57,17 @@ class VariableValue {
         m_value(value)
     { }
 
-    explicit VariableValue(const VariableValue *o) :
-        m_collection(o->m_collection),
-        m_key(o->m_key),
-        m_keyWithCollection(o->m_keyWithCollection),
-        m_value(o->m_value)
+    explicit VariableValue(const VariableValue &o) :
+        m_collection(o.m_collection),
+        m_key(o.m_key),
+        m_keyWithCollection(o.m_keyWithCollection),
+        m_value(o.m_value)
     {
-        reserveOrigin(o->m_orign.size());
-        for (const auto &i : o->m_orign) {
+        reserveOrigin(o.m_orign.size());
+        for (const auto &i : o.m_orign) {
             addOrigin(i);
         }
     }
-
-    VariableValue(const VariableValue &v) = delete;
 
 
     const std::string& getKey() const {

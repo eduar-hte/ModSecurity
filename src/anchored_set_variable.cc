@@ -68,8 +68,8 @@ void AnchoredSetVariable::set(const std::string &key,
 
 void AnchoredSetVariable::resolve(
     std::vector<const VariableValue *> &l) {
-    for (const auto& x : *this) {
-        l.insert(l.begin(), new VariableValue(x.second));
+    for (const auto& [key, var] : *this) {
+        l.insert(l.begin(), new VariableValue(*var));
     }
 }
 
@@ -77,11 +77,11 @@ void AnchoredSetVariable::resolve(
 void AnchoredSetVariable::resolve(
     std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
-    for (const auto& x : *this) {
-        if (!ke.toOmit(x.first)) {
-            l.insert(l.begin(), new VariableValue(x.second));
+    for (const auto& [key, var] : *this) {
+        if (!ke.toOmit(key)) {
+            l.insert(l.begin(), new VariableValue(*var));
         } else {
-            ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
+            ms_dbg_a(m_transaction, 7, "Excluding key: " + key
                 + " from target value.");
         }
     }
@@ -92,7 +92,7 @@ void AnchoredSetVariable::resolve(const std::string &key,
     std::vector<const VariableValue *> &l) {
     auto range = this->equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
-        l.push_back(new VariableValue(it->second));
+        l.push_back(new VariableValue(*it->second));
     }
 }
 
@@ -110,12 +110,12 @@ std::unique_ptr<std::string> AnchoredSetVariable::resolveFirst(
 
 void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
     std::vector<const VariableValue *> &l) {
-    for (const auto& x : *this) {
-        int ret = Utils::regex_search(x.first, *r);
+    for (const auto& [key, var] : *this) {
+        int ret = Utils::regex_search(key, *r);
         if (ret <= 0) {
             continue;
         }
-        l.insert(l.begin(), new VariableValue(x.second));
+        l.insert(l.begin(), new VariableValue(*var));
     }
 }
 
@@ -123,15 +123,15 @@ void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
 void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
     std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
-    for (const auto& x : *this) {
-        int ret = Utils::regex_search(x.first, *r);
+    for (const auto& [key, var] : *this) {
+        int ret = Utils::regex_search(key, *r);
         if (ret <= 0) {
             continue;
         }
-        if (!ke.toOmit(x.first)) {
-            l.insert(l.begin(), new VariableValue(x.second));
+        if (!ke.toOmit(key)) {
+            l.insert(l.begin(), new VariableValue(*var));
         } else {
-            ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
+            ms_dbg_a(m_transaction, 7, "Excluding key: " + key
                 + " from target value.");
         }
     }
