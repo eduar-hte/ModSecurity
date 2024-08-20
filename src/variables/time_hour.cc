@@ -51,8 +51,8 @@ void TimeHour::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeHour.assign(tstr);
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeHour));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeHour));
 }
 
 

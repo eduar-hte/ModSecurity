@@ -33,7 +33,7 @@ AnchoredVariable::AnchoredVariable(Transaction *t,
     m_offset(0),
     m_name(name),
     m_value(""),
-    m_var(&name) {
+    m_var(name) {
 }
 
 

@@ -51,8 +51,8 @@ void TimeYear::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeYear.assign(tstr);
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeYear));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeYear));
 }
 
 
