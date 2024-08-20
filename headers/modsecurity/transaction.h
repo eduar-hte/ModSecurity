@@ -621,7 +621,6 @@ class Transaction : public TransactionAnchoredVariables, public TransactionSecMa
     int m_secRuleEngine;
 
     std::string m_variableDuration;
-    std::map<std::string, std::string> m_variableEnvs;
     std::string m_variableHighestSeverityAction;
     std::string m_variableRemoteUser;
     std::string m_variableTime;
