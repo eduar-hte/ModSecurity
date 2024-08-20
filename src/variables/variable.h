@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 #include <deque>
+#include <string_view>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/transaction.h"
@@ -107,7 +108,7 @@ namespace variables {
 class KeyExclusion {
  public:
     KeyExclusion() { }
-    virtual bool match(const std::string &a) = 0;
+    virtual bool match(std::string_view a) = 0;
     virtual ~KeyExclusion() { }
 };
 
@@ -122,7 +123,7 @@ class KeyExclusionRegex : public KeyExclusion {
 
     ~KeyExclusionRegex() override { }
 
-    bool match(const std::string &a) override {
+    bool match(std::string_view a) override {
         return m_re.searchAll(a).size() > 0;
     }
 
@@ -137,7 +138,7 @@ class KeyExclusionString : public KeyExclusion {
 
     ~KeyExclusionString() override { }
 
-    bool match(const std::string &a) override {
+    bool match(std::string_view a) override {
         return a.size() == m_key.size() && std::equal(a.begin(), a.end(),
             m_key.begin(),
             [](char aa, char bb) {
@@ -154,7 +155,7 @@ class KeyExclusions : public std::deque<std::unique_ptr<KeyExclusion>> {
     KeyExclusions() {
     }
 
-    bool toOmit(std::string a) {
+    bool toOmit(std::string_view a) {
         for (auto &z : *this) {
             if (z->match(a)) {
                 return true;

@@ -136,11 +136,11 @@ Regex::~Regex() {
 }
 
 
-std::list<SMatch> Regex::searchAll(const std::string& s) const {
+std::list<SMatch> Regex::searchAll(std::string_view s) const {
     std::list<SMatch> retList;
     int rc = 0;
 #ifdef WITH_PCRE2
-    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.c_str());
+    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     PCRE2_SIZE offset = 0;
 
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
@@ -156,7 +156,7 @@ std::list<SMatch> Regex::searchAll(const std::string& s) const {
         }
         const PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 #else
-    const char *subject = s.c_str();
+    const char *subject = s.data();
     int ovector[OVECCOUNT];
     int offset = 0;
 
@@ -189,7 +189,7 @@ std::list<SMatch> Regex::searchAll(const std::string& s) const {
     return retList;
 }
 
-RegexResult Regex::searchOneMatch(const std::string& s, std::vector<SMatchCapture>& captures, unsigned long match_limit) const {
+RegexResult Regex::searchOneMatch(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit) const {
 #ifdef WITH_PCRE2
     Pcre2MatchContextPtr match_context;
     if (match_limit > 0) {
@@ -197,7 +197,7 @@ RegexResult Regex::searchOneMatch(const std::string& s, std::vector<SMatchCaptur
         pcre2_set_match_limit(match_context, match_limit);
     }
 
-    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.c_str());
+    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
     int rc = 0;
     if (m_pcje == 0) {
@@ -209,7 +209,7 @@ RegexResult Regex::searchOneMatch(const std::string& s, std::vector<SMatchCaptur
     }
     const PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 #else
-    const char *subject = s.c_str();
+    const char *subject = s.data();
     int ovector[OVECCOUNT];
     pcre_extra local_pce;
     pcre_extra *pce = m_pce;
@@ -241,7 +241,7 @@ RegexResult Regex::searchOneMatch(const std::string& s, std::vector<SMatchCaptur
     return to_regex_result(rc);
 }
 
-RegexResult Regex::searchGlobal(const std::string& s, std::vector<SMatchCapture>& captures, unsigned long match_limit) const {
+RegexResult Regex::searchGlobal(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit) const {
     bool prev_match_zero_length = false;
 #ifdef WITH_PCRE2
     Pcre2MatchContextPtr match_context;
@@ -250,7 +250,7 @@ RegexResult Regex::searchGlobal(const std::string& s, std::vector<SMatchCapture>
         pcre2_set_match_limit(match_context, match_limit);
     }
 
-    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.c_str());
+    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     PCRE2_SIZE startOffset = 0;
 
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
@@ -264,7 +264,7 @@ RegexResult Regex::searchGlobal(const std::string& s, std::vector<SMatchCapture>
         const PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 
 #else
-    const char *subject = s.c_str();
+    const char *subject = s.data();
     pcre_extra local_pce;
     pcre_extra *pce = m_pce;
 
@@ -343,9 +343,9 @@ RegexResult Regex::searchGlobal(const std::string& s, std::vector<SMatchCapture>
     return RegexResult::Ok;
 }
 
-int Regex::search(const std::string& s, SMatch *match) const {
+int Regex::search(std::string_view s, SMatch *match) const {
 #ifdef WITH_PCRE2
-    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.c_str());
+    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
     int ret = 0;
     if (m_pcje == 0) {
@@ -361,7 +361,7 @@ int Regex::search(const std::string& s, SMatch *match) const {
         PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 #else
     int ovector[OVECCOUNT];
-    int ret = pcre_exec(m_pc, m_pce, s.c_str(),
+    int ret = pcre_exec(m_pc, m_pce, s.data(),
         s.size(), 0, 0, ovector, OVECCOUNT) > 0;
 
     if (ret > 0) {
@@ -377,9 +377,9 @@ int Regex::search(const std::string& s, SMatch *match) const {
     return ret;
 }
 
-int Regex::search(const std::string& s) const {
+int Regex::search(std::string_view s) const {
 #ifdef WITH_PCRE2
-    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.c_str());
+    PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
     int rc = 0;
     if (m_pcje == 0) {
@@ -397,7 +397,7 @@ int Regex::search(const std::string& s) const {
     }
 #else
     int ovector[OVECCOUNT];
-    return pcre_exec(m_pc, m_pce, s.c_str(),
+    return pcre_exec(m_pc, m_pce, s.data(),
         s.size(), 0, 0, ovector, OVECCOUNT) > 0;
 #endif
 }
