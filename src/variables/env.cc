@@ -15,15 +15,7 @@
 
 #include "src/variables/env.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <list>
-#include <utility>
-#include <map>
+#include <string_view>
 
 #ifdef WIN32
 #include "src/compat/msvc.h"
@@ -35,43 +27,43 @@
 extern char **environ;
 #endif
 
-namespace modsecurity {
-namespace variables {
+namespace modsecurity::variables {
 
 void Env::evaluate(Transaction *transaction,
     RuleWithActions *rule,
     std::vector<const VariableValue *> &l) {
+    std::map<std::string_view, std::string_view> variableEnvs;
     for (char **current = environ; *current; current++) {
-        std::string env = std::string(*current);
-        size_t pos = env.find_first_of("=");
+        const auto env = std::string_view{*current};
+        const auto pos = env.find_first_of("=");
         if (pos == std::string::npos) {
             continue;
         }
-        std::string key = std::string(env, 0, pos);
-        std::string value = std::string(env, pos+1, env.length() - (pos + 1));
-        std::pair<std::string, std::string> a(key, value);
-        transaction->m_variableEnvs.insert(a);
+        const auto key = env.substr(0, pos);
+        const auto value = env.substr(pos + 1);
+        variableEnvs.emplace(key, value);
     }
 
     const auto hasName = m_name.length() > 0;
-    for (const auto& x : transaction->m_variableEnvs) {
+    for (const auto& [name, value] : variableEnvs) {
 #ifndef WIN32
-        if (hasName && x.first != m_name) {
+        if (hasName && name != m_name) {
 #else
-        if (hasName && strcasecmp(x.first.c_str(), m_name.c_str()) != 0) {
+        if (hasName &&
+            (name.length() != m_name.length() ||
+            strncasecmp(name.data(), m_name.c_str(), name.length()) != 0)) {
 #endif
             continue;
         }
         // (Windows) we need to keep the case from the rule in case that from
         // the environment differs.
-        const auto &key = hasName ? m_name : x.first;
+        const auto key = hasName ? std::string_view{m_name} : name;
         if (!m_keyExclusion.toOmit(key)) {
             l.push_back(new VariableValue(m_collectionName, key,
-                x.second));
+                value));
         }
     }
 }
 
 
-}  // namespace variables
-}  // namespace modsecurity
+}  // namespace modsecurity::variables
