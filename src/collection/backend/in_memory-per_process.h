@@ -73,15 +73,15 @@ struct MyHash{
 class InMemoryPerProcess :
     public Collection {
  public:
-    explicit InMemoryPerProcess(const std::string &name);
+    explicit InMemoryPerProcess(std::string_view name);
     ~InMemoryPerProcess() override;
-    void store(const std::string &key, const std::string &value);
+    void store(const std::string& key, std::string_view value);
 
-    bool storeOrUpdateFirst(const std::string &key,
-        const std::string &value) override;
+    bool storeOrUpdateFirst(const std::string& key,
+        std::string_view value) override;
 
-    bool updateFirst(const std::string &key,
-        const std::string &value) override;
+    bool updateFirst(const std::string& key,
+        std::string_view value) override;
 
     void del(const std::string& key) override;
 
@@ -101,17 +101,14 @@ class InMemoryPerProcess :
         variables::KeyExclusions &ke) override;
 
     /* store */
-    virtual void store(const std::string &key, std::string &compartment,
-        std::string value) {
-        const auto nkey = compartment + "::" + key;
-        store(nkey, value);
+    void store(std::string_view key, std::string_view compartment,
+        std::string_view value) {
+        store(nkey(compartment, key), value);
     }
 
-
-    virtual void store(const std::string &key, const std::string &compartment,
-        std::string compartment2, std::string value) {
-        const auto nkey = compartment + "::" + compartment2 + "::" + key;
-        store(nkey, value);
+    void store(std::string_view key, std::string_view compartment,
+        std::string_view compartment2, std::string_view value) {
+        store(nkey(compartment, compartment2, key), value);
     }
 
  private:

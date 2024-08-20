@@ -98,10 +98,10 @@ class LMDB :
     explicit LMDB(const std::string &name);
 
     bool storeOrUpdateFirst(const std::string &key,
-        const std::string &value) override;
+        std::string_view value) override;
 
     bool updateFirst(const std::string &key,
-        const std::string &value) override;
+        std::string_view value) override;
 
     void del(const std::string& key) override;
 
