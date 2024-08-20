@@ -39,7 +39,7 @@ namespace variables {
 
 void Time::evaluate(Transaction *transaction,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     time_t timer;
     time(&timer);
 
@@ -50,7 +50,7 @@ void Time::evaluate(Transaction *transaction,
     strftime(tstr, 200, "%H:%M:%S", &timeinfo);
 
     transaction->m_variableTime.assign(tstr);
-    l->push_back(new VariableValue(&m_retName,
+    l.push_back(new VariableValue(&m_retName,
         &transaction->m_variableTime));
 }
 

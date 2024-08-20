@@ -92,12 +92,12 @@ class InMemoryPerProcess :
     std::unique_ptr<std::string> resolveFirst(const std::string& var) override;
 
     void resolveSingleMatch(const std::string& var,
-        std::vector<const VariableValue *> *l) override;
+        std::vector<const VariableValue *> &l) override;
     void resolveMultiMatches(const std::string& var,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
     void resolveRegularExpression(const std::string& var,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
 
     /* store */

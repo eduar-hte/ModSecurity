@@ -261,7 +261,7 @@ bool RuleWithOperator::evaluate(Transaction *trans,
         if (!var) {
             continue;
         }
-        var->evaluate(trans, this, &e);
+        var->evaluate(trans, this, e);
         for (const VariableValue *v : e) {
             const std::string &value = v->getValue();
             const std::string &key = v->getKeyWithCollection();

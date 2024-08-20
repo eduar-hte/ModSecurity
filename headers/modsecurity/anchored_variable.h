@@ -53,7 +53,7 @@ class AnchoredVariable {
     void set(const std::string &a, size_t offset);
     void set(const std::string &a, size_t offset, size_t offsetLen);
 
-    void evaluate(std::vector<const VariableValue *> *l);
+    void evaluate(std::vector<const VariableValue *> &l);
     std::string *  evaluate();
     std::unique_ptr<std::string> resolveFirst();
 

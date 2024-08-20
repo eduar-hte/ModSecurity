@@ -15,12 +15,6 @@
 
 #include "src/variables/duration.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <list>
-#include <utility>
-
 #include "modsecurity/transaction.h"
 #include "src/utils/system.h"
 
@@ -29,12 +23,12 @@ namespace variables {
 
 void Duration::evaluate(Transaction *transaction,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     double e = utils::cpu_seconds() - transaction->m_creationTimeStamp;
 
     transaction->m_variableDuration.assign(std::to_string(e));
 
-    l->push_back(new VariableValue(&m_retName,
+    l.push_back(new VariableValue(&m_retName,
         &transaction->m_variableDuration));
 }
 

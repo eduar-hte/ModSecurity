@@ -59,12 +59,12 @@ class Collection {
         const std::string& var) = 0;
 
     virtual void resolveSingleMatch(const std::string& var,
-        std::vector<const VariableValue *> *l) = 0;
+        std::vector<const VariableValue *> &l) = 0;
     virtual void resolveMultiMatches(const std::string& var,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
     virtual void resolveRegularExpression(const std::string& var,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
 
 
@@ -135,21 +135,21 @@ class Collection {
 
     /* resolveSingleMatch */
     void resolveSingleMatch(std::string_view var,
-        std::string_view compartment, std::vector<const VariableValue *> *l) {
+        std::string_view compartment, std::vector<const VariableValue *> &l) {
         resolveSingleMatch(nkey(compartment, var), l);
     }
 
 
     void resolveSingleMatch(std::string_view var,
         std::string_view compartment, std::string_view compartment2,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         resolveSingleMatch(nkey(compartment, compartment2, var), l);
     }
 
 
     /* resolveMultiMatches */
     void resolveMultiMatches(std::string_view var,
-        std::string_view compartment, std::vector<const VariableValue *> *l,
+        std::string_view compartment, std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         resolveMultiMatches(nkey(compartment, var), l, ke);
     }
@@ -157,7 +157,7 @@ class Collection {
 
     void resolveMultiMatches(std::string_view var,
         std::string_view compartment, std::string_view compartment2,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         resolveMultiMatches(nkey(compartment, compartment2, var), l, ke);
     }
@@ -165,7 +165,7 @@ class Collection {
 
     /* resolveRegularExpression */
     void resolveRegularExpression(std::string_view var,
-        std::string_view compartment, std::vector<const VariableValue *> *l,
+        std::string_view compartment, std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         resolveRegularExpression(nkey(compartment, var), l, ke);
     }
@@ -173,7 +173,7 @@ class Collection {
 
     void resolveRegularExpression(std::string_view var,
         std::string_view compartment, std::string_view compartment2,
-        std::vector<const VariableValue *> *l, variables::KeyExclusions &ke) {
+        std::vector<const VariableValue *> &l, variables::KeyExclusions &ke) {
         resolveRegularExpression(nkey(compartment, compartment2, var), l, ke);
     }
 

@@ -39,7 +39,7 @@ namespace variables {
 
 void TimeYear::evaluate(Transaction *transaction,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     time_t timer;
     time(&timer);
 
@@ -51,7 +51,7 @@ void TimeYear::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeYear.assign(tstr);
 
-    l->push_back(new VariableValue(&m_retName,
+    l.push_back(new VariableValue(&m_retName,
         &transaction->m_variableTimeYear));
 }
 

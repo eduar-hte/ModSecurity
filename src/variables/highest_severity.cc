@@ -15,12 +15,6 @@
 
 #include "src/variables/highest_severity.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <list>
-#include <utility>
-
 #include "modsecurity/transaction.h"
 
 namespace modsecurity {
@@ -28,10 +22,10 @@ namespace variables {
 
 void HighestSeverity::evaluate(Transaction *transaction,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     transaction->m_variableHighestSeverityAction.assign(
         std::to_string(transaction->m_highestSeverityAction));
-    l->push_back(new VariableValue(m_fullName.get(),
+    l.push_back(new VariableValue(m_fullName.get(),
        &transaction->m_variableHighestSeverityAction));
 }
 

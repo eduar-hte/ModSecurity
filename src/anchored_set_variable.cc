@@ -67,19 +67,19 @@ void AnchoredSetVariable::set(const std::string &key,
 
 
 void AnchoredSetVariable::resolve(
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     for (const auto& x : *this) {
-        l->insert(l->begin(), new VariableValue(x.second));
+        l.insert(l.begin(), new VariableValue(x.second));
     }
 }
 
 
 void AnchoredSetVariable::resolve(
-    std::vector<const VariableValue *> *l,
+    std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
     for (const auto& x : *this) {
         if (!ke.toOmit(x.first)) {
-            l->insert(l->begin(), new VariableValue(x.second));
+            l.insert(l.begin(), new VariableValue(x.second));
         } else {
             ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
                 + " from target value.");
@@ -89,10 +89,10 @@ void AnchoredSetVariable::resolve(
 
 
 void AnchoredSetVariable::resolve(const std::string &key,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     auto range = this->equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
-        l->push_back(new VariableValue(it->second));
+        l.push_back(new VariableValue(it->second));
     }
 }
 
@@ -109,19 +109,19 @@ std::unique_ptr<std::string> AnchoredSetVariable::resolveFirst(
 
 
 void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     for (const auto& x : *this) {
         int ret = Utils::regex_search(x.first, *r);
         if (ret <= 0) {
             continue;
         }
-        l->insert(l->begin(), new VariableValue(x.second));
+        l.insert(l.begin(), new VariableValue(x.second));
     }
 }
 
 
 void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
-    std::vector<const VariableValue *> *l,
+    std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
     for (const auto& x : *this) {
         int ret = Utils::regex_search(x.first, *r);
@@ -129,7 +129,7 @@ void AnchoredSetVariable::resolveRegularExpression(Utils::Regex *r,
             continue;
         }
         if (!ke.toOmit(x.first)) {
-            l->insert(l->begin(), new VariableValue(x.second));
+            l.insert(l.begin(), new VariableValue(x.second));
         } else {
             ms_dbg_a(m_transaction, 7, "Excluding key: " + x.first
                 + " from target value.");

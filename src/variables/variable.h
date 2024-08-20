@@ -50,7 +50,7 @@ class n ## _DictElementRegexp : public VariableRegex { \
 \
     void evaluate(Transaction *transaction, \
         RuleWithActions *rule, \
-        std::vector<const VariableValue *> *l) override { \
+        std::vector<const VariableValue *> &l) override { \
         transaction-> e .resolveRegularExpression(&m_r, l, \
             m_keyExclusion); \
     } \
@@ -65,7 +65,7 @@ class n ## _DictElement : public VariableDictElement { \
 \
     void evaluate(Transaction *transaction, \
         RuleWithActions *rule, \
-        std::vector<const VariableValue *> *l) override { \
+        std::vector<const VariableValue *> &l) override { \
         transaction-> e .resolve(m_dictElement, l); \
     } \
 };
@@ -79,7 +79,7 @@ class n ## _NoDictElement : public Variable { \
 \
     void evaluate(Transaction *transaction, \
         RuleWithActions *rule, \
-        std::vector<const VariableValue *> *l) override { \
+        std::vector<const VariableValue *> &l) override { \
         transaction-> e .resolve(l, m_keyExclusion); \
     } \
 };
@@ -93,7 +93,7 @@ class n : public Variable { \
     \
     void evaluate(Transaction *transaction, \
         RuleWithActions *rule, \
-        std::vector<const VariableValue *> *l) override { \
+        std::vector<const VariableValue *> &l) override { \
         transaction-> e .evaluate(l); \
     } \
 };
@@ -178,7 +178,7 @@ class VariableMonkeyResolution {
 
     static void stringMatchResolveMulti(Transaction *t,
         const std::string &variable,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         size_t collection_delimiter_offset = variable.find(".");
         if (collection_delimiter_offset == std::string::npos) {
             collection_delimiter_offset = variable.find(":");
@@ -595,7 +595,7 @@ class Variable : public VariableMonkeyResolution {
 
     virtual void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) = 0;
+        std::vector<const VariableValue *> &l) = 0;
 
 
     bool inline belongsToCollection(Variable *var) {
@@ -675,7 +675,7 @@ class VariableModificatorExclusion : public Variable {
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) override {
+        std::vector<const VariableValue *> &l) override {
         m_base->evaluate(t, rule, l);
     }
 
@@ -693,24 +693,23 @@ class VariableModificatorCount : public Variable {
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) override {
+        std::vector<const VariableValue *> &l) override {
         std::vector<const VariableValue *> reslIn;
-        VariableValue *val = NULL;
+        VariableValue *val = nullptr;
         int count = 0;
 
-        m_base->evaluate(t, rule, &reslIn);
+        m_base->evaluate(t, rule, reslIn);
 
         for (const VariableValue *a : reslIn) {
             count++;
             delete a;
-            a = NULL;
         }
         reslIn.clear();
 
         auto res = std::to_string(count);
         val = new VariableValue(m_fullName.get(), &res);
 
-        l->push_back(val);
+        l.push_back(val);
         return;
     }
 

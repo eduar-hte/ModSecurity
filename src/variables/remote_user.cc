@@ -22,13 +22,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <list>
-#include <utility>
-#include <memory>
-
 #include "modsecurity/transaction.h"
 #include "src/utils/base64.h"
 
@@ -38,10 +31,10 @@ namespace variables {
 
 void RemoteUser::evaluate(Transaction *transaction,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     std::vector<const VariableValue *> l2;
 
-    transaction->m_variableRequestHeaders.resolve("authorization", &l2);
+    transaction->m_variableRequestHeaders.resolve("authorization", l2);
 
     if (!l2.empty()) {
         const auto *v = l2[0];
@@ -66,7 +59,7 @@ void RemoteUser::evaluate(Transaction *transaction,
             for (const auto &i : v->getOrigin()) {
                 var->addOrigin(i);
             }
-            l->push_back(var.release());
+            l.push_back(var.release());
         }
 
         for (auto &a : l2) {

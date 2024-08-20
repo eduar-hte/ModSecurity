@@ -294,7 +294,7 @@ int Lua::getvars(lua_State *L) {
     z = const_cast<void *>(lua_topointer(L, -1));
     t = reinterpret_cast<Transaction *>(z);
 
-    variables::Variable::stringMatchResolveMulti(t, varname, &l);
+    variables::Variable::stringMatchResolveMulti(t, varname, l);
 
     lua_newtable(L);
     for (auto i : l) {
