@@ -296,7 +296,7 @@ end_txn:
 }
 
 bool LMDB::storeOrUpdateFirst(const std::string &key,
-    const std::string &value) {
+    std::string_view value) {
     int rc;
     MDB_txn *txn;
     MDB_val mdb_key;
@@ -400,7 +400,7 @@ end_txn:
 
 
 bool LMDB::updateFirst(const std::string &key,
-    const std::string &value) {
+    std::string_view value) {
     int rc;
     MDB_txn *txn;
     MDB_val mdb_key;

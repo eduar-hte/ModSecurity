@@ -16,6 +16,7 @@
 
 #ifdef __cplusplus
 #include <string>
+#include <string_view>
 #include <chrono>
 #endif
 
@@ -24,9 +25,7 @@
 #define SRC_COLLECTION_DATA_H_
 
 #ifdef __cplusplus
-namespace modsecurity {
-namespace collection {
-namespace backend {
+namespace modsecurity::collection::backend {
 
 class CollectionData {
 public:
@@ -34,12 +33,12 @@ public:
         m_hasValue(false),
 	m_hasExpiryTime(false) { }
 
-    CollectionData(const std::string &value) :
+    CollectionData(std::string_view value) :
         m_hasValue(true),
 	m_hasExpiryTime(false),
 	m_value(value) { }
 
-    void setValue(const std::string &value) {
+    void setValue(std::string_view value) {
         m_value = value;
         m_hasValue = true;
     }
@@ -60,9 +59,7 @@ private:
     std::chrono::system_clock::time_point m_expiryTime;
 };
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
+}  // namespace modsecurity::collection::backend
 #endif
 
 #endif  // SRC_COLLECTION_DATA_H_
