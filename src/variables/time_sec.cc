@@ -51,8 +51,8 @@ void TimeSec::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeSec.assign(tstr);
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeSec));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeSec));
 }
 
 

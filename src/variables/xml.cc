@@ -123,10 +123,10 @@ void XML::evaluate(Transaction *t,
         char *content;
         content = reinterpret_cast<char *>(
             xmlNodeGetContent(nodes->nodeTab[i]));
-        if (content != NULL) {
-            auto a = std::string(content);
-            VariableValue *var = new VariableValue(m_fullName.get(),
-                &a);
+        if (content != nullptr) {
+            const auto a = std::string(content);
+            VariableValue *var = new VariableValue(*m_fullName,
+                a);
             if (!m_keyExclusion.toOmit(*m_fullName)) {
                 l.push_back(var);
             }

@@ -51,8 +51,8 @@ void TimeMin::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeMin.assign(tstr);
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeMin));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeMin));
 }
 
 

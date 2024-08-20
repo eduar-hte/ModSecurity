@@ -16,10 +16,10 @@
 
 #ifdef __cplusplus
 #include <string>
-#include <iostream>
-#include <memory>
 #include <vector>
-#include <utility>
+#include <string_view>
+#include <optional>
+#include <fmt/format.h>
 #endif
 
 #include "modsecurity/variable_origin.h"
@@ -35,25 +35,26 @@ typedef struct Variable_t VariableValue;
 namespace modsecurity {
 
 class Collection;
+
 class VariableValue {
  public:
     using Origins = std::vector<VariableOrigin>;
 
-    explicit VariableValue(const std::string *key,
-        const std::string *value = nullptr)
+    explicit VariableValue(std::string_view key,
+        std::optional<std::string_view> value = std::nullopt)
         : m_collection(""),
-        m_key(*key),
-        m_keyWithCollection(*key),
-        m_value(value != nullptr?*value:"")
+        m_key(key),
+        m_keyWithCollection(key),
+        m_value(value.value_or(""))
     { }
 
-    VariableValue(const std::string *collection,
-        const std::string *key,
-        const std::string *value)
-        : m_collection(*collection),
-        m_key(*key),
-        m_keyWithCollection(*collection + ":" + *key),
-        m_value(*value)
+    VariableValue(std::string_view collection,
+        std::string_view key,
+        std::string_view value)
+        : m_collection(collection),
+        m_key(key),
+        m_keyWithCollection(fmt::format("{}:{}", collection, key)),
+        m_value(value)
     { }
 
     explicit VariableValue(const VariableValue *o) :
@@ -91,7 +92,7 @@ class VariableValue {
     }
 
 
-    void setValue(const std::string &value) {
+    void setValue(std::string_view value) {
         m_value = value;
     }
 

@@ -28,8 +28,8 @@ void Duration::evaluate(Transaction *transaction,
 
     transaction->m_variableDuration.assign(std::to_string(e));
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableDuration));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableDuration));
 }
 
 

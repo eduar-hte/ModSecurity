@@ -100,8 +100,7 @@ class AnchoredSetVariableTranslationProxy {
         for (auto &v : l) {
             assert(v != nullptr);
             std::unique_ptr<const VariableValue> oldVariableValue(v);
-            auto newVariableValue = new VariableValue(&m_name,
-                &v->getKey(), &v->getKey());
+            auto newVariableValue = new VariableValue(m_name, v->getKey(), v->getKey());
             newVariableValue->reserveOrigin(v->getOrigin().size());
             for (const auto &oldOrigin : v->getOrigin()) {
                 newVariableValue->addOrigin(

@@ -151,9 +151,7 @@ private:
     static inline void addVariableOrigin(const std::string &key,
         const std::string &value,
         std::vector<const VariableValue *> &l) {
-        auto var = new VariableValue(&m_rule, &key,
-            &value
-        );
+        auto var = new VariableValue(m_rule, key, value);
         var->addOrigin();
         l.push_back(var);
     }

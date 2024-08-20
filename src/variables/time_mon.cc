@@ -48,8 +48,8 @@ void TimeMon::evaluate(Transaction *transaction,
 
     transaction->m_variableTimeMin.assign(std::to_string(timeinfo.tm_mon));
 
-    l.push_back(new VariableValue(&m_retName,
-        &transaction->m_variableTimeMin));
+    l.push_back(new VariableValue(m_retName,
+        transaction->m_variableTimeMin));
 }
 
 
