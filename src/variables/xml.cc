@@ -49,12 +49,12 @@ namespace variables {
 #ifndef WITH_LIBXML2
 void XML::evaluate(Transaction *t,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) { }
+    std::vector<const VariableValue *> &l) { }
 #else
 
 void XML::evaluate(Transaction *t,
     RuleWithActions *rule,
-    std::vector<const VariableValue *> *l) {
+    std::vector<const VariableValue *> &l) {
     xmlXPathContextPtr xpathCtx;
     xmlXPathObjectPtr xpathObj;
     xmlNodeSetPtr nodes;
@@ -128,7 +128,7 @@ void XML::evaluate(Transaction *t,
             VariableValue *var = new VariableValue(m_fullName.get(),
                 &a);
             if (!m_keyExclusion.toOmit(*m_fullName)) {
-                l->push_back(var);
+                l.push_back(var);
             }
             xmlFree(content);
          }

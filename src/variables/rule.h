@@ -39,7 +39,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     static void id(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         RuleWithActions *r = rule;
 
         while (r && r->m_ruleId == 0) {
@@ -56,7 +56,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     static void rev(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         RuleWithActions *r = rule;
 
         while (r && r->m_rev.empty()) {
@@ -73,7 +73,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     static void severity(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         RuleWithActions *r = rule;
 
         while (r && !r->hasSeverity()) {
@@ -88,7 +88,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     static void logData(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         RuleWithActions *r = rule;
 
         while (r && !r->hasLogData()) {
@@ -102,7 +102,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     static void msg(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         RuleWithActions *r = rule;
 
         while (r && !r->hasMsg()) {
@@ -116,7 +116,7 @@ class Rule_DictElement : public VariableDictElement { \
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) override {
+        std::vector<const VariableValue *> &l) override {
         if (m_dictElement == m_rule_id) {
             id(t, rule, l);
             return;
@@ -150,12 +150,12 @@ private:
 
     static inline void addVariableOrigin(const std::string &key,
         const std::string &value,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         auto var = new VariableValue(&m_rule, &key,
             &value
         );
         var->addOrigin();
-        l->push_back(var);
+        l.push_back(var);
     }
 };
 
@@ -167,7 +167,7 @@ class Rule_DictElementRegexp : public VariableRegex {
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) override {
+        std::vector<const VariableValue *> &l) override {
         if (Utils::regex_search("id", m_r) > 0) {
             Rule_DictElement::id(t, rule, l);
             return;
@@ -199,7 +199,7 @@ class Rule_NoDictElement : public Variable {
 
     void evaluate(Transaction *t,
         RuleWithActions *rule,
-        std::vector<const VariableValue *> *l) override {
+        std::vector<const VariableValue *> &l) override {
         Rule_DictElement::id(t, rule, l);
         Rule_DictElement::rev(t, rule, l);
         Rule_DictElement::severity(t, rule, l);

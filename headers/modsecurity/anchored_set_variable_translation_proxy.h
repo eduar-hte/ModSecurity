@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
-#include <iostream>
+#include <cassert>
 #endif
 
 #include "modsecurity/variable_value.h"
@@ -41,60 +41,43 @@ class AnchoredSetVariableTranslationProxy {
         AnchoredSetVariable *fount)
         : m_name(name),
         m_fount(fount)
-    {
-        m_translate = [](const std::string *name, std::vector<const VariableValue *> *l) {
-            for (int i = 0; i < l->size(); ++i) {
-                VariableValue *newVariableValue = new VariableValue(name, &l->at(i)->getKey(), &l->at(i)->getKey());
-                const VariableValue *oldVariableValue = l->at(i);
-                l->at(i) = newVariableValue;
-                newVariableValue->reserveOrigin(oldVariableValue->getOrigin().size());
-                for (const auto &oldOrigin : oldVariableValue->getOrigin()) {
-                    newVariableValue->addOrigin(
-                        oldVariableValue->getKey().size(),
-                        oldOrigin.m_offset - oldVariableValue->getKey().size() - 1
-                    );
-                }
-                delete oldVariableValue;
-            }
-        };
-    }
-
-    virtual ~AnchoredSetVariableTranslationProxy()
     { }
 
-    void resolve(std::vector<const VariableValue *> *l) {
+    virtual ~AnchoredSetVariableTranslationProxy() = default;
+
+    void resolve(std::vector<const VariableValue *> &l) {
         m_fount->resolve(l);
-        m_translate(&m_name, l);
+        translate(l);
     }
 
-    void resolve(std::vector<const VariableValue *> *l,
+    void resolve(std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         m_fount->resolve(l, ke);
-        m_translate(&m_name, l);
+        translate(l);
     }
 
     void resolve(const std::string &key,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         m_fount->resolve(key, l);
-        m_translate(&m_name, l);
+        translate(l);
     };
 
     void resolveRegularExpression(Utils::Regex *r,
-        std::vector<const VariableValue *> *l) {
+        std::vector<const VariableValue *> &l) {
         m_fount->resolveRegularExpression(r, l);
-        m_translate(&m_name, l);
+        translate(l);
     };
 
     void resolveRegularExpression(Utils::Regex *r,
-        std::vector<const VariableValue *> *l,
+        std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         m_fount->resolveRegularExpression(r, l, ke);
-        m_translate(&m_name, l);
+        translate(l);
     };
 
     std::unique_ptr<std::string> resolveFirst(const std::string &key) {
         std::vector<const VariableValue *> l;
-        resolve(&l);
+        resolve(l);
 
         if (l.empty()) {
             return nullptr;
@@ -112,7 +95,23 @@ class AnchoredSetVariableTranslationProxy {
     std::string m_name;
  private:
     AnchoredSetVariable *m_fount;
-    std::function<void(std::string *name, std::vector<const VariableValue *> *l)> m_translate;
+
+    void translate(std::vector<const VariableValue *> &l) const {
+        for (auto &v : l) {
+            assert(v != nullptr);
+            std::unique_ptr<const VariableValue> oldVariableValue(v);
+            auto newVariableValue = new VariableValue(&m_name,
+                &v->getKey(), &v->getKey());
+            newVariableValue->reserveOrigin(v->getOrigin().size());
+            for (const auto &oldOrigin : v->getOrigin()) {
+                newVariableValue->addOrigin(
+                    v->getKey().size(),
+                    oldOrigin.m_offset - v->getKey().size() - 1
+                );
+            }
+            v = newVariableValue;
+        }
+    };
 };
 
 }  // namespace modsecurity
