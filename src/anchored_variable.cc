@@ -57,13 +57,13 @@ void AnchoredVariable::set(const std::string &a, size_t offset) {
 }
 
 
-void AnchoredVariable::evaluate(std::vector<const VariableValue *> *l) {
+void AnchoredVariable::evaluate(std::vector<const VariableValue *> &l) {
     if (m_name.empty()) {
         return;
     }
 
     m_var.setValue(m_value);
-    l->push_back(new VariableValue(&m_var));
+    l.push_back(new VariableValue(&m_var));
 }
 
 

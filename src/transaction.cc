@@ -848,7 +848,7 @@ int Transaction::processRequestBody() {
      */
     std::string fullRequest;
     std::vector<const VariableValue *> l;
-    m_variableRequestHeaders.resolve(&l);
+    m_variableRequestHeaders.resolve(l);
     for (auto &h : l) {
         fullRequest = fullRequest + h->getKey() + ": " + h->getValue() + "\n";
         delete h;
@@ -1405,7 +1405,7 @@ std::string Transaction::toOldAuditLogFormatIndex(const std::string &filename,
     {
         auto r = std::make_unique<variables::RemoteUser>("REMOTE_USER");
         std::vector<const VariableValue *> l;
-        r->evaluate(this, nullptr, &l);
+        r->evaluate(this, nullptr, l);
         for (auto &a : l) {
             delete a;
         }
@@ -1473,7 +1473,7 @@ std::string Transaction::toOldAuditLogFormat(int parts,
             this->m_uri,
             this->m_httpVersion);
 
-        m_variableRequestHeaders.resolve(&l);
+        m_variableRequestHeaders.resolve(l);
         for (auto &h : l) {
             const auto pos = std::size("REQUEST_HEADERS:") - 1;
             audit_log << fmt::format("{}: {}\n",
@@ -1512,7 +1512,7 @@ std::string Transaction::toOldAuditLogFormat(int parts,
             trailer,
             m_httpVersion,
             this->m_httpCodeReturned);
-        m_variableResponseHeaders.resolve(&l);
+        m_variableResponseHeaders.resolve(l);
         for (auto &h : l) {
             audit_log << fmt::format("{}: {}\n",
                 h->getKey(), h->getValue());
@@ -1611,7 +1611,7 @@ std::string Transaction::toJSON(int parts) {
             strlen("headers"));
         yajl_gen_map_open(g);
 
-        m_variableRequestHeaders.resolve(&l);
+        m_variableRequestHeaders.resolve(l);
         for (auto &h : l) {
             LOGFY_ADD(h->getKey().c_str(), h->getValue().c_str());
             delete h;
@@ -1641,7 +1641,7 @@ std::string Transaction::toJSON(int parts) {
             strlen("headers"));
         yajl_gen_map_open(g);
 
-        m_variableResponseHeaders.resolve(&l);
+        m_variableResponseHeaders.resolve(l);
         for (auto &h : l) {
             LOGFY_ADD(h->getKey().c_str(), h->getValue().c_str());
             delete h;
