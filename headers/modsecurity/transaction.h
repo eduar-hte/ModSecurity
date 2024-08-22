@@ -333,7 +333,7 @@ class Transaction : public TransactionAnchoredVariables, public TransactionSecMa
     ~Transaction();
 
     Transaction ( const Transaction & ) = delete;
-    bool operator ==(const Transaction &b) const { return false; };
+    bool operator ==(const Transaction &b) const = delete;
     Transaction &operator =(const Transaction &b) const = delete;
 
     /** TODO: Should be an structure that fits an IP address */

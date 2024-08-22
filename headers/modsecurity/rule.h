@@ -74,7 +74,7 @@ class Rule {
 
     Rule &operator=(const Rule &other) = delete;
 
-    virtual ~Rule() {}
+    virtual ~Rule() = default;
 
     virtual bool evaluate(Transaction *transaction) = 0;
 
