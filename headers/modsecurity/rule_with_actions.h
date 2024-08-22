@@ -71,7 +71,7 @@ class RuleWithActions : public Rule {
 
 
     void executeTransformations(
-        const Transaction *trasn, const std::string &value, TransformationResults &ret);
+        const Transaction *trasn, const std::string &value, TransformationResults &ret) const;
 
     void performLogging(Transaction *trans,
         RuleMessage &ruleMessage,
