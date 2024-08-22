@@ -22,11 +22,10 @@
 #include "modsecurity/rule.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool SetSID::evaluate(RuleWithActions *rule, Transaction *t) {
+bool SetSID::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
     ms_dbg_a(t, 8, "Session ID initiated with value: \'"
         + colNameExpanded + "\'.");
@@ -37,5 +36,5 @@ bool SetSID::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions

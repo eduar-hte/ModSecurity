@@ -28,11 +28,10 @@
 #include "src/variables/user.h"
 #include "src/variables/variable.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool ExpireVar::evaluate(RuleWithActions *rule, Transaction *t) {
+bool ExpireVar::evaluate(RuleWithActions &rule, Transaction *t) {
 
     std::string expireExpressionExpanded(m_string->evaluate(t));
 
@@ -86,5 +85,5 @@ bool ExpireVar::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions

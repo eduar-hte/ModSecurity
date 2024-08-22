@@ -22,11 +22,10 @@
 #include "modsecurity/rule.h"
 #include "src/utils/string.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool SetENV::evaluate(RuleWithActions *rule, Transaction *t) {
+bool SetENV::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
 
     auto pair = utils::string::ssplit_pair(colNameExpanded, '=');
@@ -41,5 +40,4 @@ bool SetENV::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

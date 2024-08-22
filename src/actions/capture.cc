@@ -15,27 +15,12 @@
 
 #include "src/actions/capture.h"
 
-#include <iostream>
-#include <string>
-#include <list>
-
-#include "modsecurity/transaction.h"
-
-#include "modsecurity/rule.h"
-#include "src/operators/operator.h"
-#include "src/operators/pm.h"
-#include "src/operators/rx.h"
-#include "src/operators/contains.h"
-#include "src/operators/detect_sqli.h"
-
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool Capture::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool Capture::evaluate(RuleWithActions &rule, Transaction *transaction) {
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

@@ -23,8 +23,7 @@
 #include "modsecurity/rule.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
 bool InitCol::init(std::string *error) {
@@ -54,7 +53,7 @@ bool InitCol::init(std::string *error) {
 }
 
 
-bool InitCol::evaluate(RuleWithActions *rule, Transaction *t) {
+bool InitCol::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string collectionName(m_string->evaluate(t));
 
     if (m_collection_key == "ip") {
@@ -73,5 +72,5 @@ bool InitCol::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions

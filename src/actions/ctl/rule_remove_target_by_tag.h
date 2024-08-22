@@ -13,18 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CTL_RULE_REMOVE_TARGET_BY_TAG_H_
+#define SRC_ACTIONS_CTL_RULE_REMOVE_TARGET_BY_TAG_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-
-#ifndef SRC_ACTIONS_CTL_RULE_REMOVE_TARGET_BY_TAG_H_
-#define SRC_ACTIONS_CTL_RULE_REMOVE_TARGET_BY_TAG_H_
-
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 class RuleRemoveTargetByTag : public Action {
@@ -33,15 +30,13 @@ class RuleRemoveTargetByTag : public Action {
         : Action(action) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     std::string m_tag;
     std::string m_target;
 };
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl
 
 #endif  // SRC_ACTIONS_CTL_RULE_REMOVE_TARGET_BY_TAG_H_

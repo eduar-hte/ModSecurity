@@ -33,8 +33,8 @@ bool Maturity::init(std::string *error) {
 }
 
 
-bool Maturity::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    rule->m_maturity = m_maturity;
+bool Maturity::evaluate(RuleWithActions &rule, Transaction *transaction) {
+    rule.m_maturity = m_maturity;
     return true;
 }
 

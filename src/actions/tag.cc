@@ -47,17 +47,15 @@
  */
 #endif
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
 std::string Tag::getName(Transaction *transaction) {
-    std::string tag(m_string->evaluate(transaction));
-    return tag;
+    return m_string->evaluate(transaction);
 }
 
 
-bool Tag::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool Tag::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     std::string tag = getName(transaction);
     ms_dbg_a(transaction, 9, "Rule tag: " + tag);
 
@@ -67,5 +65,4 @@ bool Tag::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage 
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

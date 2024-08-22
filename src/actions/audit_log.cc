@@ -23,11 +23,10 @@
 #include "modsecurity/rule_message.h"
 #include "modsecurity/rules_set.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool AuditLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool AuditLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_noAuditLog = false;
     ms_dbg_a(transaction, 9, "Saving transaction to logs");
     ruleMessage.m_saveMessage = true;
@@ -36,5 +35,4 @@ bool AuditLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMes
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

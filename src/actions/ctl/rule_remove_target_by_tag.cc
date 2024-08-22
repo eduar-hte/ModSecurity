@@ -24,9 +24,7 @@
 #include "src/utils/string.h"
 
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool RuleRemoveTargetByTag::init(std::string *error) {
@@ -44,13 +42,11 @@ bool RuleRemoveTargetByTag::init(std::string *error) {
     return true;
 }
 
-bool RuleRemoveTargetByTag::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RuleRemoveTargetByTag::evaluate(RuleWithActions &rule, Transaction *transaction) {
     transaction->m_ruleRemoveTargetByTag.push_back(
         std::make_pair(m_tag, m_target));
     return true;
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

@@ -15,25 +15,16 @@
 
 #include "src/actions/no_log.h"
 
-#include <iostream>
-#include <string>
-#include <memory>
-
-#include "modsecurity/actions/action.h"
-#include "modsecurity/transaction.h"
-#include "src/operators/operator.h"
 #include "modsecurity/rule_message.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool NoLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool NoLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_saveMessage = false;
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

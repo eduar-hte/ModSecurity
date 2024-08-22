@@ -27,12 +27,10 @@
 #include "src/utils/string.h"
 #include "modsecurity/modsecurity.h"
 
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
-bool Drop::evaluate(RuleWithActions *rule, Transaction *transaction,
+bool Drop::evaluate(RuleWithActions &rule, Transaction *transaction,
     RuleMessage &ruleMessage) {
     ms_dbg_a(transaction, 8, "Running action drop " \
         "[executing deny instead of drop.]");
@@ -51,6 +49,4 @@ bool Drop::evaluate(RuleWithActions *rule, Transaction *transaction,
 }
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive

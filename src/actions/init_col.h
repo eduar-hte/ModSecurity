@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_INIT_COL_H_
+#define SRC_ACTIONS_INIT_COL_H_
+
 #include <string>
 #include <utility>
 #include <memory>
@@ -20,14 +23,7 @@
 #include "modsecurity/actions/action.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_INIT_COL_H_
-#define SRC_ACTIONS_INIT_COL_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class InitCol : public Action {
@@ -38,7 +34,7 @@ class InitCol : public Action {
         : Action(action),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
     bool init(std::string *error) override;
  private:
     std::string m_collection_key;
@@ -46,7 +42,6 @@ class InitCol : public Action {
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_INIT_COL_H_

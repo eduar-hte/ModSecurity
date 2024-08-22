@@ -21,9 +21,7 @@
 #include "modsecurity/transaction.h"
 #include "src/utils/string.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool RuleRemoveById::init(std::string *error) {
@@ -83,7 +81,7 @@ bool RuleRemoveById::init(std::string *error) {
     return false;
 }
 
-bool RuleRemoveById::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RuleRemoveById::evaluate(RuleWithActions &rule, Transaction *transaction) {
     for (const auto &i : m_ids) {
         transaction->m_ruleRemoveById.push_back(i);
     }
@@ -95,6 +93,4 @@ bool RuleRemoveById::evaluate(RuleWithActions *rule, Transaction *transaction) {
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

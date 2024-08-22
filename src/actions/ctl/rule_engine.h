@@ -13,19 +13,16 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CTL_RULE_ENGINE_H_
+#define SRC_ACTIONS_CTL_RULE_ENGINE_H_
+
 #include <string>
 
 #include "modsecurity/rules_set_properties.h"
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-
-#ifndef SRC_ACTIONS_CTL_RULE_ENGINE_H_
-#define SRC_ACTIONS_CTL_RULE_ENGINE_H_
-
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 class RuleEngine : public Action {
@@ -35,14 +32,12 @@ class RuleEngine : public Action {
         m_ruleEngine(RulesSetProperties::PropertyNotSetRuleEngine) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     RulesSetProperties::RuleEngine m_ruleEngine;
 };
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl
 
 #endif  // SRC_ACTIONS_CTL_RULE_ENGINE_H_

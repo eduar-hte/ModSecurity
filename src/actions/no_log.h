@@ -13,19 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_NO_LOG_H_
+#define SRC_ACTIONS_NO_LOG_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_NO_LOG_H_
-#define SRC_ACTIONS_NO_LOG_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class NoLog : public Action {
@@ -33,11 +29,11 @@ class NoLog : public Action {
     explicit NoLog(const std::string &action) 
         : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions
 
 
 #endif  // SRC_ACTIONS_NO_LOG_H_

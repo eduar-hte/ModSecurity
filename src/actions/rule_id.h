@@ -13,21 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_RULE_ID_H_
+#define SRC_ACTIONS_RULE_ID_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_RULE_ID_H_
-#define SRC_ACTIONS_RULE_ID_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
+namespace modsecurity::actions {
 
 
 class RuleId : public Action {
@@ -37,14 +30,13 @@ class RuleId : public Action {
         m_ruleId(0) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
  private:
     double m_ruleId;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_RULE_ID_H_

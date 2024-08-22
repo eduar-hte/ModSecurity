@@ -20,9 +20,7 @@
 
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool RuleRemoveByTag::init(std::string *error) {
@@ -32,12 +30,10 @@ bool RuleRemoveByTag::init(std::string *error) {
     return true;
 }
 
-bool RuleRemoveByTag::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RuleRemoveByTag::evaluate(RuleWithActions &rule, Transaction *transaction) {
     transaction->m_ruleRemoveByTag.push_back(m_tag);
     return true;
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

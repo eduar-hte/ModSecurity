@@ -15,24 +15,16 @@
 
 #include "src/actions/no_audit_log.h"
 
-#include <iostream>
-#include <string>
-
-#include "modsecurity/transaction.h"
-#include "modsecurity/rule.h"
 #include "modsecurity/rule_message.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool NoAuditLog::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool NoAuditLog::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_noAuditLog = true;
     ruleMessage.m_saveMessage = false;
-
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

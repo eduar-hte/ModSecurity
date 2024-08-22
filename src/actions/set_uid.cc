@@ -22,11 +22,10 @@
 #include "modsecurity/rule.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool SetUID::evaluate(RuleWithActions *rule, Transaction *t) {
+bool SetUID::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
     ms_dbg_a(t, 8, "User collection initiated with value: \'"
         + colNameExpanded + "\'.");
@@ -37,5 +36,4 @@ bool SetUID::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

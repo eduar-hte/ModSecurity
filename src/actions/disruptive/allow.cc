@@ -25,9 +25,7 @@
 #include "modsecurity/modsecurity.h"
 
 
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
 bool Allow::init(std::string *error) {
@@ -49,7 +47,7 @@ bool Allow::init(std::string *error) {
 }
 
 
-bool Allow::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool Allow::evaluate(RuleWithActions &rule, Transaction *transaction) {
     ms_dbg_a(transaction, 4, "Dropping the evaluation of upcoming rules " \
         "in favor of an `allow' action of type: " \
         + allowTypeToName(m_allowType));
@@ -60,6 +58,4 @@ bool Allow::evaluate(RuleWithActions *rule, Transaction *transaction) {
 }
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive

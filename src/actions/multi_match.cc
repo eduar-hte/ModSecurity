@@ -15,20 +15,12 @@
 
 #include "src/actions/multi_match.h"
 
-#include <iostream>
-#include <string>
-
-#include "modsecurity/transaction.h"
-#include "modsecurity/rule.h"
-
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool MultiMatch::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool MultiMatch::evaluate(RuleWithActions &rule, Transaction *transaction) {
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_SET_UID_H_
+#define SRC_ACTIONS_SET_UID_H_
+
 #include <string>
 #include <memory>
 #include <utility>
@@ -20,14 +23,7 @@
 #include "modsecurity/actions/action.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_SET_UID_H_
-#define SRC_ACTIONS_SET_UID_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class SetUID : public Action {
@@ -39,14 +35,13 @@ class SetUID : public Action {
         : Action("setuid"),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
  private:
     std::unique_ptr<RunTimeString> m_string;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_SET_UID_H_

@@ -22,9 +22,7 @@
 #include "modsecurity/transaction.h"
 
 
-namespace modsecurity {
-namespace actions {
-namespace data {
+namespace modsecurity::actions::data {
 
 bool Status::init(std::string *error) {
     try {
@@ -38,13 +36,11 @@ bool Status::init(std::string *error) {
 }
 
 
-bool Status::evaluate(RuleWithActions *rule, Transaction *transaction,
+bool Status::evaluate(RuleWithActions &rule, Transaction *transaction,
     RuleMessage &ruleMessage) {
     transaction->m_it.status = m_status;
     return true;
 }
 
 
-}  // namespace data
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::data

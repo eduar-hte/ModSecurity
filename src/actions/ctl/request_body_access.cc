@@ -21,9 +21,7 @@
 #include "modsecurity/rules_set_properties.h"
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool RequestBodyAccess::init(std::string *error) {
@@ -42,7 +40,7 @@ bool RequestBodyAccess::init(std::string *error) {
     return true;
 }
 
-bool RequestBodyAccess::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RequestBodyAccess::evaluate(RuleWithActions &rule, Transaction *transaction) {
     if (m_request_body_access) {
         transaction->m_requestBodyAccess = RulesSetProperties::TrueConfigBoolean;
     } else {
@@ -53,6 +51,4 @@ bool RequestBodyAccess::evaluate(RuleWithActions *rule, Transaction *transaction
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

@@ -87,8 +87,10 @@ class Action {
 
     virtual ~Action() { }
 
-    virtual bool evaluate(RuleWithActions *rule, Transaction *transaction);
-    virtual bool evaluate(RuleWithActions *rule, Transaction *transaction,
+    virtual bool evaluate(RuleWithActions &rule, Transaction *transaction) {
+        return true;
+    }
+    virtual bool evaluate(RuleWithActions &rule, Transaction *transaction,
         RuleMessage &ruleMessage) {
         return evaluate(rule, transaction);
     }

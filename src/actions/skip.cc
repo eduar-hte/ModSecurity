@@ -22,8 +22,7 @@
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
 bool Skip::init(std::string *error) {
@@ -38,7 +37,7 @@ bool Skip::init(std::string *error) {
 }
 
 
-bool Skip::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool Skip::evaluate(RuleWithActions &rule, Transaction *transaction) {
     ms_dbg_a(transaction, 5, "Skipping the next " + \
         std::to_string(m_skip_next) + " rules.");
 
@@ -48,5 +47,4 @@ bool Skip::evaluate(RuleWithActions *rule, Transaction *transaction) {
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

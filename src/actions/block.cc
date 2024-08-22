@@ -25,14 +25,13 @@
 #include "modsecurity/intervention.h"
 #include "src/actions/data/status.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool Block::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool Block::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ms_dbg_a(transaction, 8, "Marking request as disruptive.");
 
-    for (auto &a : transaction->m_rules->m_defaultActions[rule->getPhase()]) {
+    for (auto &a : transaction->m_rules->m_defaultActions[rule.getPhase()]) {
         if (a->isDisruptive() == false) {
             continue;
         }
@@ -43,5 +42,4 @@ bool Block::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessag
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

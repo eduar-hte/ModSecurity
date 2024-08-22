@@ -24,12 +24,10 @@
 #include "modsecurity/rule.h"
 #include "modsecurity/rule_message.h"
 
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
-bool Pass::evaluate(RuleWithActions *rule, Transaction *transaction,
+bool Pass::evaluate(RuleWithActions &rule, Transaction *transaction,
     RuleMessage &ruleMessage) {
     intervention::free(&transaction->m_it);
     intervention::reset(&transaction->m_it);
@@ -40,6 +38,4 @@ bool Pass::evaluate(RuleWithActions *rule, Transaction *transaction,
 }
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive

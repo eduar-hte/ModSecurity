@@ -46,11 +46,6 @@ void RunTimeString::appendVar(
 }
 
 
-std::string RunTimeString::evaluate(Transaction *t) {
-    return evaluate(t, NULL);
-}
-
-
 std::string RunTimeString::evaluate(Transaction *t, Rule *r) {
     std::string s;
     for (auto &z : m_elements) {

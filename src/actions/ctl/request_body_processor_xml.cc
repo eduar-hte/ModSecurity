@@ -20,12 +20,10 @@
 
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
-bool RequestBodyProcessorXML::evaluate(RuleWithActions *rule,
+bool RequestBodyProcessorXML::evaluate(RuleWithActions &rule,
     Transaction *transaction) {
     transaction->m_requestBodyProcessor = Transaction::XMLRequestBody;
     transaction->m_variableReqbodyProcessor.set("XML",
@@ -35,6 +33,4 @@ bool RequestBodyProcessorXML::evaluate(RuleWithActions *rule,
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

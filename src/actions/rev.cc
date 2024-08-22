@@ -27,8 +27,8 @@ bool Rev::init(std::string *error) {
 }
 
 
-bool Rev::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    rule->m_rev = m_rev;
+bool Rev::evaluate(RuleWithActions &rule, Transaction *transaction) {
+    rule.m_rev = m_rev;
     return true;
 }
 

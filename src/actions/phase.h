@@ -13,21 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_PHASE_H_
+#define SRC_ACTIONS_PHASE_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_PHASE_H_
-#define SRC_ACTIONS_PHASE_H_
+namespace modsecurity::actions {
 
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
 
 
 class Phase : public Action {
@@ -37,14 +31,13 @@ class Phase : public Action {
         m_secRulesPhase(0) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     int m_phase;
     int m_secRulesPhase;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_PHASE_H_

@@ -13,20 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_SEVERITY_H_
+#define SRC_ACTIONS_SEVERITY_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_SEVERITY_H_
-#define SRC_ACTIONS_SEVERITY_H_
-
-#ifdef __cplusplus
-
-namespace modsecurity {
-class Transaction;
-
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Severity : public Action {
@@ -35,15 +30,13 @@ class Severity : public Action {
         : Action(action),
         m_severity(0) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool init(std::string *error) override;
 
     int m_severity;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_SEVERITY_H_

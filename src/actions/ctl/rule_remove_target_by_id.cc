@@ -24,9 +24,7 @@
 #include "src/utils/string.h"
 
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool RuleRemoveTargetById::init(std::string *error) {
@@ -51,13 +49,11 @@ bool RuleRemoveTargetById::init(std::string *error) {
     return true;
 }
 
-bool RuleRemoveTargetById::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RuleRemoveTargetById::evaluate(RuleWithActions &rule, Transaction *transaction) {
     transaction->m_ruleRemoveTargetById.push_back(
         std::make_pair(m_id, m_target));
     return true;
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

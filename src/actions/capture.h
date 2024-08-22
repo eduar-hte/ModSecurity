@@ -13,17 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CAPTURE_H_
+#define SRC_ACTIONS_CAPTURE_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_CAPTURE_H_
-#define SRC_ACTIONS_CAPTURE_H_
-
-
-namespace modsecurity {
-class RuleWithOperator;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Capture : public Action {
@@ -31,11 +28,10 @@ class Capture : public Action {
     explicit Capture(const std::string &action) 
         : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_CAPTURE_H_

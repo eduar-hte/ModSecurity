@@ -42,11 +42,10 @@
  */
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool Msg::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool Msg::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     const auto msg = data(transaction);
     ruleMessage.m_message = msg;
     ms_dbg_a(transaction, 9, "Saving msg: " + msg);
@@ -56,10 +55,8 @@ bool Msg::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage 
 
 
 std::string Msg::data(Transaction *t) {
-    std::string a(m_string->evaluate(t));
-    return a;
+    return m_string->evaluate(t);
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

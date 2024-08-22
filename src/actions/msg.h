@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_MSG_H_
+#define SRC_ACTIONS_MSG_H_
+
 #include <string>
 #include <memory>
 #include <utility>
@@ -21,14 +24,7 @@
 #include "modsecurity/rule_message.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_MSG_H_
-#define SRC_ACTIONS_MSG_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Msg : public Action {
@@ -40,14 +36,15 @@ class Msg : public Action {
         : Action("msg"),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
 
     std::string data(Transaction *Transaction);
+
+ private:
     std::unique_ptr<RunTimeString> m_string;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_MSG_H_

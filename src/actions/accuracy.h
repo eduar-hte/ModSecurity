@@ -13,18 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_ACCURACY_H_
+#define SRC_ACTIONS_ACCURACY_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_ACCURACY_H_
-#define SRC_ACTIONS_ACCURACY_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Accuracy : public Action {
@@ -33,7 +29,7 @@ class Accuracy : public Action {
         : Action(action, Kind::ConfigurationKind),
         m_accuracy(0) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
     bool init(std::string *error) override;
 
  private:
@@ -41,7 +37,6 @@ class Accuracy : public Action {
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_ACCURACY_H_
