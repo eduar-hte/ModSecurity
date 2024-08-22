@@ -2307,15 +2307,14 @@ namespace yy {
             v->push_back(i.release());
         }
 
-        Operator *op = yystack_[1].value.as < std::unique_ptr<Operator> > ().release();
-        std::unique_ptr<RuleWithOperator> rule(new RuleWithOperator(
-            /* op */ op,
+        auto rule = std::make_unique<RuleWithOperator>(
+            /* op */ std::move(yystack_[1].value.as < std::unique_ptr<Operator> > ()),
             /* variables */ v,
             /* actions */ a,
             /* transformations */ t,
             /* file name */ std::string(*yystack_[3].location.end.filename),
             /* line number */ yystack_[3].location.end.line
-            ));
+            );
 
         if (driver.addSecRule(std::move(rule)) == false) {
             YYERROR;
@@ -2332,14 +2331,14 @@ namespace yy {
             v->push_back(i.release());
         }
 
-        std::unique_ptr<RuleWithOperator> rule(new RuleWithOperator(
-            /* op */ yystack_[0].value.as < std::unique_ptr<Operator> > ().release(),
+        auto rule = std::make_unique<RuleWithOperator>(
+            /* op */ std::move(yystack_[0].value.as < std::unique_ptr<Operator> > ()),
             /* variables */ v,
-            /* actions */ NULL,
-            /* transformations */ NULL,
+            /* actions */ nullptr,
+            /* transformations */ nullptr,
             /* file name */ std::string(*yystack_[2].location.end.filename),
             /* line number */ yystack_[2].location.end.line
-            ));
+            );
         if (driver.addSecRule(std::move(rule)) == false) {
             YYERROR;
         }
@@ -2433,7 +2432,7 @@ namespace yy {
                 }
                 checkedActions.push_back(a);
             } else {
-                driver.error(yystack_[2].location, "The action '" + *a->m_name.get() + "' is not suitable to be part of the SecDefaultActions");
+                driver.error(yystack_[2].location, "The action '" + a->m_name + "' is not suitable to be part of the SecDefaultActions");
                 YYERROR;
             }
         }
