@@ -14,13 +14,3 @@
  */
 
 #include "src/actions/multi_match.h"
-
-namespace modsecurity::actions {
-
-
-bool MultiMatch::evaluate(RuleWithActions &rule, Transaction *transaction) {
-    return true;
-}
-
-
-}  // namespace modsecurity::actions

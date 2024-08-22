@@ -27,8 +27,6 @@ class Capture : public Action {
  public:
     explicit Capture(const std::string &action) 
         : Action(action) { }
-
-    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 };
 
 
