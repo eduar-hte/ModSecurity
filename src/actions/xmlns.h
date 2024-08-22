@@ -27,10 +27,6 @@ class XmlNS : public Action {
  public:
     explicit XmlNS(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions &rule, Transaction *transaction) override {
-        return true;
-    }
-
     bool init(std::string *error) override;
 
     std::string m_scope;

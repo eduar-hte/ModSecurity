@@ -27,8 +27,6 @@ class MultiMatch : public Action {
  public:
     explicit MultiMatch(const std::string &action) 
         : Action(action) { }
-
-    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 };
 
 

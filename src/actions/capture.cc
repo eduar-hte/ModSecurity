@@ -14,13 +14,3 @@
  */
 
 #include "src/actions/capture.h"
-
-namespace modsecurity::actions {
-
-
-bool Capture::evaluate(RuleWithActions &rule, Transaction *transaction) {
-    return true;
-}
-
-
-}  // namespace modsecurity::actions
