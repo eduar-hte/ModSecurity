@@ -351,7 +351,7 @@ inline void RuleWithActions::executeTransformation(
 }
 
 void RuleWithActions::executeTransformations(
-    const Transaction *trans, const std::string &in, TransformationResults &ret) {
+    const Transaction *trans, const std::string &in, TransformationResults &ret) const {
     int none = 0;
     int transformations = 0;
     std::string path;
