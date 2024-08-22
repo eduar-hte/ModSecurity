@@ -22,9 +22,7 @@
 #include "modsecurity/rules_set.h"
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 bool AuditEngine::init(std::string *error) {
@@ -46,7 +44,7 @@ bool AuditEngine::init(std::string *error) {
     return true;
 }
 
-bool AuditEngine::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool AuditEngine::evaluate(RuleWithActions &rule, Transaction *transaction) {
     ms_dbg_a(transaction, 8, fmt::format("Setting SecAuditEngine to {} " \
         " as requested by a ctl:auditEngine action", (int)m_auditEngine));
 
@@ -55,6 +53,4 @@ bool AuditEngine::evaluate(RuleWithActions *rule, Transaction *transaction) {
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

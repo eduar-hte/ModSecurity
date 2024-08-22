@@ -13,32 +13,28 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DISRUPTIVE_PASS_H_
+#define SRC_ACTIONS_DISRUPTIVE_PASS_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-#ifndef SRC_ACTIONS_DISRUPTIVE_PASS_H_
-#define SRC_ACTIONS_DISRUPTIVE_PASS_H_
-
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
 class Pass : public Action {
  public:
     explicit Pass(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool isDisruptive() override { return true; }
 };
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive
 
 
 #endif  // SRC_ACTIONS_DISRUPTIVE_PASS_H_

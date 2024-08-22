@@ -24,16 +24,14 @@
 #include "src/operators/operator.h"
 #include "modsecurity/rule_message.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool Log::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool Log::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ms_dbg_a(transaction, 9, "Saving transaction to logs");
     ruleMessage.m_saveMessage = true;
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

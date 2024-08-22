@@ -13,17 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CTL_REQUEST_BODY_PROCESSOR_JSON_H_
+#define SRC_ACTIONS_CTL_REQUEST_BODY_PROCESSOR_JSON_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-#ifndef SRC_ACTIONS_CTL_REQUEST_BODY_PROCESSOR_JSON_H_
-#define SRC_ACTIONS_CTL_REQUEST_BODY_PROCESSOR_JSON_H_
-
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 class RequestBodyProcessorJSON : public Action {
@@ -31,12 +29,10 @@ class RequestBodyProcessorJSON : public Action {
     explicit RequestBodyProcessorJSON(const std::string &action) 
         : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 };
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl
 
 #endif  // SRC_ACTIONS_CTL_REQUEST_BODY_PROCESSOR_JSON_H_

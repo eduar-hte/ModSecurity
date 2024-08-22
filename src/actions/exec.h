@@ -13,19 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_EXEC_H_
+#define SRC_ACTIONS_EXEC_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 #include "src/engine/lua.h"
 
-#ifndef SRC_ACTIONS_EXEC_H_
-#define SRC_ACTIONS_EXEC_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Exec : public Action {
@@ -36,7 +32,7 @@ class Exec : public Action {
 
     ~Exec() override { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
     bool init(std::string *error) override;
 
  private:
@@ -45,7 +41,6 @@ class Exec : public Action {
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_EXEC_H_

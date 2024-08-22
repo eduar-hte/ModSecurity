@@ -27,8 +27,7 @@
 #include "src/engine/lua.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
 bool Exec::init(std::string *error) {
@@ -50,12 +49,11 @@ bool Exec::init(std::string *error) {
 }
 
 
-bool Exec::evaluate(RuleWithActions *rule, Transaction *t) {
+bool Exec::evaluate(RuleWithActions &rule, Transaction *t) {
     ms_dbg_a(t, 8, fmt::format("Running script... {}", m_script));
     m_lua.run(t);
     return true;
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

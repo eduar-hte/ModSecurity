@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_SET_VAR_H_
+#define SRC_ACTIONS_SET_VAR_H_
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -20,14 +23,8 @@
 #include "modsecurity/actions/action.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_SET_VAR_H_
-#define SRC_ACTIONS_SET_VAR_H_
+namespace modsecurity::actions {
 
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
 
 enum SetVarOperation {
     /* Set variable to something */
@@ -58,7 +55,7 @@ class SetVar : public Action {
         m_operation(operation),
         m_variable(std::move(variable)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
  private:
     SetVarOperation m_operation;
@@ -66,8 +63,8 @@ class SetVar : public Action {
     std::unique_ptr<RunTimeString> m_string;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions
 
 
 #endif  // SRC_ACTIONS_SET_VAR_H_

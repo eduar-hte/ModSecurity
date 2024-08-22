@@ -13,25 +13,21 @@
  *
  */
 
+#ifndef SRC_ACTIONS_XMLNS_H_
+#define SRC_ACTIONS_XMLNS_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_XMLNS_H_
-#define SRC_ACTIONS_XMLNS_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class XmlNS : public Action {
  public:
     explicit XmlNS(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override {
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override {
         return true;
     }
 
@@ -42,7 +38,6 @@ class XmlNS : public Action {
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_XMLNS_H_

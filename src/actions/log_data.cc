@@ -25,21 +25,17 @@
 #include "modsecurity/rule_message.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool LogData::evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) {
+bool LogData::evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) {
     ruleMessage.m_data = data(transaction);
-
     return true;
 }
 
 std::string LogData::data(Transaction *transaction) {
-    std::string a(m_string->evaluate(transaction));
-    return a;
+    return m_string->evaluate(transaction);
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

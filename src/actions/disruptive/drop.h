@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DISRUPTIVE_DROP_H_
+#define SRC_ACTIONS_DISRUPTIVE_DROP_H_
+
 #include <string>
 #include <memory>
 
@@ -20,25 +23,18 @@
 #include "modsecurity/transaction.h"
 #include "modsecurity/rule_message.h"
 
-#ifndef SRC_ACTIONS_DISRUPTIVE_DROP_H_
-#define SRC_ACTIONS_DISRUPTIVE_DROP_H_
-
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
 class Drop : public Action {
  public:
     explicit Drop(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool isDisruptive() override { return true; }
 };
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive
 
 #endif  // SRC_ACTIONS_DISRUPTIVE_DROP_H_

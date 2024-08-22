@@ -13,19 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_SKIP_AFTER_H_
+#define SRC_ACTIONS_SKIP_AFTER_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_SKIP_AFTER_H_
-#define SRC_ACTIONS_SKIP_AFTER_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class SkipAfter : public Action {
@@ -34,13 +30,12 @@ class SkipAfter : public Action {
         : Action(action),
         m_skipName(std::make_shared<std::string>(m_parser_payload)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
  private:
      std::shared_ptr<std::string> m_skipName;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_SKIP_AFTER_H_

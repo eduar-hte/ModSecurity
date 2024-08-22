@@ -13,18 +13,15 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CTL_REQUEST_BODY_ACCESS_H_
+#define SRC_ACTIONS_CTL_REQUEST_BODY_ACCESS_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-
-#ifndef SRC_ACTIONS_CTL_REQUEST_BODY_ACCESS_H_
-#define SRC_ACTIONS_CTL_REQUEST_BODY_ACCESS_H_
-
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 class RequestBodyAccess : public Action {
@@ -34,14 +31,12 @@ class RequestBodyAccess : public Action {
         m_request_body_access(false) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     bool m_request_body_access;
 };
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl
 
 #endif  // SRC_ACTIONS_CTL_REQUEST_BODY_ACCESS_H_

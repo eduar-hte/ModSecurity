@@ -13,34 +13,26 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DISRUPTIVE_BLOCK_H_
+#define SRC_ACTIONS_DISRUPTIVE_BLOCK_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/rule_message.h"
 
-#ifndef SRC_ACTIONS_DISRUPTIVE_BLOCK_H_
-#define SRC_ACTIONS_DISRUPTIVE_BLOCK_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Block : public Action {
  public:
     explicit Block(const std::string &action) : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_DISRUPTIVE_BLOCK_H_

@@ -20,12 +20,10 @@
 
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
-bool RequestBodyProcessorURLENCODED::evaluate(RuleWithActions *rule,
+bool RequestBodyProcessorURLENCODED::evaluate(RuleWithActions &rule,
     Transaction *transaction) {
     transaction->m_requestBodyType = Transaction::WWWFormUrlEncoded;
     transaction->m_variableReqbodyProcessor.set("URLENCODED",
@@ -35,6 +33,4 @@ bool RequestBodyProcessorURLENCODED::evaluate(RuleWithActions *rule,
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

@@ -23,12 +23,10 @@
 
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
-bool Deny::evaluate(RuleWithActions *rule, Transaction *transaction,
+bool Deny::evaluate(RuleWithActions &rule, Transaction *transaction,
     RuleMessage &ruleMessage) {
     ms_dbg_a(transaction, 8, "Running action deny");
 
@@ -46,6 +44,4 @@ bool Deny::evaluate(RuleWithActions *rule, Transaction *transaction,
 }
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::disruptive

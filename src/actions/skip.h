@@ -13,18 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_SKIP_H_
+#define SRC_ACTIONS_SKIP_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_SKIP_H_
-#define SRC_ACTIONS_SKIP_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Skip : public Action {
@@ -34,13 +30,12 @@ class Skip : public Action {
         m_skip_next(0) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     int m_skip_next;
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_SKIP_H_

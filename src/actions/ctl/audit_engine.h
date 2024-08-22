@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_CTL_AUDIT_ENGINE_H_
+#define SRC_ACTIONS_CTL_AUDIT_ENGINE_H_
+
 #include <string>
 
 #include "modsecurity/rules_set_properties.h"
@@ -20,15 +23,7 @@
 
 #include "modsecurity/audit_log.h"
 
-
-#ifndef SRC_ACTIONS_CTL_AUDIT_ENGINE_H_
-#define SRC_ACTIONS_CTL_AUDIT_ENGINE_H_
-
-namespace modsecurity {
-class Transaction;
-
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
 class AuditEngine : public Action {
@@ -38,14 +33,12 @@ class AuditEngine : public Action {
         m_auditEngine(audit_log::AuditLog::AuditLogStatus::NotSetLogStatus) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
     audit_log::AuditLog::AuditLogStatus m_auditEngine;
 };
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl
 
 #endif  // SRC_ACTIONS_CTL_AUDIT_ENGINE_H_

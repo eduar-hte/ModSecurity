@@ -21,8 +21,8 @@
 namespace modsecurity::actions {
 
 
-bool Ver::evaluate(RuleWithActions *rule, Transaction *transaction) {
-    rule->m_ver = m_parser_payload;
+bool Ver::evaluate(RuleWithActions &rule, Transaction *transaction) {
+    rule.m_ver = m_parser_payload;
     return true;
 }
 
