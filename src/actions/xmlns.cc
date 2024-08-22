@@ -22,8 +22,7 @@
 #include "modsecurity/actions/action.h"
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
 bool XmlNS::init(std::string *error) {
@@ -59,5 +58,4 @@ bool XmlNS::init(std::string *error) {
 }
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions

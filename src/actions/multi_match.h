@@ -13,21 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_MULTI_MATCH_H_
+#define SRC_ACTIONS_MULTI_MATCH_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_MULTI_MATCH_H_
-#define SRC_ACTIONS_MULTI_MATCH_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
+namespace modsecurity::actions {
 
 
 class MultiMatch : public Action {
@@ -35,11 +28,10 @@ class MultiMatch : public Action {
     explicit MultiMatch(const std::string &action) 
         : Action(action) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_MULTI_MATCH_H_

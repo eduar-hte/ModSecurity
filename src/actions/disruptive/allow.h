@@ -13,22 +13,14 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DISRUPTIVE_ALLOW_H_
+#define SRC_ACTIONS_DISRUPTIVE_ALLOW_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_DISRUPTIVE_ALLOW_H_
-#define SRC_ACTIONS_DISRUPTIVE_ALLOW_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
 enum AllowType : int {
@@ -59,7 +51,7 @@ class Allow : public Action {
 
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
     bool isDisruptive() override { return true; }
 
     AllowType m_allowType;
@@ -80,9 +72,6 @@ class Allow : public Action {
 };
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::actions::disruptive
 
 #endif  // SRC_ACTIONS_DISRUPTIVE_ALLOW_H_

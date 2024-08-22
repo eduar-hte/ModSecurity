@@ -13,25 +13,21 @@
  *
  */
 
+#ifndef SRC_ACTIONS_REV_H_
+#define SRC_ACTIONS_REV_H_
+
 #include <string>
 
 #include "modsecurity/actions/action.h"
 
-#ifndef SRC_ACTIONS_REV_H_
-#define SRC_ACTIONS_REV_H_
-
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
+namespace modsecurity::actions {
 
 
 class Rev : public Action {
  public:
     explicit Rev(const std::string &action) : Action(action, Kind::ConfigurationKind) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
     bool init(std::string *error) override;
 
  private:
@@ -39,7 +35,6 @@ class Rev : public Action {
 };
 
 
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions
 
 #endif  // SRC_ACTIONS_REV_H_

@@ -20,12 +20,10 @@
 
 #include "modsecurity/transaction.h"
 
-namespace modsecurity {
-namespace actions {
-namespace ctl {
+namespace modsecurity::actions::ctl {
 
 
-bool RequestBodyProcessorJSON::evaluate(RuleWithActions *rule,
+bool RequestBodyProcessorJSON::evaluate(RuleWithActions &rule,
     Transaction *transaction) {
     transaction->m_requestBodyProcessor = Transaction::JSONRequestBody;
     transaction->m_variableReqbodyProcessor.set("JSON",
@@ -35,6 +33,4 @@ bool RequestBodyProcessorJSON::evaluate(RuleWithActions *rule,
 }
 
 
-}  // namespace ctl
-}  // namespace actions
-}  // namespace modsecurity
+}  // namespace modsecurity::actions::ctl

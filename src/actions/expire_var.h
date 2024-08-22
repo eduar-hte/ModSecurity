@@ -13,23 +13,17 @@
  *
  */
 
+#ifndef SRC_ACTIONS_EXPIRE_VAR_H_
+#define SRC_ACTIONS_EXPIRE_VAR_H_
+
 #include <memory>
 #include <string>
-#include <utility>
 
 #include "modsecurity/actions/action.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_EXPIRE_VAR_H_
-#define SRC_ACTIONS_EXPIRE_VAR_H_
+namespace modsecurity::actions {
 
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-class RuleWithOperator;
-
-namespace actions {
 
 class ExpireVar : public Action {
  public:
@@ -39,15 +33,15 @@ class ExpireVar : public Action {
         : Action("expirevar"),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction) override;
 
  private:
 
     std::unique_ptr<RunTimeString> m_string;
 };
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions
 
 
 #endif  // SRC_ACTIONS_EXPIRE_VAR_H_

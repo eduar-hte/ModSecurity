@@ -23,11 +23,10 @@
 #include "modsecurity/rule.h"
 
 
-namespace modsecurity {
-namespace actions {
+namespace modsecurity::actions {
 
 
-bool SetRSC::evaluate(RuleWithActions *rule, Transaction *t) {
+bool SetRSC::evaluate(RuleWithActions &rule, Transaction *t) {
     std::string colNameExpanded(m_string->evaluate(t));
     ms_dbg_a(t, 8, fmt::format("RESOURCE initiated with value: \'{}\'.",
         colNameExpanded));
@@ -38,5 +37,5 @@ bool SetRSC::evaluate(RuleWithActions *rule, Transaction *t) {
     return true;
 }
 
-}  // namespace actions
-}  // namespace modsecurity
+
+}  // namespace modsecurity::actions

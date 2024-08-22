@@ -13,22 +13,16 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DATA_STATUS_H_
+#define SRC_ACTIONS_DATA_STATUS_H_
+
 #include <string>
 #include <memory>
 
 #include "modsecurity/actions/action.h"
 #include "modsecurity/rule_message.h"
 
-#ifndef SRC_ACTIONS_DATA_STATUS_H_
-#define SRC_ACTIONS_DATA_STATUS_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-namespace actions {
-namespace data {
+namespace modsecurity::actions::data {
 
 
 class Status : public Action {
@@ -37,15 +31,12 @@ class Status : public Action {
         : Action(action), m_status(0) { }
 
     bool init(std::string *error) override;
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
 
     int m_status;
 };
 
 
-}  // namespace data
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::actions::data
 
 #endif  // SRC_ACTIONS_DATA_STATUS_H_

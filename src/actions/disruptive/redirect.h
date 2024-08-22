@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SRC_ACTIONS_DISRUPTIVE_REDIRECT_H_
+#define SRC_ACTIONS_DISRUPTIVE_REDIRECT_H_
+
 #include <string>
 #include <memory>
 #include <utility>
@@ -21,17 +24,7 @@
 #include "modsecurity/rule_message.h"
 #include "src/run_time_string.h"
 
-#ifndef SRC_ACTIONS_DISRUPTIVE_REDIRECT_H_
-#define SRC_ACTIONS_DISRUPTIVE_REDIRECT_H_
-
-#ifdef __cplusplus
-class Transaction;
-
-namespace modsecurity {
-class Transaction;
-
-namespace actions {
-namespace disruptive {
+namespace modsecurity::actions::disruptive {
 
 
 class Redirect : public Action {
@@ -46,7 +39,7 @@ class Redirect : public Action {
             m_status(0),
             m_string(std::move(z)) { }
 
-    bool evaluate(RuleWithActions *rule, Transaction *transaction, RuleMessage &ruleMessage) override;
+    bool evaluate(RuleWithActions &rule, Transaction *transaction, RuleMessage &ruleMessage) override;
     bool init(std::string *error) override;
     bool isDisruptive() override { return true; }
 
@@ -56,9 +49,6 @@ class Redirect : public Action {
 };
 
 
-}  // namespace disruptive
-}  // namespace actions
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::actions::disruptive
 
 #endif  // SRC_ACTIONS_DISRUPTIVE_REDIRECT_H_

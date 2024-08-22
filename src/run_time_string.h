@@ -48,10 +48,12 @@ class RunTimeString {
         m_containsMacro(false) { }
     void appendText(const std::string &text);
     void appendVar(std::unique_ptr<modsecurity::variables::Variable> var);
-    std::string evaluate(Transaction *t);
     std::string evaluate(Transaction *t, Rule *r);
+    std::string evaluate(Transaction *t) {
+        return evaluate(t, nullptr);
+    }
     std::string evaluate() {
-        return evaluate(NULL);
+        return evaluate(nullptr);
     }
     inline bool containsMacro() const { return m_containsMacro; }
     bool m_containsMacro;

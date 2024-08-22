@@ -44,7 +44,7 @@ bool RuleEngine::init(std::string *error) {
     return true;
 }
 
-bool RuleEngine::evaluate(RuleWithActions *rule, Transaction *transaction) {
+bool RuleEngine::evaluate(RuleWithActions &rule, Transaction *transaction) {
     const auto a = fmt::format("Setting SecRuleEngine to {} as requested by a ctl:ruleEngine action",
         modsecurity::RulesSetProperties::ruleEngineStateString(m_ruleEngine));
 
