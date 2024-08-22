@@ -14,12 +14,9 @@
  */
 
 #ifdef __cplusplus
-#include <stack>
 #include <vector>
 #include <string>
-#include <list>
 #include <memory>
-#include <utility>
 #endif
 
 #ifndef HEADERS_MODSECURITY_RULE_WITH_OPERATOR_H_
@@ -38,7 +35,7 @@ namespace modsecurity {
 
 class RuleWithOperator : public RuleWithActions {
  public:
-    RuleWithOperator(operators::Operator *op,
+    RuleWithOperator(std::unique_ptr<operators::Operator> op,
         variables::Variables *variables,
         std::vector<actions::Action *> *actions,
         Transformations *transformations,
@@ -70,7 +67,7 @@ class RuleWithOperator : public RuleWithActions {
 
  private:
     modsecurity::variables::Variables *m_variables;
-    operators::Operator *m_operator;
+    std::unique_ptr<operators::Operator> m_operator;
 };
 
 

@@ -24,6 +24,7 @@
 #include <list>
 #include <utility>
 #include <memory>
+#include <cassert>
 
 #include "modsecurity/rules_set.h"
 #include "src/operators/operator.h"
@@ -51,7 +52,7 @@ using variables::Variable;
 using actions::transformations::None;
 
 
-RuleWithOperator::RuleWithOperator(Operator *op,
+RuleWithOperator::RuleWithOperator(std::unique_ptr<Operator> op,
     variables::Variables *_variables,
     std::vector<Action *> *actions,
     Transformations *transformations,
@@ -59,14 +60,12 @@ RuleWithOperator::RuleWithOperator(Operator *op,
     int lineNumber)
     : RuleWithActions(actions, transformations, fileName, lineNumber),
     m_variables(_variables),
-    m_operator(op) { /* */ }
+    m_operator(std::move(op)) {
+    assert(m_operator != nullptr);
+}
 
 
 RuleWithOperator::~RuleWithOperator() {
-    if (m_operator != NULL) {
-        delete m_operator;
-    }
-
     while (m_variables != NULL && m_variables->empty() == false) {
         auto *a = m_variables->back();
         m_variables->pop_back();

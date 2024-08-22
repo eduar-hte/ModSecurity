@@ -1098,15 +1098,14 @@ expression:
             v->push_back(i.release());
         }
 
-        Operator *op = $3.release();
-        std::unique_ptr<RuleWithOperator> rule(new RuleWithOperator(
-            /* op */ op,
+        auto rule = std::make_unique<RuleWithOperator>(
+            /* op */ std::move($3),
             /* variables */ v,
             /* actions */ a,
             /* transformations */ t,
             /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
-            ));
+            );
 
         if (driver.addSecRule(std::move(rule)) == false) {
             YYERROR;
@@ -1119,14 +1118,14 @@ expression:
             v->push_back(i.release());
         }
 
-        std::unique_ptr<RuleWithOperator> rule(new RuleWithOperator(
-            /* op */ $3.release(),
+        auto rule = std::make_unique<RuleWithOperator>(
+            /* op */ std::move($3),
             /* variables */ v,
-            /* actions */ NULL,
-            /* transformations */ NULL,
+            /* actions */ nullptr,
+            /* transformations */ nullptr,
             /* file name */ std::string(*@1.end.filename),
             /* line number */ @1.end.line
-            ));
+            );
         if (driver.addSecRule(std::move(rule)) == false) {
             YYERROR;
         }
@@ -1208,7 +1207,7 @@ expression:
                 }
                 checkedActions.push_back(a);
             } else {
-                driver.error(@0, "The action '" + *a->m_name.get() + "' is not suitable to be part of the SecDefaultActions");
+                driver.error(@0, "The action '" + a->m_name + "' is not suitable to be part of the SecDefaultActions");
                 YYERROR;
             }
         }
