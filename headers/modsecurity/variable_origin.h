@@ -34,10 +34,10 @@ namespace modsecurity {
 /** @ingroup ModSecurity_CPP_API */
 class VariableOrigin {
  public:
-    VariableOrigin()
+    explicit VariableOrigin()
         : m_length(0),
         m_offset(0) { }
-    VariableOrigin(size_t length, size_t offset)
+    explicit VariableOrigin(size_t length, size_t offset)
         : m_length(length),
         m_offset(offset) { } 
 

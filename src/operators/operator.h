@@ -31,18 +31,7 @@ namespace operators {
 class Operator {
  public:
     /** @ingroup ModSecurity_Operator */
-    Operator()
-        : m_match_message(""),
-        m_negation(false),
-        m_op(""),
-        m_param(""),
-        m_couldContainsMacro(false) {
-            if (m_couldContainsMacro == false && m_string) {
-                m_param = m_string->evaluate();
-            }
-        }
-
-    Operator(const std::string &opName, const std::string &param, bool negation)
+    explicit Operator(const std::string &opName, const std::string &param, bool negation)
         : m_match_message(""),
         m_negation(negation),
         m_op(opName),
@@ -53,7 +42,7 @@ class Operator {
             }
         }
 
-    Operator(const std::string &opName, std::unique_ptr<RunTimeString> param,
+    explicit Operator(const std::string &opName, std::unique_ptr<RunTimeString> param,
         bool negation)
         : m_match_message(""),
         m_negation(negation),
@@ -66,7 +55,7 @@ class Operator {
             }
         }
 
-    Operator(const std::string &opName, const std::string &param)
+    explicit Operator(const std::string &opName, const std::string &param)
         : m_match_message(""),
         m_negation(false),
         m_op(opName),
@@ -77,7 +66,7 @@ class Operator {
             }
         }
 
-    Operator(const std::string &opName, std::unique_ptr<RunTimeString> param)
+    explicit Operator(const std::string &opName, std::unique_ptr<RunTimeString> param)
         : m_match_message(""),
         m_negation(false),
         m_op(opName),

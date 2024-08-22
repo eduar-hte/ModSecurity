@@ -47,21 +47,14 @@ class Driver;
 /** @ingroup ModSecurity_CPP_API */
 class RulesSet : public RulesSetProperties {
  public:
-    RulesSet()
-        : RulesSetProperties(new DebugLog())
+    explicit RulesSet(DebugLog *customLog = nullptr)
+        : RulesSetProperties(customLog != nullptr ? customLog : new DebugLog())
 #ifndef NO_LOGS
         ,m_secmarker_skipped(0)
 #endif
         { }
 
-    explicit RulesSet(DebugLog *customLog)
-        : RulesSetProperties(customLog)
-#ifndef NO_LOGS
-        ,m_secmarker_skipped(0)
-#endif
-        { }
-
-    ~RulesSet() { }
+    ~RulesSet() = default;
 
     int loadFromUri(const char *uri);
     int loadRemote(const char *key, const char *uri);
