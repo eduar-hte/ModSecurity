@@ -14,7 +14,9 @@
  */
 
 
-#ifdef __cplusplus
+#ifndef SRC_COLLECTION_BACKEND_LMDB_H_
+#define SRC_COLLECTION_BACKEND_LMDB_H_
+
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -23,7 +25,6 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
-#endif
 
 #ifdef WITH_LMDB
 #include <lmdb.h>
@@ -36,15 +37,9 @@
 #include "modsecurity/collection/collection.h"
 #include "src/variables/variable.h"
 
-#ifndef SRC_COLLECTION_BACKEND_LMDB_H_
-#define SRC_COLLECTION_BACKEND_LMDB_H_
-
 #ifdef WITH_LMDB
 
-#ifdef __cplusplus
-namespace modsecurity {
-namespace collection {
-namespace backend {
+namespace modsecurity::collection::backend {
 
 
 /**
@@ -97,43 +92,39 @@ class LMDB :
  public:
     explicit LMDB(const std::string &name);
 
-    bool storeOrUpdateFirst(const std::string &key,
+    bool storeOrUpdateFirst(KeyType key,
         std::string_view value) override;
 
-    bool updateFirst(const std::string &key,
+    bool updateFirst(KeyType key,
         std::string_view value) override;
 
-    void del(const std::string& key) override;
+    void del(KeyType key) override;
 
-    void setExpiry(const std::string& key, int32_t expiry_seconds) override;
+    void setExpiry(KeyType key, int32_t expiry_seconds) override;
 
-    std::unique_ptr<std::string> resolveFirst(const std::string& var) override;
+    std::unique_ptr<std::string> resolveFirst(KeyType var) override;
 
-    void resolveSingleMatch(const std::string& var,
+    void resolveSingleMatch(KeyType var,
         std::vector<const VariableValue *> &l) override;
-    void resolveMultiMatches(const std::string& var,
+    void resolveMultiMatches(KeyType var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
-    void resolveRegularExpression(const std::string& var,
+    void resolveRegularExpression(KeyType var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
 
  private:
     int txn_begin(unsigned int flags, MDB_txn **ret);
-    void string2val(const std::string& str, MDB_val *val);
     void inline lmdb_debug(int rc, const std::string &op, const std::string &scope);
 
-    void delIfExpired(const std::string& key);
+    void delIfExpired(KeyType key);
 
     MDB_env *m_env;
     MDB_dbi m_dbi;
     bool isOpen;
 };
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::collection::backend
 
 #endif  // WITH_LMDB
 

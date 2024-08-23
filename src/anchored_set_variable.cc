@@ -50,16 +50,16 @@ void AnchoredSetVariable::unset() {
 }
 
 
-void AnchoredSetVariable::set(const std::string &key,
-    const std::string &value, size_t offset, size_t len) {
+void AnchoredSetVariable::set(KeyType key,
+    std::string_view value, size_t offset, size_t len) {
     auto var = new VariableValue(m_name, key, value);
     var->addOrigin(len, offset);
     emplace(key, var);
 }
 
 
-void AnchoredSetVariable::set(const std::string &key,
-    const std::string &value, size_t offset) {
+void AnchoredSetVariable::set(KeyType key,
+    std::string_view value, size_t offset) {
     auto var = new VariableValue(m_name, key, value);
     var->addOrigin(value.size(), offset);
     emplace(key, var);
@@ -88,8 +88,9 @@ void AnchoredSetVariable::resolve(
 }
 
 
-void AnchoredSetVariable::resolve(const std::string &key,
+void AnchoredSetVariable::resolve(KeyType key,
     std::vector<const VariableValue *> &l) {
+
     auto range = this->equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
         l.push_back(new VariableValue(*it->second));
@@ -98,7 +99,7 @@ void AnchoredSetVariable::resolve(const std::string &key,
 
 
 std::unique_ptr<std::string> AnchoredSetVariable::resolveFirst(
-    const std::string &key) {
+    KeyType key) {
 
     if (auto search = this->find(key); search != this->end()) {
         return std::make_unique<std::string>(search->second->getValue());

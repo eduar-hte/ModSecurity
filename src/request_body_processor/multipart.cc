@@ -31,11 +31,13 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <fmt/format.h>
 
 #include "modsecurity/rules_set.h"
 #include "modsecurity/collection/collections.h"
 #include "src/utils/string.h"
 
+using namespace std::literals;
 
 namespace modsecurity {
 namespace RequestBodyProcessor {
@@ -752,19 +754,23 @@ int Multipart::process_part_header(std::string *error, int offset) {
             m_mpp->m_last_header_line.assign("");
         }
 
-        if (m_mpp->m_headers.count("Content-Disposition") == 0) {
-            ms_dbg_a(m_transaction, 1,
-                "Multipart: Part missing Content-Disposition header.");
-
-            error->assign("Multipart: Part missing " \
-                "Content-Disposition header.");
+#if __cplusplus >= 202002L
+        const auto content_disposition_header_name = "Content-Disposition"sv;
+#else
+        const char *content_disposition_header_name = "Content-Disposition";
+#endif
+        const auto it = m_mpp->m_headers.find(content_disposition_header_name);
+        if (it == m_mpp->m_headers.end()) {
+            const auto err = "Multipart: Part missing Content-Disposition header.";
+            ms_dbg_a(m_transaction, 1, err);
+            error->assign(err);
             return false;
         }
-        header_value = m_mpp->m_headers.at("Content-Disposition").second;
+        header_value = it->second.second;
 
         try {
             rc = parse_content_disposition(header_value.c_str(),
-                m_mpp->m_headers.at("Content-Disposition").first);
+                it->second.first);
         } catch (...) {
             ms_dbg_a(m_transaction, 1,
                 "Multipart: Unexpected error parsing Content-Disposition header.");
@@ -858,10 +864,11 @@ int Multipart::process_part_header(std::string *error, int offset) {
             utils::string::chomp(new_value);
 
             /* update the header value in the table */
-            header_value = m_mpp->m_headers.at(
-                m_mpp->m_last_header_name).second;
-            new_value = header_value + " " +  new_value;
-            m_mpp->m_headers.at(m_mpp->m_last_header_name).second = new_value;
+            const auto it = m_mpp->m_headers.find(m_mpp->m_last_header_name);
+            assert(it != m_mpp->m_headers.end());
+            header_value = it->second.second;
+            new_value = fmt::format("{} {}", header_value, new_value);
+            it->second.second = new_value;
 
             ms_dbg_a(m_transaction, 9,
                 "Multipart: Continued folder header \"" \
@@ -949,10 +956,9 @@ int Multipart::process_part_header(std::string *error, int offset) {
 
             m_mpp->m_last_header_name.assign(header_name);
 
-
             m_mpp->m_headers.emplace(
-                std::string(header_name), std::make_pair(offset - len + i,
-                    std::string(header_value)));
+                header_name, std::make_pair(offset - len + i,
+                    header_value));
 
             ms_dbg_a(m_transaction, 9,
                 "Multipart: Added part header \"" + header_name \

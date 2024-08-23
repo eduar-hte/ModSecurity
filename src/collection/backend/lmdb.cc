@@ -33,9 +33,7 @@
 
 #undef LMDB_STDOUT_COUT
 
-namespace modsecurity {
-namespace collection {
-namespace backend {
+namespace modsecurity::collection::backend {
 
 
 #ifdef WITH_LMDB
@@ -57,9 +55,9 @@ int LMDB::txn_begin(unsigned int flags, MDB_txn **ret) {
     }
 }
 
-void LMDB::string2val(const std::string& str, MDB_val *val) {
+inline void string2val(std::string_view str, MDB_val *val) {
     val->mv_size = sizeof(char)*(str.size());
-    val->mv_data = const_cast<char *>(str.c_str());
+    val->mv_data = const_cast<char *>(str.data());
 }
 
 
@@ -154,7 +152,7 @@ void LMDB::lmdb_debug(int rc, const std::string &op, const std::string &scope) {
 }
 
 
-std::unique_ptr<std::string> LMDB::resolveFirst(const std::string& var) {
+std::unique_ptr<std::string> LMDB::resolveFirst(KeyType var) {
     int rc;
     MDB_val mdb_key;
     MDB_val mdb_value;
@@ -192,7 +190,7 @@ end_txn:
 }
 
 
-void LMDB::setExpiry(const std::string &key, int32_t expiry_seconds) {
+void LMDB::setExpiry(KeyType key, int32_t expiry_seconds) {
     int rc;
     MDB_txn *txn;
     MDB_val mdb_key;
@@ -250,7 +248,7 @@ end_txn:
     return;
 }
 
-void LMDB::delIfExpired(const std::string& key) {
+void LMDB::delIfExpired(KeyType key) {
     MDB_txn *txn;
     MDB_val mdb_key;
     MDB_val mdb_value_ret;
@@ -295,7 +293,7 @@ end_txn:
     return;
 }
 
-bool LMDB::storeOrUpdateFirst(const std::string &key,
+bool LMDB::storeOrUpdateFirst(KeyType key,
     std::string_view value) {
     int rc;
     MDB_txn *txn;
@@ -355,7 +353,7 @@ end_txn:
 }
 
 
-void LMDB::resolveSingleMatch(const std::string& var,
+void LMDB::resolveSingleMatch(KeyType var,
     std::vector<const VariableValue *> &l) {
     int rc;
     MDB_txn *txn;
@@ -399,7 +397,7 @@ end_txn:
 }
 
 
-bool LMDB::updateFirst(const std::string &key,
+bool LMDB::updateFirst(KeyType key,
     std::string_view value) {
     int rc;
     MDB_txn *txn;
@@ -463,7 +461,7 @@ end_txn:
 }
 
 
-void LMDB::del(const std::string& key) {
+void LMDB::del(KeyType key) {
     int rc;
     MDB_txn *txn;
     MDB_val mdb_key;
@@ -507,7 +505,7 @@ end_txn:
     return;
 }
 
-void LMDB::resolveMultiMatches(const std::string& var,
+void LMDB::resolveMultiMatches(KeyType var,
     std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
     MDB_val key, data;
@@ -560,7 +558,7 @@ void LMDB::resolveMultiMatches(const std::string& var,
             }
 
             const char *a = reinterpret_cast<char *>(key.mv_data);
-            if (strncmp(var.c_str(), a, keySize) == 0) {
+            if (strncmp(var.data(), a, keySize) == 0) {
                 std::string key_to_insert(reinterpret_cast<char *>(key.mv_data), key.mv_size);
                 l.insert(l.begin(), new VariableValue(m_name, key_to_insert, collectionData.getValue()));
             }
@@ -578,7 +576,7 @@ end_txn:
 }
 
 
-void LMDB::resolveRegularExpression(const std::string& var,
+void LMDB::resolveRegularExpression(KeyType var,
     std::vector<const VariableValue *> &l,
     variables::KeyExclusions &ke) {
     MDB_val key, data;
@@ -672,6 +670,4 @@ MDBEnvProvider::~MDBEnvProvider() {
 
 #endif
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
+}  // namespace modsecurity::collection::backend

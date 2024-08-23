@@ -30,6 +30,7 @@
 #endif
 
 #include "modsecurity/variable_value.h"
+#include "modsecurity/collection/util.h"
 
 #ifndef HEADERS_MODSECURITY_ANCHORED_SET_VARIABLE_H_
 #define HEADERS_MODSECURITY_ANCHORED_SET_VARIABLE_H_
@@ -46,49 +47,31 @@ class KeyExclusions;
 }
 
 
-struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
-        return Left.size() == Right.size()
-             && std::equal(Left.begin(), Left.end(), Right.begin(),
-            [](char a, char b) {
-            return tolower(a) == tolower(b);
-        });
-    }
-};
-
-struct MyHash{
-    size_t operator()(const std::string& Keyval) const {
-        // You might need a better hash function than this
-        size_t h = 0;
-        std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
-            h += tolower(c);
-        });
-        return h;
-    }
-};
-
-
 class AnchoredSetVariable : public std::unordered_multimap<std::string,
 	VariableValue *, MyHash, MyEqual> {
  public:
     AnchoredSetVariable(Transaction *t, const std::string &name);
     ~AnchoredSetVariable();
 
+#if __cplusplus >= 202002L
+    using KeyType = std::string_view;
+#else
+    using KeyType = const std::string&;
+#endif
+
     void unset();
 
-    void set(const std::string &key, const std::string &value,
+    void set(KeyType key, std::string_view value,
         size_t offset);
 
-    void set(const std::string &key, const std::string &value,
+    void set(KeyType key, std::string_view value,
         size_t offset, size_t len);
-
-    void setCopy(std::string key, std::string value, size_t offset);
 
     void resolve(std::vector<const VariableValue *> &l);
     void resolve(std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke);
 
-    void resolve(const std::string &key,
+    void resolve(KeyType key,
         std::vector<const VariableValue *> &l);
 
     void resolveRegularExpression(Utils::Regex *r,
@@ -98,7 +81,7 @@ class AnchoredSetVariable : public std::unordered_multimap<std::string,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke);
 
-    std::unique_ptr<std::string> resolveFirst(const std::string &key);
+    std::unique_ptr<std::string> resolveFirst(KeyType key);
 
     Transaction *m_transaction;
     std::string m_name;

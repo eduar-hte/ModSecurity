@@ -14,7 +14,9 @@
  */
 
 
-#ifdef __cplusplus
+#ifndef SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
+#define SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
+
 #include <string>
 #include <iostream>
 #include <unordered_map>
@@ -24,89 +26,53 @@
 #include <algorithm>
 #include <memory>
 #include <shared_mutex>
-#endif
-
 
 #include "modsecurity/variable_value.h"
 #include "modsecurity/collection/collection.h"
+#include "modsecurity/collection/util.h"
 #include "src/collection/backend/collection_data.h"
 #include "src/variables/variable.h"
 
-#ifndef SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
-#define SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
+namespace modsecurity::collection::backend {
 
-#ifdef __cplusplus
-namespace modsecurity {
-namespace collection {
-namespace backend {
-
-/*
- * FIXME:
- *
- * This was an example grabbed from:
- * http://stackoverflow.com/questions/8627698/case-insensitive-stl-containers-e-g-stdunordered-set
- *
- * We have to have a better hash function, maybe based on the std::hash.
- *
- */
-struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
-        return Left.size() == Right.size()
-             && std::equal(Left.begin(), Left.end(), Right.begin(),
-            [](char a, char b) {
-            return tolower(a) == tolower(b);
-        });
-    }
-};
-
-struct MyHash{
-    size_t operator()(const std::string& Keyval) const {
-        // You might need a better hash function than this
-        size_t h = 0;
-        std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
-            h += tolower(c);
-        });
-        return h;
-    }
-};
 
 class InMemoryPerProcess :
     public Collection {
  public:
     explicit InMemoryPerProcess(std::string_view name);
     ~InMemoryPerProcess() override;
-    void store(const std::string& key, std::string_view value);
+    void store(KeyType key, std::string_view value);
 
-    bool storeOrUpdateFirst(const std::string& key,
+    bool storeOrUpdateFirst(KeyType key,
         std::string_view value) override;
 
-    bool updateFirst(const std::string& key,
+    bool updateFirst(KeyType key,
         std::string_view value) override;
 
-    void del(const std::string& key) override;
+    void del(KeyType key) override;
 
-    void delIfExpired(const std::string& key);
+    void delIfExpired(KeyType key);
 
-    void setExpiry(const std::string& key, int32_t expiry_seconds) override;
+    void setExpiry(KeyType key, int32_t expiry_seconds) override;
 
-    std::unique_ptr<std::string> resolveFirst(const std::string& var) override;
+    std::unique_ptr<std::string> resolveFirst(KeyType var) override;
 
-    void resolveSingleMatch(const std::string& var,
+    void resolveSingleMatch(KeyType var,
         std::vector<const VariableValue *> &l) override;
-    void resolveMultiMatches(const std::string& var,
+    void resolveMultiMatches(KeyType var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
-    void resolveRegularExpression(const std::string& var,
+    void resolveRegularExpression(KeyType var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
 
     /* store */
-    void store(std::string_view key, std::string_view compartment,
+    void store(KeyType key, std::string_view compartment,
         std::string_view value) {
         store(nkey(compartment, key), value);
     }
 
-    void store(std::string_view key, std::string_view compartment,
+    void store(KeyType key, std::string_view compartment,
         std::string_view compartment2, std::string_view value) {
         store(nkey(compartment, compartment2, key), value);
     }
@@ -117,10 +83,7 @@ class InMemoryPerProcess :
     std::shared_mutex m_mutex;
 };
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::collection::backend
 
 
 #endif  // SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_

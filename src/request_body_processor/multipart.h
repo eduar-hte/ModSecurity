@@ -13,14 +13,15 @@
  *
  */
 
+#ifndef SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+#define SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+
 #include <string>
 #include <iostream>
 #include <list>
 #include <unordered_map>
 #include <utility>
-
-#ifndef SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
-#define SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+#include <algorithm>
 
 #include "modsecurity/transaction.h"
 
@@ -30,28 +31,6 @@ namespace RequestBodyProcessor {
 #define MULTIPART_BUF_SIZE 4096
 #define MULTIPART_FORMDATA 1
 #define MULTIPART_FILE 2
-
-
-struct MyHash {
-    size_t operator()(const std::string& Keyval) const {
-        size_t h = 0;
-        std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
-            h += tolower(c);
-        });
-        return h;
-    }
-};
-
-
-struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
-        return Left.size() == Right.size()
-             && std::equal(Left.begin(), Left.end(), Right.begin(),
-            [](char a, char b) {
-                return tolower(a) == tolower(b);
-            });
-    }
-};
 
 
 class MultipartPartTmpFile {

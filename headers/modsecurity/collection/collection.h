@@ -45,37 +45,43 @@ class Collection {
     explicit Collection(std::string_view a) : m_name(a) { }
     virtual ~Collection() { }
 
-    virtual bool storeOrUpdateFirst(const std::string& key,
+#if __cplusplus >= 202002L
+    using KeyType = std::string_view;
+#else
+    using KeyType = const std::string&;
+#endif
+
+    virtual bool storeOrUpdateFirst(KeyType key,
         std::string_view value) = 0;
 
-    virtual bool updateFirst(const std::string& key,
+    virtual bool updateFirst(KeyType key,
         std::string_view value) = 0;
 
-    virtual void del(const std::string& key) = 0;
+    virtual void del(KeyType key) = 0;
 
-    virtual void setExpiry(const std::string& key, int32_t expiry_seconds) = 0;
+    virtual void setExpiry(KeyType key, int32_t expiry_seconds) = 0;
 
     virtual std::unique_ptr<std::string> resolveFirst(
-        const std::string& var) = 0;
+        KeyType key) = 0;
 
-    virtual void resolveSingleMatch(const std::string& var,
+    virtual void resolveSingleMatch(KeyType key,
         std::vector<const VariableValue *> &l) = 0;
-    virtual void resolveMultiMatches(const std::string& var,
+    virtual void resolveMultiMatches(KeyType key,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
-    virtual void resolveRegularExpression(const std::string& var,
+    virtual void resolveRegularExpression(KeyType key,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
 
 
     /* storeOrUpdateFirst */
-    bool storeOrUpdateFirst(std::string_view key,
+    bool storeOrUpdateFirst(KeyType key,
         std::string_view compartment, std::string_view value) {
         return storeOrUpdateFirst(nkey(compartment, key), value);
     }
 
 
-    bool storeOrUpdateFirst(std::string_view key,
+    bool storeOrUpdateFirst(KeyType key,
         std::string_view compartment, std::string_view compartment2,
         std::string_view value) {
         return storeOrUpdateFirst(nkey(compartment, compartment2, key), value);
@@ -83,64 +89,64 @@ class Collection {
 
 
     /* updateFirst */
-    bool updateFirst(std::string_view key, std::string_view compartment,
+    bool updateFirst(KeyType key, std::string_view compartment,
         std::string_view value) {
         return updateFirst(nkey(compartment, key), value);
     }
 
 
-    bool updateFirst(std::string_view key, std::string_view compartment,
+    bool updateFirst(KeyType key, std::string_view compartment,
         std::string_view compartment2, std::string_view value) {
         return updateFirst(nkey(compartment, compartment2, key), value);
     }
 
 
     /* del */
-    void del(std::string_view key, std::string_view compartment) {
+    void del(KeyType key, std::string_view compartment) {
         del(nkey(compartment, key));
     }
 
 
-    void del(std::string_view key, std::string_view compartment,
+    void del(KeyType key, std::string_view compartment,
         std::string_view compartment2) {
         del(nkey(compartment, compartment2, key));
     }
 
 
     /* setExpiry */
-    void setExpiry(std::string_view key, std::string_view compartment,
+    void setExpiry(KeyType key, std::string_view compartment,
         int32_t expiry_seconds) {
         setExpiry(nkey(compartment, key), expiry_seconds);
     }
 
 
-    void setExpiry(std::string_view key, std::string_view compartment,
+    void setExpiry(KeyType key, std::string_view compartment,
         std::string_view compartment2, int32_t expiry_seconds) {
         setExpiry(nkey(compartment, compartment2, key), expiry_seconds);
     }
 
 
     /* resolveFirst */
-    std::unique_ptr<std::string> resolveFirst(std::string_view var,
+    std::unique_ptr<std::string> resolveFirst(KeyType var,
         std::string_view compartment) {
         return resolveFirst(nkey(compartment, var));
     }
 
 
-    std::unique_ptr<std::string> resolveFirst(std::string_view var,
+    std::unique_ptr<std::string> resolveFirst(KeyType var,
         std::string_view compartment, std::string_view compartment2) {
         return resolveFirst(nkey(compartment, compartment2, var));
     }
 
 
     /* resolveSingleMatch */
-    void resolveSingleMatch(std::string_view var,
+    void resolveSingleMatch(KeyType var,
         std::string_view compartment, std::vector<const VariableValue *> &l) {
         resolveSingleMatch(nkey(compartment, var), l);
     }
 
 
-    void resolveSingleMatch(std::string_view var,
+    void resolveSingleMatch(KeyType var,
         std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> &l) {
         resolveSingleMatch(nkey(compartment, compartment2, var), l);
@@ -148,14 +154,14 @@ class Collection {
 
 
     /* resolveMultiMatches */
-    void resolveMultiMatches(std::string_view var,
+    void resolveMultiMatches(KeyType var,
         std::string_view compartment, std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         resolveMultiMatches(nkey(compartment, var), l, ke);
     }
 
 
-    void resolveMultiMatches(std::string_view var,
+    void resolveMultiMatches(KeyType var,
         std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
@@ -164,14 +170,14 @@ class Collection {
 
 
     /* resolveRegularExpression */
-    void resolveRegularExpression(std::string_view var,
+    void resolveRegularExpression(KeyType var,
         std::string_view compartment, std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) {
         resolveRegularExpression(nkey(compartment, var), l, ke);
     }
 
 
-    void resolveRegularExpression(std::string_view var,
+    void resolveRegularExpression(KeyType var,
         std::string_view compartment, std::string_view compartment2,
         std::vector<const VariableValue *> &l, variables::KeyExclusions &ke) {
         resolveRegularExpression(nkey(compartment, compartment2, var), l, ke);

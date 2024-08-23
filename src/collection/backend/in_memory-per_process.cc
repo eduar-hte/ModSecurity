@@ -30,9 +30,7 @@
 #include "src/utils/string.h"
 
 
-namespace modsecurity {
-namespace collection {
-namespace backend {
+namespace modsecurity::collection::backend {
 
 
 InMemoryPerProcess::InMemoryPerProcess(std::string_view name) :
@@ -46,7 +44,7 @@ InMemoryPerProcess::~InMemoryPerProcess() {
 
 
 template<typename Map>
-inline void __store(Map &map, const std::string& key, std::string_view value) {
+inline void __store(Map &map, InMemoryPerProcess::KeyType key, std::string_view value) {
     // NOTE: should be called with write-lock previously acquired
 
     map.emplace(key, value);
@@ -55,7 +53,7 @@ inline void __store(Map &map, const std::string& key, std::string_view value) {
 
 template<typename Map>
 inline bool __updateFirst(Map &map,
-    const std::string& key,
+    InMemoryPerProcess::KeyType key,
     std::string_view value) {
     // NOTE: should be called with write-lock previously acquired
 
@@ -68,13 +66,13 @@ inline bool __updateFirst(Map &map,
 }
 
 
-void InMemoryPerProcess::store(const std::string& key, std::string_view value) {
+void InMemoryPerProcess::store(KeyType key, std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     __store(m_map, key, value);
 }
 
 
-bool InMemoryPerProcess::storeOrUpdateFirst(const std::string& key,
+bool InMemoryPerProcess::storeOrUpdateFirst(KeyType key,
     std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     if (__updateFirst(m_map, key, value) == false) {
@@ -84,29 +82,31 @@ bool InMemoryPerProcess::storeOrUpdateFirst(const std::string& key,
 }
 
 
-bool InMemoryPerProcess::updateFirst(const std::string& key,
+bool InMemoryPerProcess::updateFirst(KeyType key,
     std::string_view value) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
     return __updateFirst(m_map, key, value);
 }
 
 
-void InMemoryPerProcess::del(const std::string& key) {
+void InMemoryPerProcess::del(KeyType key) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
-    m_map.erase(key);
+    const auto range = m_map.equal_range(key);
+    m_map.erase(range.first, range.second);
 }
 
-void InMemoryPerProcess::delIfExpired(const std::string& key) {
+void InMemoryPerProcess::delIfExpired(KeyType key) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
+    const auto range = m_map.equal_range(key);
     // Double check the status while within the mutex
-    const auto iter = std::find_if(m_map.begin(), m_map.end(),
-        [&key](const auto &x) { return x.first == key && x.second.isExpired(); });
-    if (iter != m_map.end()) {
-        m_map.erase(key);
+    const auto iter = std::find_if(range.first, range.second,
+        [](const auto &x) { return x.second.isExpired(); });
+    if (iter != range.second) {
+        m_map.erase(range.first, range.second);
     }
 }
 
-void InMemoryPerProcess::setExpiry(const std::string& key, int32_t expiry_seconds) {
+void InMemoryPerProcess::setExpiry(KeyType key, int32_t expiry_seconds) {
     const std::lock_guard lock(m_mutex); // write lock (exclusive access)
 
     if (const auto search = m_map.find(key); search != m_map.end()) {
@@ -120,7 +120,7 @@ void InMemoryPerProcess::setExpiry(const std::string& key, int32_t expiry_second
 }
 
 
-void InMemoryPerProcess::resolveSingleMatch(const std::string& var,
+void InMemoryPerProcess::resolveSingleMatch(KeyType var,
     std::vector<const VariableValue *> &l) {
     std::list<std::string> expiredVars;
 
@@ -145,7 +145,7 @@ void InMemoryPerProcess::resolveSingleMatch(const std::string& var,
 }
 
 
-void InMemoryPerProcess::resolveMultiMatches(const std::string& var,
+void InMemoryPerProcess::resolveMultiMatches(KeyType var,
     std::vector<const VariableValue *> &l, variables::KeyExclusions &ke) {
     const auto keySize = var.size();
     l.reserve(15);
@@ -192,7 +192,7 @@ void InMemoryPerProcess::resolveMultiMatches(const std::string& var,
 }
 
 
-void InMemoryPerProcess::resolveRegularExpression(const std::string& var,
+void InMemoryPerProcess::resolveRegularExpression(KeyType var,
     std::vector<const VariableValue *> &l, variables::KeyExclusions &ke) {
     Utils::Regex r(var, true);
     std::list<std::string> expiredVars;
@@ -225,7 +225,7 @@ void InMemoryPerProcess::resolveRegularExpression(const std::string& var,
 
 
 std::unique_ptr<std::string> InMemoryPerProcess::resolveFirst(
-    const std::string& var) {
+    KeyType var) {
     std::unique_ptr<std::string> ret;
     std::list<std::string> expiredVars;
 
@@ -252,6 +252,4 @@ std::unique_ptr<std::string> InMemoryPerProcess::resolveFirst(
 }
 
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
+}  // namespace modsecurity::collection::backend
