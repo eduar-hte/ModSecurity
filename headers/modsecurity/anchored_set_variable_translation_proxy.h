@@ -56,7 +56,7 @@ class AnchoredSetVariableTranslationProxy {
         translate(l);
     }
 
-    void resolve(const std::string &key,
+    void resolve(std::string_view key,
         std::vector<const VariableValue *> &l) {
         m_fount->resolve(key, l);
         translate(l);
@@ -75,7 +75,7 @@ class AnchoredSetVariableTranslationProxy {
         translate(l);
     };
 
-    std::unique_ptr<std::string> resolveFirst(const std::string &key) {
+    std::unique_ptr<std::string> resolveFirst(std::string_view key) {
         std::vector<const VariableValue *> l;
         resolve(l);
 

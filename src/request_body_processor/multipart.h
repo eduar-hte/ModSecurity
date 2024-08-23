@@ -13,14 +13,15 @@
  *
  */
 
+#ifndef SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+#define SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+
 #include <string>
 #include <iostream>
 #include <list>
 #include <unordered_map>
 #include <utility>
-
-#ifndef SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
-#define SRC_REQUEST_BODY_PROCESSOR_MULTIPART_H_
+#include <algorithm>
 
 #include "modsecurity/transaction.h"
 
@@ -33,7 +34,10 @@ namespace RequestBodyProcessor {
 
 
 struct MyHash {
-    size_t operator()(const std::string& Keyval) const {
+    using is_transparent = void;
+
+    template<typename T>
+    size_t operator()(const T& Keyval) const {
         size_t h = 0;
         std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
             h += tolower(c);
@@ -44,7 +48,10 @@ struct MyHash {
 
 
 struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
+    using is_transparent = void;
+
+    template<typename T, typename U>
+    bool operator()(const T& Left, const U& Right) const {
         return Left.size() == Right.size()
              && std::equal(Left.begin(), Left.end(), Right.begin(),
             [](char a, char b) {

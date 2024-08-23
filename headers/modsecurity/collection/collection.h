@@ -45,25 +45,25 @@ class Collection {
     explicit Collection(std::string_view a) : m_name(a) { }
     virtual ~Collection() { }
 
-    virtual bool storeOrUpdateFirst(const std::string& key,
+    virtual bool storeOrUpdateFirst(std::string_view key,
         std::string_view value) = 0;
 
-    virtual bool updateFirst(const std::string& key,
+    virtual bool updateFirst(std::string_view key,
         std::string_view value) = 0;
 
-    virtual void del(const std::string& key) = 0;
+    virtual void del(std::string_view key) = 0;
 
-    virtual void setExpiry(const std::string& key, int32_t expiry_seconds) = 0;
+    virtual void setExpiry(std::string_view key, int32_t expiry_seconds) = 0;
 
     virtual std::unique_ptr<std::string> resolveFirst(
-        const std::string& var) = 0;
+        std::string_view var) = 0;
 
-    virtual void resolveSingleMatch(const std::string& var,
+    virtual void resolveSingleMatch(std::string_view var,
         std::vector<const VariableValue *> &l) = 0;
-    virtual void resolveMultiMatches(const std::string& var,
+    virtual void resolveMultiMatches(std::string_view var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
-    virtual void resolveRegularExpression(const std::string& var,
+    virtual void resolveRegularExpression(std::string_view var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) = 0;
 

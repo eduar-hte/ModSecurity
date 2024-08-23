@@ -47,7 +47,10 @@ class KeyExclusions;
 
 
 struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
+    using is_transparent = void;
+
+    template<typename T, typename U>
+    bool operator()(const T& Left, const U& Right) const {
         return Left.size() == Right.size()
              && std::equal(Left.begin(), Left.end(), Right.begin(),
             [](char a, char b) {
@@ -57,7 +60,10 @@ struct MyEqual {
 };
 
 struct MyHash{
-    size_t operator()(const std::string& Keyval) const {
+    using is_transparent = void;
+
+    template<typename T>
+    size_t operator()(const T& Keyval) const {
         // You might need a better hash function than this
         size_t h = 0;
         std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
@@ -88,7 +94,7 @@ class AnchoredSetVariable : public std::unordered_multimap<std::string,
     void resolve(std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke);
 
-    void resolve(const std::string &key,
+    void resolve(std::string_view key,
         std::vector<const VariableValue *> &l);
 
     void resolveRegularExpression(Utils::Regex *r,
@@ -98,7 +104,7 @@ class AnchoredSetVariable : public std::unordered_multimap<std::string,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke);
 
-    std::unique_ptr<std::string> resolveFirst(const std::string &key);
+    std::unique_ptr<std::string> resolveFirst(std::string_view key);
 
     Transaction *m_transaction;
     std::string m_name;
