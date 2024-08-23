@@ -63,13 +63,6 @@ class RuleWithActions : public Rule {
         bool containsDisruptive,
         RuleMessage &ruleMessage);
 
-    void executeAction(Transaction *trans,
-        bool containsBlock,
-        RuleMessage &ruleMessage,
-        actions::Action *a,
-        bool context);
-
-
     void executeTransformations(
         const Transaction *trasn, const std::string &value, TransformationResults &ret) const;
 
@@ -86,15 +79,15 @@ class RuleWithActions : public Rule {
     inline bool isChained() const { return m_isChained == true; }
     inline bool hasCaptureAction() const { return m_containsCaptureAction == true; }
     inline void setChained(bool b) { m_isChained = b; }
-    inline bool hasDisruptiveAction() const { return m_disruptiveAction != NULL; }
+    inline bool hasDisruptiveAction() const { return m_disruptiveAction != nullptr; }
     inline bool hasBlockAction() const { return m_containsStaticBlockAction == true; }
     inline bool hasMultimatch() const { return m_containsMultiMatchAction == true; }
 
-    inline bool hasLogData() const { return m_logData != NULL; }
+    inline bool hasLogData() const { return m_logData != nullptr; }
     std::string logData(Transaction *t);
-    inline bool hasMsg() const { return m_msg != NULL; }
+    inline bool hasMsg() const { return m_msg != nullptr; }
     std::string msg(Transaction *t);
-    inline bool hasSeverity() const { return m_severity != NULL; }
+    inline bool hasSeverity() const { return m_severity != nullptr; }
     int severity() const;
 
     std::string m_rev;
@@ -109,13 +102,19 @@ class RuleWithActions : public Rule {
     RuleWithActions *m_chainedRuleParent;
 
  private:
-    inline void executeTransformation(
+    void executeTransformation(
         const actions::transformations::Transformation &a,
         std::string &value,
         const Transaction *trans,
         TransformationResults &ret,
         std::string &path,
         int &nth) const;
+
+    void executeAction(Transaction *trans,
+        bool containsBlock,
+        RuleMessage &ruleMessage,
+        actions::Action &a,
+        bool context);
 
     /* actions */
     actions::Action *m_disruptiveAction;

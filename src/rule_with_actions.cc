@@ -209,19 +209,18 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
         a->evaluate(*this, trans);
     }
 
-    for (auto &b :
+    for (auto &[ruleId, action] :
         trans->m_rules->m_exceptions.m_action_pre_update_target_by_id) {
-        if (m_ruleId != b.first) {
+        if (m_ruleId != ruleId) {
             continue;
         }
-        actions::Action *a = b.second.get();
-        if (a->isDisruptive() == true && *a->m_name.get() == "block") {
+        if (action->isDisruptive() == true && *action->m_name.get() == "block") {
             ms_dbg_a(trans, 9, "Rule contains a `block' action");
                 *containsBlock = true;
-        } else if (*a->m_name.get() == "setvar") {
+        } else if (*action->m_name.get() == "setvar") {
             ms_dbg_a(trans, 4, "Running [independent] (non-disruptive) " \
-                "action: " + *a->m_name.get());
-            a->evaluate(*this, trans, ruleMessage);
+                "action: " + *action->m_name.get());
+            action->evaluate(*this, trans, ruleMessage);
         }
     }
 
@@ -235,11 +234,10 @@ void RuleWithActions::executeActionsIndependentOfChainedRuleResult(Transaction *
         if (m_msg) {
             m_msg->evaluate(*this, trans, ruleMessage);
         }
-        for (actions::Tag *a : m_actionsTag) {
-            a->evaluate(*this, trans, ruleMessage);
+        for (auto tag : m_actionsTag) {
+            tag->evaluate(*this, trans, ruleMessage);
         }
     }
-
 }
 
 
@@ -248,27 +246,26 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
     bool disruptiveAlreadyExecuted = false;
 
     for (const auto &a : trans->m_rules->m_defaultActions[getPhase()]) { // cppcheck-suppress ctunullpointer
-        if (a.get()->action_kind != actions::Action::Kind::RunTimeOnlyIfMatchKind) {
+        if (a->action_kind != actions::Action::Kind::RunTimeOnlyIfMatchKind) {
             continue;
         }
-        if (!a.get()->isDisruptive()) {
-            executeAction(trans, containsBlock, ruleMessage, a.get(), true);
+        if (!a->isDisruptive()) {
+            executeAction(trans, containsBlock, ruleMessage, *a, true);
         }
     }
 
-    for (actions::Tag *a : this->m_actionsTag) {
+    for (auto tag : this->m_actionsTag) {
         ms_dbg_a(trans, 4, "Running (non-disruptive) action: " \
-            + *a->m_name.get());
-        a->evaluate(*this, trans, ruleMessage);
+            + *tag->m_name.get());
+        tag->evaluate(*this, trans, ruleMessage);
     }
 
-    for (auto &b :
+    for (auto &[ruleId, action] :
         trans->m_rules->m_exceptions.m_action_pos_update_target_by_id) {
-        if (m_ruleId != b.first) {
+        if (m_ruleId != ruleId) {
             continue;
         }
-        actions::Action *a = b.second.get();
-        executeAction(trans, containsBlock, ruleMessage, a, false);
+        executeAction(trans, containsBlock, ruleMessage, *action, false);
         disruptiveAlreadyExecuted = true;
     }
     if (m_severity) {
@@ -282,45 +279,45 @@ void RuleWithActions::executeActionsAfterFullMatch(Transaction *trans,
     if (m_msg) {
         m_msg->evaluate(*this, trans, ruleMessage);
     }
-    for (Action *a : this->m_actionsRuntimePos) {
+    for (auto a : this->m_actionsRuntimePos) {
         if (!a->isDisruptive()
                 && !(disruptiveAlreadyExecuted
                 && dynamic_cast<actions::Block *>(a))) {
-            executeAction(trans, containsBlock, ruleMessage, a, false);
+            executeAction(trans, containsBlock, ruleMessage, *a, false);
         }
     }
     if (!disruptiveAlreadyExecuted && m_disruptiveAction != nullptr) {
         executeAction(trans, containsBlock, ruleMessage,
-            m_disruptiveAction, false);
+            *m_disruptiveAction, false);
     }
 }
 
 
 void RuleWithActions::executeAction(Transaction *trans,
     bool containsBlock, RuleMessage &ruleMessage,
-    Action *a, bool defaultContext) {
-    if (a->isDisruptive() == false && *a->m_name.get() != "block") {
+    Action &a, bool defaultContext) {
+    if (a.isDisruptive() == false && *a.m_name.get() != "block") {
         ms_dbg_a(trans, 9, "Running " \
-            "action: " + *a->m_name.get());
-        a->evaluate(*this, trans, ruleMessage);
+            "action: " + *a.m_name.get());
+        a.evaluate(*this, trans, ruleMessage);
         return;
     }
 
     if (defaultContext && !containsBlock) {
-        ms_dbg_a(trans, 4, "Ignoring action: " + *a->m_name.get() + \
+        ms_dbg_a(trans, 4, "Ignoring action: " + *a.m_name.get() + \
             " (rule does not cotains block)");
         return;
     }
 
     if (trans->getRuleEngineState() == RulesSet::EnabledRuleEngine) {
-        ms_dbg_a(trans, 4, "Running (disruptive)     action: " + *a->m_name.get() + \
+        ms_dbg_a(trans, 4, "Running (disruptive)     action: " + *a.m_name.get() + \
             ".");
-        a->evaluate(*this, trans, ruleMessage);
+        a.evaluate(*this, trans, ruleMessage);
         return;
     }
 
     ms_dbg_a(trans, 4, "Not running any disruptive action (or block): " \
-        + *a->m_name.get() + ". SecRuleEngine is not On.");
+        + *a.m_name.get() + ". SecRuleEngine is not On.");
 }
 
 
@@ -459,34 +456,32 @@ bool RuleWithActions::containsMsg(const std::string& name, Transaction *t) {
 std::vector<actions::Action *> RuleWithActions::getActionsByName(const std::string& name,
     const Transaction *trans) {
     std::vector<actions::Action *> ret;
-    for (auto &z : m_actionsRuntimePos) {
+    for (auto z : m_actionsRuntimePos) {
         if (*z->m_name.get() == name) {
             ret.push_back(z);
         }
     }
-    for (auto &z : m_transformations) {
+    for (auto z : m_transformations) {
         if (*z->m_name.get() == name) {
             ret.push_back(z);
         }
     }
-    for (auto &b :
+    for (auto &[ruleId, action] :
         trans->m_rules->m_exceptions.m_action_pre_update_target_by_id) {
-        if (m_ruleId != b.first) {
+        if (m_ruleId != ruleId) {
             continue;
         }
-        actions::Action *z = b.second.get();
-        if (*z->m_name.get() == name) {
-            ret.push_back(z);
+        if (*action->m_name.get() == name) {
+            ret.push_back(action.get());
         }
     }
-    for (auto &b :
+    for (auto &[ruleId, action] :
         trans->m_rules->m_exceptions.m_action_pos_update_target_by_id) {
-        if (m_ruleId != b.first) {
+        if (m_ruleId != ruleId) {
             continue;
         }
-        actions::Action *z = b.second.get();
-        if (*z->m_name.get() == name) {
-            ret.push_back(z);
+        if (*action->m_name.get() == name) {
+            ret.push_back(action.get());
         }
     }
     return ret;
