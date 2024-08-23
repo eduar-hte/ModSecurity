@@ -14,7 +14,9 @@
  */
 
 
-#ifdef __cplusplus
+#ifndef SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
+#define SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
+
 #include <string>
 #include <iostream>
 #include <unordered_map>
@@ -24,21 +26,13 @@
 #include <algorithm>
 #include <memory>
 #include <shared_mutex>
-#endif
-
 
 #include "modsecurity/variable_value.h"
 #include "modsecurity/collection/collection.h"
 #include "src/collection/backend/collection_data.h"
 #include "src/variables/variable.h"
 
-#ifndef SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
-#define SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_
-
-#ifdef __cplusplus
-namespace modsecurity {
-namespace collection {
-namespace backend {
+namespace modsecurity::collection::backend {
 
 /*
  * FIXME:
@@ -50,7 +44,10 @@ namespace backend {
  *
  */
 struct MyEqual {
-    bool operator()(const std::string& Left, const std::string& Right) const {
+    using is_transparent = void;
+
+    template<typename T, typename U>
+    bool operator()(const T& Left, const U& Right) const {
         return Left.size() == Right.size()
              && std::equal(Left.begin(), Left.end(), Right.begin(),
             [](char a, char b) {
@@ -60,7 +57,10 @@ struct MyEqual {
 };
 
 struct MyHash{
-    size_t operator()(const std::string& Keyval) const {
+    using is_transparent = void;
+
+    template<typename T>
+    size_t operator()(const T& Keyval) const {
         // You might need a better hash function than this
         size_t h = 0;
         std::for_each(Keyval.begin(), Keyval.end(), [&](char c) {
@@ -75,28 +75,28 @@ class InMemoryPerProcess :
  public:
     explicit InMemoryPerProcess(std::string_view name);
     ~InMemoryPerProcess() override;
-    void store(const std::string& key, std::string_view value);
+    void store(std::string_view key, std::string_view value);
 
-    bool storeOrUpdateFirst(const std::string& key,
+    bool storeOrUpdateFirst(std::string_view key,
         std::string_view value) override;
 
-    bool updateFirst(const std::string& key,
+    bool updateFirst(std::string_view key,
         std::string_view value) override;
 
-    void del(const std::string& key) override;
+    void del(std::string_view key) override;
 
-    void delIfExpired(const std::string& key);
+    void delIfExpired(std::string_view key);
 
-    void setExpiry(const std::string& key, int32_t expiry_seconds) override;
+    void setExpiry(std::string_view key, int32_t expiry_seconds) override;
 
-    std::unique_ptr<std::string> resolveFirst(const std::string& var) override;
+    std::unique_ptr<std::string> resolveFirst(std::string_view var) override;
 
-    void resolveSingleMatch(const std::string& var,
+    void resolveSingleMatch(std::string_view var,
         std::vector<const VariableValue *> &l) override;
-    void resolveMultiMatches(const std::string& var,
+    void resolveMultiMatches(std::string_view var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
-    void resolveRegularExpression(const std::string& var,
+    void resolveRegularExpression(std::string_view var,
         std::vector<const VariableValue *> &l,
         variables::KeyExclusions &ke) override;
 
@@ -117,10 +117,7 @@ class InMemoryPerProcess :
     std::shared_mutex m_mutex;
 };
 
-}  // namespace backend
-}  // namespace collection
-}  // namespace modsecurity
-#endif
+}  // namespace modsecurity::collection::backend
 
 
 #endif  // SRC_COLLECTION_BACKEND_IN_MEMORY_PER_PROCESS_H_

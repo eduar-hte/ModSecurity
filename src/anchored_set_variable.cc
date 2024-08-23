@@ -89,8 +89,9 @@ void AnchoredSetVariable::resolve(
 }
 
 
-void AnchoredSetVariable::resolve(const std::string &key,
+void AnchoredSetVariable::resolve(std::string_view key,
     std::vector<const VariableValue *> &l) {
+
     auto range = this->equal_range(key);
     for (auto it = range.first; it != range.second; ++it) {
         l.push_back(new VariableValue(*it->second));
@@ -99,7 +100,7 @@ void AnchoredSetVariable::resolve(const std::string &key,
 
 
 std::unique_ptr<std::string> AnchoredSetVariable::resolveFirst(
-    const std::string &key) {
+    std::string_view key) {
 
     if (auto search = this->find(key); search != this->end()) {
         return std::make_unique<std::string>(search->second->getValue());

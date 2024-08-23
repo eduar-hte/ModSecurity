@@ -183,9 +183,7 @@ class VariableMonkeyResolution {
             collection_delimiter_offset = variable.find(":");
         }
         std::string_view col; // collection name excluding individual variable specification
-        // NOTE: cannot use std::string_view here because resolve
-        // needs to receive a std::string to call find
-        std::string var; // variable within the collection
+        std::string_view var; // variable within the collection
         if (collection_delimiter_offset == std::string::npos) {
             col = variable;
         } else {
@@ -509,9 +507,7 @@ class VariableMonkeyResolution {
             }
         } else {
             const auto col = variable.substr(0, collection);
-            // NOTE: cannot use std::string_view here because resolveFirst
-            // needs to receive a std::string to call find
-            const std::string var(variable.substr(collection + 1));
+            const auto var = variable.substr(collection + 1);
             if (comp(col, "ARGS")) {
                 vv = t->m_variableArgs.resolveFirst(var);
             } else if (comp(variable, "ARGS_NAMES")) {
