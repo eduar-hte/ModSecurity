@@ -100,10 +100,8 @@ class n : public Variable { \
 };
 
 
-namespace modsecurity {
+namespace modsecurity::variables {
 
-class Transaction;
-namespace variables {
 
 class KeyExclusion {
  public:
@@ -118,7 +116,7 @@ class KeyExclusionRegex : public KeyExclusion {
  public:
     explicit KeyExclusionRegex(const Utils::Regex &re)
         : m_re(re.pattern, true) { }
-    explicit KeyExclusionRegex(const std::string &re)
+    explicit KeyExclusionRegex(std::string_view re)
         : m_re(re, true) { }
 
     ~KeyExclusionRegex() override { }
@@ -133,8 +131,8 @@ class KeyExclusionRegex : public KeyExclusion {
 
 class KeyExclusionString : public KeyExclusion {
  public:
-    explicit KeyExclusionString(const std::string &a)
-        : m_key(utils::string::toupper(a)) { }
+    explicit KeyExclusionString(std::string_view a)
+        : m_key(utils::string::toupper(std::string(a))) { }
 
     ~KeyExclusionString() override { }
 
@@ -169,7 +167,7 @@ class KeyExclusions : public std::deque<std::unique_ptr<KeyExclusion>> {
 class VariableMonkeyResolution {
  public:
     VariableMonkeyResolution () { }
-    static inline bool comp(const std::string &a, const std::string &b) {
+    static inline bool comp(std::string_view a, std::string_view b) {
         return a.size() == b.size()
              && std::equal(a.begin(), a.end(), b.begin(),
             [](char aa, char bb) {
@@ -178,24 +176,25 @@ class VariableMonkeyResolution {
     }
 
     static void stringMatchResolveMulti(Transaction *t,
-        const std::string &variable,
+        std::string_view variable,
         std::vector<const VariableValue *> &l) {
-        size_t collection_delimiter_offset = variable.find(".");
+        auto collection_delimiter_offset = variable.find(".");
         if (collection_delimiter_offset == std::string::npos) {
             collection_delimiter_offset = variable.find(":");
         }
-        std::string col; // collection name excluding individual variable specification
+        std::string_view col; // collection name excluding individual variable specification
+        // NOTE: cannot use std::string_view here because resolve
+        // needs to receive a std::string to call find
         std::string var; // variable within the collection
         if (collection_delimiter_offset == std::string::npos) {
             col = variable;
         } else {
-            col = std::string(variable, 0, collection_delimiter_offset);
-            var = std::string(variable, collection_delimiter_offset + 1,
-                variable.length() - (collection_delimiter_offset + 1));
-	}
+            col = variable.substr(0, collection_delimiter_offset);
+            var = variable.substr(collection_delimiter_offset + 1);
+    	}
 
         // First check if the request is for a collection of type AnchoredSetVariable
-        AnchoredSetVariable* anchoredSetVariable = NULL;
+        AnchoredSetVariable* anchoredSetVariable = nullptr;
         if (comp(col, "ARGS")) {
             anchoredSetVariable = &t->m_variableArgs;
         } else if (comp(col, "ARGS_GET")) {
@@ -237,7 +236,7 @@ class VariableMonkeyResolution {
         } else if (comp(col, "FILES_TMPNAMES")) {
             anchoredSetVariable = &t->m_variableFilesTmpNames;
         }
-        if (anchoredSetVariable != NULL) {
+        if (anchoredSetVariable != nullptr) {
             if (collection_delimiter_offset == std::string::npos) {
                 anchoredSetVariable->resolve(l);
             } else {
@@ -247,7 +246,7 @@ class VariableMonkeyResolution {
         }
 
         // Next check for collection of type AnchoredSetVariableTranslationProxy
-        AnchoredSetVariableTranslationProxy* anchoredSetVariableTranslationProxy = NULL;
+        AnchoredSetVariableTranslationProxy* anchoredSetVariableTranslationProxy = nullptr;
         if (comp(col, "ARGS_NAMES")) {
             anchoredSetVariableTranslationProxy = &t->m_variableArgsNames;
         } else if (comp(col, "ARGS_GET_NAMES")) {
@@ -255,7 +254,7 @@ class VariableMonkeyResolution {
         } else if (comp(col, "ARGS_POST_NAMES")) {
             anchoredSetVariableTranslationProxy = &t->m_variableArgsPostNames;
         }
-        if (anchoredSetVariableTranslationProxy != NULL) {
+        if (anchoredSetVariableTranslationProxy != nullptr) {
             if (collection_delimiter_offset == std::string::npos) {
                 anchoredSetVariableTranslationProxy->resolve(l);
             } else {
@@ -379,9 +378,9 @@ class VariableMonkeyResolution {
     }
 
     static std::string stringMatchResolve(Transaction *t,
-        const std::string &variable) {
+        std::string_view variable) {
         std::unique_ptr<std::string> vv;
-        size_t collection = variable.find(".");
+        auto collection = variable.find(".");
         if (collection == std::string::npos) {
             collection = variable.find(":");
         }
@@ -509,9 +508,10 @@ class VariableMonkeyResolution {
                 throw std::invalid_argument("Variable not found.");
             }
         } else {
-            std::string col = std::string(variable, 0, collection);
-            std::string var = std::string(variable, collection + 1,
-                variable.length() - (collection + 1));
+            const auto col = variable.substr(0, collection);
+            // NOTE: cannot use std::string_view here because resolveFirst
+            // needs to receive a std::string to call find
+            const std::string var(variable.substr(collection + 1));
             if (comp(col, "ARGS")) {
                 vv = t->m_variableArgs.resolveFirst(var);
             } else if (comp(variable, "ARGS_NAMES")) {
@@ -580,9 +580,9 @@ class VariableMonkeyResolution {
             }
         }
         if (vv == nullptr) {
-            return std::string("");
+            return {};
         }
-        return std::string(*vv.get());
+        return *vv.get();
     }
 };
 
@@ -722,7 +722,6 @@ std::string operator+(const std::string &a, const modsecurity::variables::Variab
 std::string operator+(const std::string &a, const modsecurity::variables::Variables *v);
 
 
-}  // namespace variables
-}  // namespace modsecurity
+}  // namespace modsecurity::variables
 
 #endif  // SRC_VARIABLES_VARIABLE_H_

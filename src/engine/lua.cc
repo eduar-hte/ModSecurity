@@ -266,7 +266,7 @@ int Lua::getvar(lua_State *L) {
     z = const_cast<void *>(lua_topointer(L, -1));
     t = reinterpret_cast<Transaction *>(z);
 
-    std::string var = variables::Variable::stringMatchResolve(t, varname);
+    auto var = variables::Variable::stringMatchResolve(t, varname);
     applyTransformations(L, t, 2, var);
 
     if (var.size() == 0) {

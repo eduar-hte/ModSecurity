@@ -57,8 +57,8 @@ class Pcre2MatchContextPtr {
 };
 #endif
 
-namespace modsecurity {
-namespace Utils {
+namespace modsecurity::Utils {
+
 
 // Helper function to tell us if the current config indicates CRLF is a valid newline sequence
 bool crlfIsNewline() {
@@ -87,7 +87,7 @@ bool crlfIsNewline() {
     return crlf_is_newline;
 }
 
-Regex::Regex(const std::string& pattern_, bool ignoreCase)
+Regex::Regex(std::string_view pattern_, bool ignoreCase)
     : pattern(pattern_.empty() ? ".*" : pattern_) {
 #if WITH_PCRE2
     PCRE2_SPTR pcre2_pattern = reinterpret_cast<PCRE2_SPTR>(pattern.c_str());
@@ -427,5 +427,5 @@ RegexResult Regex::to_regex_result(int pcre_exec_result) const {
     }
 }
 
-}  // namespace Utils
-}  // namespace modsecurity
+
+}  // namespace modsecurity::Utils
