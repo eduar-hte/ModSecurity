@@ -80,19 +80,18 @@ bool VerifySVNR::verify(const char *svnrnumber, int len) const {
 
 bool VerifySVNR::evaluate(Transaction *t, RuleWithActions *rule,
     const std::string& input, RuleMessage &ruleMessage) {
-    std::list<SMatch> matches;
     bool is_svnr = false;
     int i;
 
     if (m_param.empty()) {
-        return is_svnr; // cppcheck-suppress knownConditionTrueFalse
+        return false;
     }
 
     for (i = 0; i < input.size() - 1 && is_svnr == false; i++) {
-        matches = m_re->searchAll(input.substr(i, input.size()));
-
+        const auto iv = std::string_view(input).substr(i, input.size());
+        const auto matches = m_re->searchAll(iv);
         for (const auto & j : matches) {
-            is_svnr = verify(j.str().c_str(), j.str().size());
+            is_svnr = verify(j.str().data(), j.str().size());
             if (is_svnr) {
                 logOffset(ruleMessage, j.offset(), j.str().size());
                 if (rule && t && rule->hasCaptureAction()) {
