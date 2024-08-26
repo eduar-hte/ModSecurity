@@ -46,15 +46,15 @@ class SMatch {
 	m_match(),
 	m_offset(0) { }
 
-    SMatch(const std::string &match, size_t offset) :
+    SMatch(std::string_view match, size_t offset) :
 	m_match(match),
 	m_offset(offset) { }
 
-    const std::string& str() const { return m_match; }
+    std::string_view str() const { return m_match; }
     size_t offset() const { return m_offset; }
 
  private:
-    std::string m_match;
+    std::string_view m_match;
     size_t m_offset;
 };
 
@@ -81,10 +81,10 @@ class Regex {
     bool hasError() const {
         return (m_pc == NULL);
     }
-    std::list<SMatch> searchAll(std::string_view s) const;
+    std::vector<SMatch> searchAll(std::string_view s) const;
     RegexResult searchOneMatch(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
     RegexResult searchGlobal(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit = 0) const;
-    int search(std::string_view s, SMatch *match) const;
+    int search(std::string_view s, SMatch &match) const;
     int search(std::string_view s) const;
 
     const std::string pattern;
@@ -101,7 +101,7 @@ class Regex {
 };
 
 
-static inline int regex_search(const std::string& s, SMatch *match, const Regex& regex) {
+static inline int regex_search(const std::string& s, SMatch &match, const Regex& regex) {
     return regex.search(s, match);
 }
 

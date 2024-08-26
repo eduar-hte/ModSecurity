@@ -32,6 +32,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <charconv>
 
 #include "modsecurity/rule.h"
 #include "modsecurity/rule_message.h"
@@ -211,6 +212,11 @@ void ModSecurity::serverLog(void *data, const RuleMessage &rm) {
     }
 }
 
+static inline int svtoi(std::string_view s) {
+    int value;
+    std::from_chars(s.data(), s.data() + s.size(), value);
+    return value;
+}
 
 int ModSecurity::processContentOffset(const char *content, size_t len,
     const char *matchString, std::string *json, const char **err) {
@@ -223,9 +229,9 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
     const unsigned char *buf;
     size_t jsonSize;
 
-    std::list<Utils::SMatch> vars = variables.searchAll(matchString);
-    std::list<Utils::SMatch> ops = operators.searchAll(matchString);
-    std::list<Utils::SMatch> trans = transformations.searchAll(matchString);
+    const auto vars = variables.searchAll(matchString);
+    const auto ops = operators.searchAll(matchString);
+    const auto trans = transformations.searchAll(matchString);
 
     g = yajl_gen_alloc(NULL);
     if (g == NULL) {
@@ -253,27 +259,27 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
     for(auto [it, pending] = std::tuple{vars.rbegin(), vars.size()}; pending > 3; pending -= 3) {
         yajl_gen_map_open(g);
         it++;
-        const std::string &startingAt = it->str(); it++;
-        const std::string &size = it->str(); it++;
+        const auto startingAt = it->str(); it++;
+        const auto size = it->str(); it++;
         yajl_gen_string(g,
             reinterpret_cast<const unsigned char*>("startingAt"),
             strlen("startingAt"));
         yajl_gen_string(g,
-            reinterpret_cast<const unsigned char*>(startingAt.c_str()),
+            reinterpret_cast<const unsigned char*>(startingAt.data()),
             startingAt.size());
         yajl_gen_string(g, reinterpret_cast<const unsigned char*>("size"),
             strlen("size"));
         yajl_gen_string(g,
-            reinterpret_cast<const unsigned char*>(size.c_str()),
+            reinterpret_cast<const unsigned char*>(size.data()),
             size.size());
         yajl_gen_map_close(g);
 
-        if (stoi(startingAt) >= len) {
+        if (svtoi(startingAt) >= len) {
             *err = "Offset is out of the content limits.";
             return -1;
         }
 
-        const auto value = std::string(content, stoi(startingAt), stoi(size));
+        const auto value = std::string(content, svtoi(startingAt), svtoi(size));
         if (varValue.size() > 0) {
             varValue.append(" " + value);
         } else {
@@ -294,21 +300,20 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
             varValue.size());
     yajl_gen_map_close(g);
 
-    while (!trans.empty()) {
-        modsecurity::actions::transformations::Transformation *t;
+    for (const auto &match : trans) {
         yajl_gen_map_open(g);
         yajl_gen_string(g,
             reinterpret_cast<const unsigned char*>("transformation"),
             strlen("transformation"));
 
         yajl_gen_string(g,
-            reinterpret_cast<const unsigned char*>(trans.back().str().c_str()),
-            trans.back().str().size());
+            reinterpret_cast<const unsigned char*>(match.str().data()),
+            match.str().size());
 
-        t = modsecurity::actions::transformations::Transformation::instantiate(
-            trans.back().str().c_str());
+        auto t = std::unique_ptr<Transformation>(
+            modsecurity::actions::transformations::Transformation::instantiate(
+                std::string(match.str().data(), match.str().size())));
         t->transform(varValue, nullptr);
-        trans.pop_back();
 
         yajl_gen_string(g, reinterpret_cast<const unsigned char*>("value"),
             strlen("value"));
@@ -316,8 +321,6 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
             varValue.c_str()),
             varValue.size());
         yajl_gen_map_close(g);
-
-        delete t;
     }
 
     yajl_gen_array_close(g);
@@ -332,22 +335,22 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
             strlen("highlight"));
         yajl_gen_map_open(g);
         it++;
-        const std::string &startingAt = it->str(); it++;
-        const std::string &size = ops.back().str(); it++;
+        const auto startingAt = it->str(); it++;
+        const auto size = ops.back().str(); it++;
         yajl_gen_string(g,
             reinterpret_cast<const unsigned char*>("startingAt"),
             strlen("startingAt"));
         yajl_gen_string(g,
-            reinterpret_cast<const unsigned char*>(startingAt.c_str()),
+            reinterpret_cast<const unsigned char*>(startingAt.data()),
             startingAt.size());
         yajl_gen_string(g, reinterpret_cast<const unsigned char*>("size"),
             strlen("size"));
         yajl_gen_string(g,
-            reinterpret_cast<const unsigned char*>(size.c_str()),
+            reinterpret_cast<const unsigned char*>(size.data()),
             size.size());
         yajl_gen_map_close(g);
 
-        if (stoi(startingAt) >= varValue.size()) {
+        if (svtoi(startingAt) >= varValue.size()) {
             *err = "Offset is out of the variable limits.";
             return -1;
         }
@@ -355,7 +358,7 @@ int ModSecurity::processContentOffset(const char *content, size_t len,
             reinterpret_cast<const unsigned char*>("value"),
             strlen("value"));
 
-        const auto value = std::string(varValue, stoi(startingAt), stoi(size));
+        const auto value = std::string(varValue, svtoi(startingAt), svtoi(size));
 
         yajl_gen_string(g,
             reinterpret_cast<const unsigned char*>(value.c_str()),

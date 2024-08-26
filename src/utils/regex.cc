@@ -136,8 +136,8 @@ Regex::~Regex() {
 }
 
 
-std::list<SMatch> Regex::searchAll(std::string_view s) const {
-    std::list<SMatch> retList;
+std::vector<SMatch> Regex::searchAll(std::string_view s) const {
+    std::vector<SMatch> ret;
     int rc = 0;
 #ifdef WITH_PCRE2
     PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
@@ -172,9 +172,9 @@ std::list<SMatch> Regex::searchAll(std::string_view s) const {
                 rc = -1;
                 break;
             }
-            std::string match = std::string(s, start, len);
+            const auto match = s.substr(start, len);
             offset = start + len;
-            retList.push_front(SMatch(match, start));
+            ret.push_back(SMatch(match, start));
 
             if (len == 0) {
                 rc = 0;
@@ -186,7 +186,7 @@ std::list<SMatch> Regex::searchAll(std::string_view s) const {
 #ifdef WITH_PCRE2
     pcre2_match_data_free(match_data);
 #endif
-    return retList;
+    return ret;
 }
 
 RegexResult Regex::searchOneMatch(std::string_view s, std::vector<SMatchCapture>& captures, unsigned long match_limit) const {
@@ -343,7 +343,7 @@ RegexResult Regex::searchGlobal(std::string_view s, std::vector<SMatchCapture>& 
     return RegexResult::Ok;
 }
 
-int Regex::search(std::string_view s, SMatch *match) const {
+int Regex::search(std::string_view s, SMatch &match) const {
 #ifdef WITH_PCRE2
     PCRE2_SPTR pcre2_s = reinterpret_cast<PCRE2_SPTR>(s.data());
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(m_pc, NULL);
@@ -358,7 +358,7 @@ int Regex::search(std::string_view s, SMatch *match) const {
             0, PCRE2_NO_JIT, match_data, NULL) > 0;
     }
     if (ret > 0) { // match
-        PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
+        const PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 #else
     int ovector[OVECCOUNT];
     int ret = pcre_exec(m_pc, m_pce, s.data(),
@@ -366,8 +366,8 @@ int Regex::search(std::string_view s, SMatch *match) const {
 
     if (ret > 0) {
 #endif
-        *match = SMatch(
-            std::string(s, ovector[ret-1], ovector[ret] - ovector[ret-1]),
+        match = SMatch(
+            s.substr(ovector[ret-1], ovector[ret] - ovector[ret-1]),
             0);
     }
 

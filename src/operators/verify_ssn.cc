@@ -18,6 +18,7 @@
 #include <string>
 #include <memory>
 #include <list>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -112,7 +113,6 @@ invalid:
 
 bool VerifySSN::evaluate(Transaction *t, RuleWithActions *rule,
     const std::string& input, RuleMessage &ruleMessage) {
-    std::list<SMatch> matches;
     bool is_ssn = false;
     int i;
 
@@ -121,16 +121,17 @@ bool VerifySSN::evaluate(Transaction *t, RuleWithActions *rule,
     }
 
     for (i = 0; i < input.size() - 1 && is_ssn == false; i++) {
-        matches = m_re->searchAll(input.substr(i, input.size()));
+        const auto iv = std::string_view(input).substr(i, input.size());
+        const auto matches = m_re->searchAll(iv);
         for (const auto & j : matches) {
-            is_ssn = verify(j.str().c_str(), j.str().size());
+            is_ssn = verify(j.str().data(), j.str().size());
             if (is_ssn) {
                 logOffset(ruleMessage, j.offset(), j.str().size());
                 if (rule && t && rule->hasCaptureAction()) {
                     t->m_collections.m_tx_collection->storeOrUpdateFirst(
                         "0", j.str());
-                    ms_dbg_a(t, 7, "Added VerifySSN match TX.0: " + \
-                        j.str());
+                    ms_dbg_a(t, 7, fmt::format("Added VerifySSN match TX.0: {}",
+                        j.str()));
                 }
 
                 goto out;

@@ -17,6 +17,7 @@
 
 #include <string>
 #include <list>
+#include <fmt/format.h>
 
 #include "src/operators/operator.h"
 
@@ -110,7 +111,6 @@ bool VerifyCPF::verify(const char *cpfnumber, int len) const {
 
 bool VerifyCPF::evaluate(Transaction *t, RuleWithActions *rule,
     const std::string& input, RuleMessage &ruleMessage) {
-    std::list<SMatch> matches;
     bool is_cpf = false;
     int i;
 
@@ -119,16 +119,17 @@ bool VerifyCPF::evaluate(Transaction *t, RuleWithActions *rule,
     }
 
     for (i = 0; i < input.size() - 1 && is_cpf == false; i++) {
-        matches = m_re->searchAll(input.substr(i, input.size()));
+        const auto iv = std::string_view(input).substr(i, input.size());
+        const auto matches = m_re->searchAll(iv);
         for (const auto & m : matches) {
-            is_cpf = verify(m.str().c_str(), m.str().size());
+            is_cpf = verify(m.str().data(), m.str().size());
             if (is_cpf) {
                 logOffset(ruleMessage, m.offset(), m.str().size());
                 if (rule && t && rule->hasCaptureAction()) {
                     t->m_collections.m_tx_collection->storeOrUpdateFirst(
                         "0", m.str());
-                    ms_dbg_a(t, 7, "Added VerifyCPF match TX.0: " + \
-                        m.str());
+                    ms_dbg_a(t, 7, fmt::format("Added VerifyCPF match TX.0: {}",
+                        m.str()));
                 }
 
                 goto out;

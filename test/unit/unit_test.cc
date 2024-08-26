@@ -30,48 +30,37 @@
 namespace modsecurity_test {
 
 
-void replaceAll(std::string *s, const std::string &search,
+static inline void replaceAll(std::string &s, const std::string &search,
     const char replace) {
     for (size_t pos = 0; ; pos += 0) {
-        pos = s->find(search, pos);
+        pos = s.find(search, pos);
         if (pos == std::string::npos) {
             break;
         }
-        s->erase(pos, search.length());
-        s->insert(pos, &replace, 1);
+        s.erase(pos, search.length());
+        s.insert(pos, &replace, 1);
     }
 }
 
-
-void json2bin(std::string *str) {
-    modsecurity::Utils::Regex re("\\\\x([a-z0-9A-Z]{2})");
-    modsecurity::Utils::Regex re2("\\\\u([a-z0-9A-Z]{4})");
+static inline void jsonReplace(std::string &str, const modsecurity::Utils::Regex &re, const char *fmt) {
     modsecurity::Utils::SMatch match;
 
-    while (modsecurity::Utils::regex_search(*str, &match, re)) {
-        unsigned int p;
-        std::string toBeReplaced = match.str();
+    while (modsecurity::Utils::regex_search(str, match, re)) {
+        const auto search = std::string(match.str());
+        auto toBeReplaced = search;
         toBeReplaced.erase(0, 2);
-        sscanf(toBeReplaced.c_str(), "%3x", &p);
-        replaceAll(str, match.str(), p);
-    }
-
-    while (modsecurity::Utils::regex_search(*str, &match, re2)) {
         unsigned int p;
-        std::string toBeReplaced = match.str();
-        toBeReplaced.erase(0, 2);
-        sscanf(toBeReplaced.c_str(), "%4x", &p);
-        replaceAll(str, match.str(), p);
+        sscanf(toBeReplaced.c_str(), fmt, &p);
+        replaceAll(str, search, p);
     }
+}
 
-    /*
-    replaceAll(str, "\\0", '\0');
-    replaceAll(str, "\\b", '\b');
-    replaceAll(str, "\\t", '\t');
-    replaceAll(str, "\\n", '\n');
-    replaceAll(str, "\\r", '\r');
-    */
-//    replaceAll(str, "\\f", '\f');
+void json2bin(std::string &str) {
+    modsecurity::Utils::Regex re("\\\\x([a-z0-9A-Z]{2})");
+    jsonReplace(str, re, "%3x");
+
+    modsecurity::Utils::Regex re2("\\\\u([a-z0-9A-Z]{4})");
+    jsonReplace(str, re2, "%4x");
 }
 
 
@@ -118,7 +107,7 @@ UnitTest *UnitTest::from_yajl_node(const yajl_val &node) {
            u->param = YAJL_GET_STRING(val);
         } else if (strcmp(key, "input") == 0) {
            u->input = YAJL_GET_STRING(val);
-           json2bin(&u->input);
+           json2bin(u->input);
         } else if (strcmp(key, "resource") == 0) {
            u->resource = YAJL_GET_STRING(val);
         } else if (strcmp(key, "name") == 0) {
@@ -129,7 +118,7 @@ UnitTest *UnitTest::from_yajl_node(const yajl_val &node) {
            u->ret = YAJL_GET_INTEGER(val);
         } else if (strcmp(key, "output") == 0) {
            u->output = std::string(YAJL_GET_STRING(val));
-           json2bin(&u->output);
+           json2bin(u->output);
            /*
             * Converting \\u0000 to \0 due to the following gcc bug:
             * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53690
