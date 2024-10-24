@@ -341,7 +341,9 @@ void perform_unit_test(const ModSecurityTest<RegressionTest> &test,
                 std::to_string(t->http_code) +
                 " got: " + std::to_string(r.status) + "\n";
             testRes->passed = false;
-        } else if (!contains(context.m_server_log.str(), t->error_log)) {
+        } else if (auto errit = std::find_if(t->error_log.begin(), t->error_log.end(), 
+            [&context](const auto &x) { return !contains(context.m_server_log.str(), x); });
+            errit != t->error_log.end()) {
             if (test.m_automake_output) {
                 std::cout << ":test-result: FAIL " << filename \
                     << ":" << t->name << std::endl;
@@ -351,7 +353,7 @@ void perform_unit_test(const ModSecurityTest<RegressionTest> &test,
             testRes->reason << "Error log was not matching the " \
                 << "expected results." << std::endl;
             testRes->reason << KWHT << "Expecting: " << RESET \
-                << t->error_log + "";
+                << *errit + "";
             testRes->passed = false;
         } else if (!t->audit_log.empty() && !contains(getAuditLogContent(modsec_transaction.m_rules->m_auditLog->m_path1), t->audit_log)) {
             if (test.m_automake_output) {

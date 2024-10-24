@@ -14,7 +14,6 @@
     },
     "request":{
       "headers":{
-        "Host":"localhost",
         "Transfer-Encoding": "deflate"
       },
       "uri":"/match-this",
@@ -45,7 +44,6 @@
     },
     "request":{
       "headers":{
-        "Host":"localhost",
         "Transfer-Encoding": "deflate"
       },
       "uri":"/match-this",
@@ -76,7 +74,6 @@
     },
     "request":{
       "headers":{
-        "Host":"localhost",
         "Transfer-Encoding": "deflate"
       },
       "uri":"/match-this",
